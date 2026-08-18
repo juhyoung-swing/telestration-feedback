@@ -146,16 +146,44 @@ rally-highlight    잘한 랠리만 모은 숏폼      입력이 랠리 JSON —
   output/      산출물 (증거)
 ```
 
+## 실행 방법이 두 갈래다
+
+```
+강의 쪽 (video-* · lecture-*)     ace-project 루트에서 실행
+  python lecture-summary/src/student_pages.py
+
+경기 쪽 (rally-* · match-*)       cvwork 에서 실행
+  cd cvwork && python ../rally-cut/src/rally_scan_px.py match_f 300 60
+```
+
+`rally-*` · `match-*` 스크립트는 `input/` · `output/` · `models/` · `kp_*.json` 을
+**cwd 기준 상대경로**로 찾는다. 연구용으로 그렇게 쓰였고 고치지 않았다.
+대신 `cvwork/` 이 그 작업 디렉터리다.
+
+```
+cvwork/
+  input   → ../media/match   심볼릭 링크
+  models  → ../models        심볼릭 링크
+  *.pt                       bare 이름으로 찾는 가중치 링크
+  kp_match_*.json            코트 키포인트 (영상별 보정 데이터)
+  output/                    CV 작업 산출물 — 검출 캐시 · 오버레이 · 리포트
+```
+
+`runs/` 가 강의 쪽 작업 디렉터리라면 `cvwork/output/` 이 경기 쪽 대응물이다.
+
 ## 데이터는 루트에 모인다
 
 **코드는 기능별로 나뉘고 데이터는 한곳에 모인다.** 이게 모순이 아닌 이유는
 단계끼리 서로를 import 하지 않고 **파일로 대화**하기 때문이다.
 
 ```
-raw/        파이프라인 입력 클립 (c01_01~07)
-edited/     사람 편집본 참조 — 지시서 평가의 정답지
-runs/<id>/  단계별 실행 산출물. 여기가 단계 간 인터페이스다
-media/      그 밖의 원본 — 경기 영상 7개 · 숏폼 레슨 원본
+raw/          파이프라인 입력 클립 (c01_01~07)
+edited/       사람 편집본 참조 — 지시서 평가의 정답지
+runs/<id>/    강의 쪽 단계별 산출물. 단계 간 인터페이스
+media/match/  경기 영상 7개 + 코트 키포인트
+media/        숏폼 레슨 원본
+models/       가중치 — yolov8n/x · yolo5_last · keypoints_model
+cvwork/       경기 쪽 작업 디렉터리
 ```
 
 폴더 간 `import` 가 한 건도 없다. 폴더를 어떻게 나눠도 코드가 끊기지 않는 이유다.
@@ -190,3 +218,38 @@ runs/   단계 좌표계     s1_… · s2_… · s3_… · s4_… · s6_…
 ## 원본 영상
 
 `media/` 에 둔다. 기존 실험 폴더는 `_archive/` 참고.
+
+## 실행 확인 (2026-08-18)
+
+폴더를 나누고 데이터를 옮긴 뒤 전부 돌려봤다.
+
+```
+강의
+  video-directive   script_doc · edited_script · trim_script · eval_cuts · diff_human   ✓
+  video-edit        s3 tighten · s4 cut · s6 build_assets · s4 verify                   ✓
+  lecture-summary   student_pages · bundle_page · summary_html · unit_page · render     ✓
+
+경기
+  rally-cut         rally_scan_px       ✓  match_f 결과가 이동 전과 정확히 일치
+  rally-trajectory  render_overlay_v4   ✓
+  match-analysis    analyze · rally_map · make_review · make_kp_editor   ✓
+```
+
+### 이번에 고친 실제 버그 둘
+
+**1. `render.py` 가 8분 러닝에서 원래 안 됐다.**
+블록 128개마다 `if()` 를 겹쳐 라우드니스 식을 만드는데, ffmpeg 식 평가기가 터졌다.
+`runs/002/` 에만 `master.mp4` 가 없었던 이유다(v2·v3·v4 짧은 클립에는 있었다).
+게인이 같은 인접 구간을 합치도록 고쳤다 — 128개가 1개로 합쳐진다.
+
+**2. `runs/` 안 concat 파일 15개에 옛 절대경로가 박혀 있었다.**
+`overlay.txt` · `concat.txt` 는 ffmpeg concat 형식이라 절대경로를 그대로 쓴다.
+일괄 치환했다.
+
+### 안 돌린 것
+
+```
+s1 audio/transcribe.py     Whisper 재전사 — 기존 전사를 덮어쓰므로 안 돌렸다
+s1 visual/subject_track.py YOLO 7클립 재추론 — 같은 이유
+crosscheck.py              옛 런(001) 스키마용. transcript.json 을 찾는데 저장소에 없다
+```

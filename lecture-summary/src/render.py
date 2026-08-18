@@ -194,9 +194,23 @@ def main() -> None:
             gain_log.append({"block_id": b["block_id"], "file": b["file"],
                              "measured_lufs": round(lufs, 1), "target_lufs": tgt,
                              "gain_db": round(g, 1)})
-    vol = "0"
-    for a, z, g in reversed(gains):
-        vol = f"if(between(t,{a:.3f},{z:.3f}),{10**(g/20):.4f},{vol})"
+    # 인접 블록의 게인이 같으면 하나로 합친다. 8분 러닝에 블록이 130개인데
+    # 전부 따로 쓰면 if() 가 130겹으로 쌓여 ffmpeg 식 평가기가 터진다.
+    # 발화/무발화 두 목표값만 쓰므로 실제로 다른 값은 둘뿐이다.
+    merged = []
+    for a, z, g in gains:
+        if merged and abs(merged[-1][2] - g) < 1e-6 and abs(merged[-1][1] - a) < 0.35:
+            merged[-1] = (merged[-1][0], z, g)
+        else:
+            merged.append((a, z, g))
+    if len({round(g, 6) for _, _, g in merged}) == 1:
+        vol = f"{10 ** (merged[0][2] / 20):.4f}"          # 값이 하나면 식이 필요 없다
+    else:
+        vol = "0"
+        for a, z, g in reversed(merged):
+            vol = f"if(between(t,{a:.3f},{z:.3f}),{10**(g/20):.4f},{vol})"
+    print(f"  라우드니스 블록 {len(gains)}개 → 구간 {len(merged)}개 "
+          f"(다른 게인 {len({round(g,6) for _,_,g in merged})}종)", flush=True)
 
     # ── SFX ─────────────────────────────────────────────────────────────
     sfx, sfx_in = [], []

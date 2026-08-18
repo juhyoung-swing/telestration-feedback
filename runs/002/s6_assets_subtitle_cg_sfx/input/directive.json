@@ -2,7 +2,7 @@
  "schema_version": "1.3-draft",
  "meta": {
   "project_id": "forehand_3points_001",
-  "directive_variant": "D",
+  "directive_variant": "H-tight",
   "created_at": "2026-08-15T19:20:00+09:00",
   "reference": {
    "edited": "edited/lecture_forehand.webm",
@@ -77,7 +77,10 @@
    "resolution": "1920x1080"
   },
   "language": "ko",
-  "glossary_ref": "glossary.md"
+  "glossary_ref": "glossary.md",
+  "derived_from": "사람 편집본 전사와의 글자 정렬. 컷 판단은 우리가 하지 않았다",
+  "not_generalizable": "정답지가 있는 이 영상에서만 만들 수 있다. 새 영상에는 쓸 수 없다 — 목표지 방법이 아니다",
+  "anchor_note": "source_anchor 가 있으면 그쪽이 우선이다. 원본 타임코드라 컷이 바뀌어도 따라온다. 없는 항목은 원본에 대응이 없는 것(챕터 카드 등)이라 씬 앵커를 쓴다"
  },
  "subtitle_policy": {
   "speech": {
@@ -140,7 +143,37 @@
     {
      "file": "c01_01",
      "start": 0.0,
-     "end": 34.0
+     "end": 5.24
+    },
+    {
+     "file": "c01_01",
+     "start": 5.69,
+     "end": 8.56
+    },
+    {
+     "file": "c01_01",
+     "start": 8.9,
+     "end": 17.45
+    },
+    {
+     "file": "c01_01",
+     "start": 18.25,
+     "end": 19.33
+    },
+    {
+     "file": "c01_01",
+     "start": 22.46,
+     "end": 31.77
+    },
+    {
+     "file": "c01_01",
+     "start": 32.04,
+     "end": 32.9
+    },
+    {
+     "file": "c01_01",
+     "start": 33.44,
+     "end": 34.17
     }
    ],
    "narration_ref": "안녕하세요. 김준코치입니다",
@@ -158,7 +191,19 @@
    "transition_out": {
     "type": "black_card",
     "duration_sec": 1.0
-   }
+   },
+   "a_roll_scope": [
+    {
+     "file": "c01_01",
+     "start": 0.0,
+     "end": 19.33
+    },
+    {
+     "file": "c01_01",
+     "start": 22.46,
+     "end": 34.17
+    }
+   ]
   },
   {
    "scene_id": "sc03",
@@ -189,18 +234,188 @@
    "a_roll": [
     {
      "file": "c01_02",
-     "start": 0.0,
-     "end": 44.18
+     "start": 3.06,
+     "end": 3.43
     },
     {
      "file": "c01_02",
-     "start": 53.16,
-     "end": 105.0
+     "start": 3.76,
+     "end": 6.76
     },
     {
      "file": "c01_02",
-     "start": 109.58,
-     "end": 138.96
+     "start": 7.1,
+     "end": 16.88
+    },
+    {
+     "file": "c01_02",
+     "start": 17.1,
+     "end": 19.78
+    },
+    {
+     "file": "c01_02",
+     "start": 20.47,
+     "end": 25.02
+    },
+    {
+     "file": "c01_02",
+     "start": 26.0,
+     "end": 29.0
+    },
+    {
+     "file": "c01_02",
+     "start": 29.35,
+     "end": 33.9
+    },
+    {
+     "file": "c01_02",
+     "start": 34.23,
+     "end": 37.94
+    },
+    {
+     "file": "c01_02",
+     "start": 38.29,
+     "end": 42.68
+    },
+    {
+     "file": "c01_02",
+     "start": 42.96,
+     "end": 45.98
+    },
+    {
+     "file": "c01_02",
+     "start": 46.41,
+     "end": 47.03
+    },
+    {
+     "file": "c01_02",
+     "start": 49.5,
+     "end": 53.43
+    },
+    {
+     "file": "c01_02",
+     "start": 53.85,
+     "end": 54.5
+    },
+    {
+     "file": "c01_02",
+     "start": 54.79,
+     "end": 60.95
+    },
+    {
+     "file": "c01_02",
+     "start": 61.23,
+     "end": 62.55
+    },
+    {
+     "file": "c01_02",
+     "start": 62.78,
+     "end": 65.66
+    },
+    {
+     "file": "c01_02",
+     "start": 65.92,
+     "end": 68.1
+    },
+    {
+     "file": "c01_02",
+     "start": 68.37,
+     "end": 70.92
+    },
+    {
+     "file": "c01_02",
+     "start": 71.33,
+     "end": 71.75
+    },
+    {
+     "file": "c01_02",
+     "start": 74.06,
+     "end": 74.49
+    },
+    {
+     "file": "c01_02",
+     "start": 74.83,
+     "end": 78.83
+    },
+    {
+     "file": "c01_02",
+     "start": 79.08,
+     "end": 82.37
+    },
+    {
+     "file": "c01_02",
+     "start": 82.67,
+     "end": 84.07
+    },
+    {
+     "file": "c01_02",
+     "start": 84.63,
+     "end": 93.99
+    },
+    {
+     "file": "c01_02",
+     "start": 94.24,
+     "end": 94.79
+    },
+    {
+     "file": "c01_02",
+     "start": 102.02,
+     "end": 102.37
+    },
+    {
+     "file": "c01_02",
+     "start": 102.64,
+     "end": 104.51
+    },
+    {
+     "file": "c01_02",
+     "start": 104.79,
+     "end": 113.25
+    },
+    {
+     "file": "c01_02",
+     "start": 113.51,
+     "end": 116.67
+    },
+    {
+     "file": "c01_02",
+     "start": 116.98,
+     "end": 119.5
+    },
+    {
+     "file": "c01_02",
+     "start": 119.78,
+     "end": 121.61
+    },
+    {
+     "file": "c01_02",
+     "start": 121.94,
+     "end": 123.19
+    },
+    {
+     "file": "c01_02",
+     "start": 123.57,
+     "end": 124.19
+    },
+    {
+     "file": "c01_02",
+     "start": 126.0,
+     "end": 128.1
+    },
+    {
+     "file": "c01_02",
+     "start": 128.39,
+     "end": 130.71
+    },
+    {
+     "file": "c01_02",
+     "start": 131.05,
+     "end": 132.29
+    },
+    {
+     "file": "c01_02",
+     "start": 132.82,
+     "end": 135.93
     }
    ],
    "narration_ref": "처음에는 시선, 거리잡기인데",
@@ -219,7 +434,29 @@
    "transition_out": {
     "type": "hard_cut",
     "duration_sec": 0
-   }
+   },
+   "a_roll_scope": [
+    {
+     "file": "c01_02",
+     "start": 3.06,
+     "end": 71.75
+    },
+    {
+     "file": "c01_02",
+     "start": 74.06,
+     "end": 94.79
+    },
+    {
+     "file": "c01_02",
+     "start": 102.02,
+     "end": 124.19
+    },
+    {
+     "file": "c01_02",
+     "start": 126.0,
+     "end": 135.93
+    }
+   ]
   },
   {
    "scene_id": "sc05",
@@ -248,7 +485,14 @@
    "transition_out": {
     "type": "black_card",
     "duration_sec": 1.0
-   }
+   },
+   "a_roll_scope": [
+    {
+     "file": "c01_06",
+     "start": 0.0,
+     "end": 6.5
+    }
+   ]
   },
   {
    "scene_id": "sc06",
@@ -272,13 +516,168 @@
    "a_roll": [
     {
      "file": "c01_03",
-     "start": 10.26,
-     "end": 90.0
+     "start": 12.1,
+     "end": 12.49
     },
     {
      "file": "c01_03",
-     "start": 96.6,
-     "end": 108.1
+     "start": 12.89,
+     "end": 16.25
+    },
+    {
+     "file": "c01_03",
+     "start": 17.9,
+     "end": 18.26
+    },
+    {
+     "file": "c01_03",
+     "start": 18.54,
+     "end": 22.16
+    },
+    {
+     "file": "c01_03",
+     "start": 22.4,
+     "end": 24.48
+    },
+    {
+     "file": "c01_03",
+     "start": 24.97,
+     "end": 28.58
+    },
+    {
+     "file": "c01_03",
+     "start": 28.89,
+     "end": 30.58
+    },
+    {
+     "file": "c01_03",
+     "start": 30.97,
+     "end": 31.53
+    },
+    {
+     "file": "c01_03",
+     "start": 32.34,
+     "end": 34.96
+    },
+    {
+     "file": "c01_03",
+     "start": 35.25,
+     "end": 40.54
+    },
+    {
+     "file": "c01_03",
+     "start": 40.84,
+     "end": 42.92
+    },
+    {
+     "file": "c01_03",
+     "start": 43.35,
+     "end": 44.86
+    },
+    {
+     "file": "c01_03",
+     "start": 45.17,
+     "end": 47.87
+    },
+    {
+     "file": "c01_03",
+     "start": 48.54,
+     "end": 51.35
+    },
+    {
+     "file": "c01_03",
+     "start": 51.9,
+     "end": 55.45
+    },
+    {
+     "file": "c01_03",
+     "start": 57.3,
+     "end": 59.96
+    },
+    {
+     "file": "c01_03",
+     "start": 60.18,
+     "end": 61.64
+    },
+    {
+     "file": "c01_03",
+     "start": 61.92,
+     "end": 64.49
+    },
+    {
+     "file": "c01_03",
+     "start": 64.78,
+     "end": 66.76
+    },
+    {
+     "file": "c01_03",
+     "start": 67.18,
+     "end": 68.13
+    },
+    {
+     "file": "c01_03",
+     "start": 68.61,
+     "end": 71.32
+    },
+    {
+     "file": "c01_03",
+     "start": 71.66,
+     "end": 73.74
+    },
+    {
+     "file": "c01_03",
+     "start": 74.0,
+     "end": 74.96
+    },
+    {
+     "file": "c01_03",
+     "start": 75.84,
+     "end": 76.69
+    },
+    {
+     "file": "c01_03",
+     "start": 79.24,
+     "end": 86.32
+    },
+    {
+     "file": "c01_03",
+     "start": 86.68,
+     "end": 88.91
+    },
+    {
+     "file": "c01_03",
+     "start": 96.52,
+     "end": 96.86
+    },
+    {
+     "file": "c01_03",
+     "start": 97.76,
+     "end": 101.47
+    },
+    {
+     "file": "c01_03",
+     "start": 101.9,
+     "end": 107.19
+    },
+    {
+     "file": "c01_03",
+     "start": 107.52,
+     "end": 108.39
+    },
+    {
+     "file": "c01_03",
+     "start": 120.66,
+     "end": 121.53
+    },
+    {
+     "file": "c01_03",
+     "start": 125.4,
+     "end": 126.49
+    },
+    {
+     "file": "c01_03",
+     "start": 137.76,
+     "end": 138.51
     }
    ],
    "narration_ref": "두 번째는 이제 거리를 잡았으니까 골반 사용입니다",
@@ -293,7 +692,59 @@
    "transition_out": {
     "type": "hard_cut",
     "duration_sec": 0
-   }
+   },
+   "a_roll_scope": [
+    {
+     "file": "c01_03",
+     "start": 12.1,
+     "end": 16.25
+    },
+    {
+     "file": "c01_03",
+     "start": 17.9,
+     "end": 31.53
+    },
+    {
+     "file": "c01_03",
+     "start": 32.34,
+     "end": 51.35
+    },
+    {
+     "file": "c01_03",
+     "start": 51.9,
+     "end": 55.45
+    },
+    {
+     "file": "c01_03",
+     "start": 57.3,
+     "end": 76.69
+    },
+    {
+     "file": "c01_03",
+     "start": 79.24,
+     "end": 88.91
+    },
+    {
+     "file": "c01_03",
+     "start": 96.52,
+     "end": 108.39
+    },
+    {
+     "file": "c01_03",
+     "start": 120.66,
+     "end": 121.53
+    },
+    {
+     "file": "c01_03",
+     "start": 125.4,
+     "end": 126.49
+    },
+    {
+     "file": "c01_03",
+     "start": 137.76,
+     "end": 138.51
+    }
+   ]
   },
   {
    "scene_id": "sc07b",
@@ -317,7 +768,14 @@
    "transition_out": {
     "type": "black_card",
     "duration_sec": 1.0
-   }
+   },
+   "a_roll_scope": [
+    {
+     "file": "c01_07",
+     "start": 0.0,
+     "end": 8.0
+    }
+   ]
   },
   {
    "scene_id": "sc08",
@@ -352,13 +810,143 @@
    "a_roll": [
     {
      "file": "c01_04",
-     "start": 4.04,
-     "end": 56.18
+     "start": 3.92,
+     "end": 3.98
     },
     {
      "file": "c01_04",
-     "start": 59.72,
-     "end": 81.54
+     "start": 4.64,
+     "end": 5.13
+    },
+    {
+     "file": "c01_04",
+     "start": 10.56,
+     "end": 16.48
+    },
+    {
+     "file": "c01_04",
+     "start": 16.77,
+     "end": 22.52
+    },
+    {
+     "file": "c01_04",
+     "start": 22.78,
+     "end": 28.15
+    },
+    {
+     "file": "c01_04",
+     "start": 28.41,
+     "end": 29.97
+    },
+    {
+     "file": "c01_04",
+     "start": 32.04,
+     "end": 33.62
+    },
+    {
+     "file": "c01_04",
+     "start": 34.02,
+     "end": 36.4
+    },
+    {
+     "file": "c01_04",
+     "start": 36.65,
+     "end": 43.99
+    },
+    {
+     "file": "c01_04",
+     "start": 46.54,
+     "end": 46.85
+    },
+    {
+     "file": "c01_04",
+     "start": 47.12,
+     "end": 52.94
+    },
+    {
+     "file": "c01_04",
+     "start": 53.19,
+     "end": 54.96
+    },
+    {
+     "file": "c01_04",
+     "start": 55.27,
+     "end": 58.09
+    },
+    {
+     "file": "c01_04",
+     "start": 58.33,
+     "end": 59.63
+    },
+    {
+     "file": "c01_04",
+     "start": 59.77,
+     "end": 61.57
+    },
+    {
+     "file": "c01_04",
+     "start": 62.76,
+     "end": 68.59
+    },
+    {
+     "file": "c01_04",
+     "start": 69.48,
+     "end": 69.83
+    },
+    {
+     "file": "c01_04",
+     "start": 70.12,
+     "end": 72.09
+    },
+    {
+     "file": "c01_04",
+     "start": 72.64,
+     "end": 73.85
+    },
+    {
+     "file": "c01_04",
+     "start": 74.13,
+     "end": 78.62
+    },
+    {
+     "file": "c01_04",
+     "start": 78.97,
+     "end": 79.94
+    },
+    {
+     "file": "c01_04",
+     "start": 80.19,
+     "end": 81.79
+    },
+    {
+     "file": "c01_04",
+     "start": 84.82,
+     "end": 86.65
+    },
+    {
+     "file": "c01_04",
+     "start": 86.94,
+     "end": 87.89
+    },
+    {
+     "file": "c01_04",
+     "start": 88.16,
+     "end": 90.41
+    },
+    {
+     "file": "c01_04",
+     "start": 94.66,
+     "end": 95.07
+    },
+    {
+     "file": "c01_04",
+     "start": 95.71,
+     "end": 101.46
+    },
+    {
+     "file": "c01_04",
+     "start": 101.74,
+     "end": 104.99
     }
    ],
    "narration_ref": "자, 세 번째는 피니시입니다",
@@ -372,7 +960,49 @@
    "transition_out": {
     "type": "black_card",
     "duration_sec": 1.0
-   }
+   },
+   "a_roll_scope": [
+    {
+     "file": "c01_04",
+     "start": 3.92,
+     "end": 5.13
+    },
+    {
+     "file": "c01_04",
+     "start": 10.56,
+     "end": 29.97
+    },
+    {
+     "file": "c01_04",
+     "start": 32.04,
+     "end": 43.99
+    },
+    {
+     "file": "c01_04",
+     "start": 46.54,
+     "end": 61.57
+    },
+    {
+     "file": "c01_04",
+     "start": 62.76,
+     "end": 68.59
+    },
+    {
+     "file": "c01_04",
+     "start": 69.48,
+     "end": 81.79
+    },
+    {
+     "file": "c01_04",
+     "start": 84.82,
+     "end": 90.41
+    },
+    {
+     "file": "c01_04",
+     "start": 94.66,
+     "end": 104.99
+    }
+   ]
   },
   {
    "scene_id": "sc11",
@@ -381,13 +1011,93 @@
    "a_roll": [
     {
      "file": "c01_04",
-     "start": 112.02,
-     "end": 157.36
+     "start": 112.34,
+     "end": 112.74
     },
     {
      "file": "c01_04",
-     "start": 162.26,
-     "end": 169.0
+     "start": 113.54,
+     "end": 117.25
+    },
+    {
+     "file": "c01_04",
+     "start": 117.49,
+     "end": 122.03
+    },
+    {
+     "file": "c01_04",
+     "start": 122.34,
+     "end": 123.01
+    },
+    {
+     "file": "c01_04",
+     "start": 123.31,
+     "end": 125.83
+    },
+    {
+     "file": "c01_04",
+     "start": 126.06,
+     "end": 127.37
+    },
+    {
+     "file": "c01_04",
+     "start": 128.38,
+     "end": 129.92
+    },
+    {
+     "file": "c01_04",
+     "start": 130.2,
+     "end": 131.55
+    },
+    {
+     "file": "c01_04",
+     "start": 132.04,
+     "end": 133.57
+    },
+    {
+     "file": "c01_04",
+     "start": 133.71,
+     "end": 139.84
+    },
+    {
+     "file": "c01_04",
+     "start": 140.13,
+     "end": 142.34
+    },
+    {
+     "file": "c01_04",
+     "start": 142.65,
+     "end": 143.99
+    },
+    {
+     "file": "c01_04",
+     "start": 144.22,
+     "end": 147.31
+    },
+    {
+     "file": "c01_04",
+     "start": 147.54,
+     "end": 153.68
+    },
+    {
+     "file": "c01_04",
+     "start": 154.0,
+     "end": 156.08
+    },
+    {
+     "file": "c01_04",
+     "start": 156.5,
+     "end": 157.61
+    },
+    {
+     "file": "c01_04",
+     "start": 165.96,
+     "end": 168.74
+    },
+    {
+     "file": "c01_04",
+     "start": 169.15,
+     "end": 169.61
     }
    ],
    "narration_ref": "그래서 오늘 배운 거 세 가지",
@@ -407,7 +1117,24 @@
     "type": "black_card",
     "duration_sec": 1.0,
     "card": "as_card_montage"
-   }
+   },
+   "a_roll_scope": [
+    {
+     "file": "c01_04",
+     "start": 112.34,
+     "end": 127.37
+    },
+    {
+     "file": "c01_04",
+     "start": 128.38,
+     "end": 157.61
+    },
+    {
+     "file": "c01_04",
+     "start": 165.96,
+     "end": 169.61
+    }
+   ]
   },
   {
    "scene_id": "sc12",
@@ -443,7 +1170,24 @@
    "transition_out": {
     "type": "fade",
     "duration_sec": 1.0
-   }
+   },
+   "a_roll_scope": [
+    {
+     "file": "c01_06",
+     "start": 6.5,
+     "end": 35.0
+    },
+    {
+     "file": "c01_07",
+     "start": 8.0,
+     "end": 29.1
+    },
+    {
+     "file": "c01_05",
+     "start": 0.0,
+     "end": 28.4
+    }
+   ]
   }
  ],
  "subtitles": [
@@ -459,7 +1203,11 @@
    "position": "top_center",
    "size": "large",
    "animation": "pop",
-   "color": "green"
+   "color": "green",
+   "source_anchor": {
+    "clip": "c01_01",
+    "at": 7.5
+   }
   },
   {
    "id": "st02",
@@ -473,7 +1221,11 @@
    "position": "top_center",
    "size": "large",
    "animation": "pop",
-   "color": "green"
+   "color": "green",
+   "source_anchor": {
+    "clip": "c01_01",
+    "at": 10.5
+   }
   },
   {
    "id": "st03",
@@ -487,7 +1239,11 @@
    "position": "top_center",
    "size": "large",
    "animation": "pop",
-   "color": "green"
+   "color": "green",
+   "source_anchor": {
+    "clip": "c01_01",
+    "at": 13.5
+   }
   },
   {
    "id": "st04",
@@ -515,7 +1271,11 @@
    "position": "top_center",
    "size": "large",
    "animation": "pop",
-   "color": "yellow"
+   "color": "yellow",
+   "source_anchor": {
+    "clip": "c01_02",
+    "at": 0.5
+   }
   },
   {
    "id": "st06",
@@ -529,7 +1289,11 @@
    "position": "top_center",
    "size": "medium",
    "animation": "none",
-   "color": "green"
+   "color": "green",
+   "source_anchor": {
+    "clip": "c01_02",
+    "at": 56.48
+   }
   },
   {
    "id": "st07",
@@ -543,7 +1307,11 @@
    "position": "top_left",
    "size": "medium",
    "animation": "pop",
-   "color": "green"
+   "color": "green",
+   "source_anchor": {
+    "clip": "c01_02",
+    "at": 119.56
+   }
   },
   {
    "id": "st08",
@@ -557,7 +1325,11 @@
    "position": "top_left",
    "size": "medium",
    "animation": "pop",
-   "color": "green"
+   "color": "green",
+   "source_anchor": {
+    "clip": "c01_02",
+    "at": 122.56
+   }
   },
   {
    "id": "st09",
@@ -571,7 +1343,11 @@
    "position": "top_left",
    "size": "medium",
    "animation": "pop",
-   "color": "green"
+   "color": "green",
+   "source_anchor": {
+    "clip": "c01_02",
+    "at": 125.56
+   }
   },
   {
    "id": "st10",
@@ -599,7 +1375,11 @@
    "position": "top_right",
    "size": "medium",
    "animation": "pop",
-   "color": "green"
+   "color": "green",
+   "source_anchor": {
+    "clip": "c01_03",
+    "at": 89.96
+   }
   },
   {
    "id": "st12",
@@ -613,7 +1393,11 @@
    "position": "top_right",
    "size": "medium",
    "animation": "pop",
-   "color": "green"
+   "color": "green",
+   "source_anchor": {
+    "clip": "c01_03",
+    "at": 99.56
+   }
   },
   {
    "id": "st13",
@@ -627,7 +1411,11 @@
    "position": "top_right",
    "size": "medium",
    "animation": "pop",
-   "color": "green"
+   "color": "green",
+   "source_anchor": {
+    "clip": "c01_03",
+    "at": 102.56
+   }
   },
   {
    "id": "st14",
@@ -655,7 +1443,11 @@
    "position": "bottom",
    "size": "large",
    "animation": "pop",
-   "color": "blue"
+   "color": "blue",
+   "source_anchor": {
+    "clip": "c01_04",
+    "at": 73.58
+   }
   },
   {
    "id": "st16",
@@ -669,7 +1461,11 @@
    "position": "bottom",
    "size": "large",
    "animation": "pop",
-   "color": "yellow"
+   "color": "yellow",
+   "source_anchor": {
+    "clip": "c01_04",
+    "at": 34.04
+   }
   },
   {
    "id": "st17",
@@ -697,7 +1493,11 @@
    "position": "top_left",
    "size": "medium",
    "animation": "pop",
-   "color": "green"
+   "color": "green",
+   "source_anchor": {
+    "clip": "c01_04",
+    "at": 115.02
+   }
   },
   {
    "id": "st19",
@@ -711,7 +1511,11 @@
    "position": "top_left",
    "size": "medium",
    "animation": "pop",
-   "color": "green"
+   "color": "green",
+   "source_anchor": {
+    "clip": "c01_04",
+    "at": 118.02
+   }
   },
   {
    "id": "st20",
@@ -725,7 +1529,11 @@
    "position": "top_left",
    "size": "medium",
    "animation": "pop",
-   "color": "green"
+   "color": "green",
+   "source_anchor": {
+    "clip": "c01_04",
+    "at": 122.02
+   }
   },
   {
    "id": "st21",
@@ -753,7 +1561,11 @@
    "position": "top_center",
    "size": "medium",
    "animation": "none",
-   "color": "white"
+   "color": "white",
+   "source_anchor": {
+    "clip": "c01_06",
+    "at": 6.5
+   }
   }
  ],
  "graphics": [
@@ -768,7 +1580,11 @@
    "target": "코치 이름",
    "color": "yellow",
    "position": "nameplate",
-   "animation": false
+   "animation": false,
+   "source_anchor": {
+    "clip": "c01_01",
+    "at": 0.5
+   }
   },
   {
    "id": "gr02",
@@ -781,7 +1597,11 @@
    "target": "시선 방향",
    "color": "green",
    "position": "상체 좌측",
-   "animation": true
+   "animation": true,
+   "source_anchor": {
+    "clip": "c01_02",
+    "at": 56.98
+   }
   },
   {
    "id": "gr03",
@@ -794,7 +1614,11 @@
    "target": "오른발 축",
    "color": "yellow",
    "position": "하체 오른발",
-   "animation": false
+   "animation": false,
+   "source_anchor": {
+    "clip": "c01_03",
+    "at": 31.06
+   }
   },
   {
    "id": "gr04",
@@ -807,7 +1631,11 @@
    "target": "골반 회전 방향",
    "color": "red",
    "position": "골반",
-   "animation": true
+   "animation": true,
+   "source_anchor": {
+    "clip": "c01_03",
+    "at": 38.76
+   }
   },
   {
    "id": "gr05",
@@ -820,7 +1648,11 @@
    "target": "겨드랑이–팔 사이 공간",
    "color": "red",
    "position": "상체 가슴",
-   "animation": false
+   "animation": false,
+   "source_anchor": {
+    "clip": "c01_04",
+    "at": 15.84
+   }
   },
   {
    "id": "gr06",
@@ -833,7 +1665,11 @@
    "target": "가슴–팔 사이 공간",
    "color": "orange",
    "position": "상체 중앙",
-   "animation": true
+   "animation": true,
+   "source_anchor": {
+    "clip": "c01_04",
+    "at": 62.58
+   }
   },
   {
    "id": "gr07",
@@ -846,7 +1682,11 @@
    "target": "체크리스트 1. 유닛턴",
    "color": "red",
    "position": "상단 바 1번",
-   "animation": false
+   "animation": false,
+   "source_anchor": {
+    "clip": "c01_06",
+    "at": 6.5
+   }
   },
   {
    "id": "gr08",
@@ -859,7 +1699,11 @@
    "target": "체크리스트 2. 골반",
    "color": "red",
    "position": "상단 바 2번",
-   "animation": false
+   "animation": false,
+   "source_anchor": {
+    "clip": "c01_07",
+    "at": 8.0
+   }
   },
   {
    "id": "gr09",
@@ -872,7 +1716,11 @@
    "target": "체크리스트 3. 피니시 공간",
    "color": "red",
    "position": "상단 바 3번",
-   "animation": false
+   "animation": false,
+   "source_anchor": {
+    "clip": "c01_05",
+    "at": 0.0
+   }
   }
  ],
  "zoom": [
@@ -892,7 +1740,11 @@
    "purpose": "emphasis",
    "context": "이 세 가지가 완벽하게 돼야 파워도 실릴 수 있고",
    "duration_sec": 8.0,
-   "hold_note": "강조 구간만 물고 원래 화각으로 돌아온다"
+   "hold_note": "강조 구간만 물고 원래 화각으로 돌아온다",
+   "source_anchor": {
+    "clip": "c01_01",
+    "at": 21.8
+   }
   },
   {
    "id": "zm02",
@@ -910,7 +1762,11 @@
    "purpose": "emphasis+conceal_cut",
    "context": "해법 도입 — 44.18→53.16 점프",
    "duration_sec": 10.0,
-   "hold_note": "conceal_cut 은 컷을 걸쳐야 하므로 블록 경계에서 끊지 않는다"
+   "hold_note": "conceal_cut 은 컷을 걸쳐야 하므로 블록 경계에서 끊지 않는다",
+   "source_anchor": {
+    "clip": "c01_02",
+    "at": 53.18
+   }
   },
   {
    "id": "zm03",
@@ -928,7 +1784,11 @@
    "purpose": "emphasis",
    "context": "하체 스탠스·오른발 회전. 하체 중심 크롭",
    "duration_sec": 12.0,
-   "hold_note": "강조 구간만 물고 원래 화각으로 돌아온다"
+   "hold_note": "강조 구간만 물고 원래 화각으로 돌아온다",
+   "source_anchor": {
+    "clip": "c01_03",
+    "at": 31.06
+   }
   },
   {
    "id": "zm04",
@@ -946,7 +1806,11 @@
    "purpose": "conceal_cut",
    "context": "90.00→96.60 점프 · '다시 한번 보여드리면'",
    "duration_sec": 6.0,
-   "hold_note": "conceal_cut 은 컷을 걸쳐야 하므로 블록 경계에서 끊지 않는다"
+   "hold_note": "conceal_cut 은 컷을 걸쳐야 하므로 블록 경계에서 끊지 않는다",
+   "source_anchor": {
+    "clip": "c01_03",
+    "at": 89.96
+   }
   },
   {
    "id": "zm05",
@@ -964,7 +1828,11 @@
    "purpose": "emphasis+conceal_cut",
    "context": "56.18→59.72 점프 · 농구공 등장",
    "duration_sec": 8.0,
-   "hold_note": "conceal_cut 은 컷을 걸쳐야 하므로 블록 경계에서 끊지 않는다"
+   "hold_note": "conceal_cut 은 컷을 걸쳐야 하므로 블록 경계에서 끊지 않는다",
+   "source_anchor": {
+    "clip": "c01_04",
+    "at": 56.14
+   }
   }
  ],
  "sfx": [
@@ -975,7 +1843,11 @@
     "offset_sec": 7.7
    },
    "kind": "pop",
-   "gain_db": -8
+   "gain_db": -8,
+   "source_anchor": {
+    "clip": "c01_01",
+    "at": 7.7
+   }
   },
   {
    "id": "sx02",
@@ -984,7 +1856,11 @@
     "offset_sec": 10.7
    },
    "kind": "pop",
-   "gain_db": -8
+   "gain_db": -8,
+   "source_anchor": {
+    "clip": "c01_01",
+    "at": 10.7
+   }
   },
   {
    "id": "sx03",
@@ -993,7 +1869,11 @@
     "offset_sec": 13.7
    },
    "kind": "pop",
-   "gain_db": -8
+   "gain_db": -8,
+   "source_anchor": {
+    "clip": "c01_01",
+    "at": 13.7
+   }
   },
   {
    "id": "sx04",
@@ -1002,7 +1882,11 @@
     "offset_sec": 106.2
    },
    "kind": "beep",
-   "gain_db": -10
+   "gain_db": -10,
+   "source_anchor": {
+    "clip": "c01_02",
+    "at": 119.76
+   }
   },
   {
    "id": "sx05",
@@ -1011,7 +1895,11 @@
     "offset_sec": 109.2
    },
    "kind": "beep",
-   "gain_db": -10
+   "gain_db": -10,
+   "source_anchor": {
+    "clip": "c01_02",
+    "at": 122.76
+   }
   },
   {
    "id": "sx06",
@@ -1020,7 +1908,11 @@
     "offset_sec": 112.2
    },
    "kind": "beep",
-   "gain_db": -10
+   "gain_db": -10,
+   "source_anchor": {
+    "clip": "c01_02",
+    "at": 125.76
+   }
   },
   {
    "id": "sx07",
@@ -1029,7 +1921,11 @@
     "offset_sec": 79.9
    },
    "kind": "beep",
-   "gain_db": -10
+   "gain_db": -10,
+   "source_anchor": {
+    "clip": "c01_03",
+    "at": 96.76
+   }
   },
   {
    "id": "sx08",
@@ -1038,7 +1934,11 @@
     "offset_sec": 82.9
    },
    "kind": "beep",
-   "gain_db": -10
+   "gain_db": -10,
+   "source_anchor": {
+    "clip": "c01_03",
+    "at": 99.76
+   }
   },
   {
    "id": "sx09",
@@ -1047,7 +1947,11 @@
     "offset_sec": 85.9
    },
    "kind": "beep",
-   "gain_db": -10
+   "gain_db": -10,
+   "source_anchor": {
+    "clip": "c01_03",
+    "at": 102.76
+   }
   },
   {
    "id": "sx10",
@@ -1056,7 +1960,11 @@
     "offset_sec": 55.2
    },
    "kind": "pop",
-   "gain_db": -8
+   "gain_db": -8,
+   "source_anchor": {
+    "clip": "c01_04",
+    "at": 62.78
+   }
   },
   {
    "id": "sx11",
@@ -1065,7 +1973,11 @@
     "offset_sec": 66.2
    },
    "kind": "ding",
-   "gain_db": -8
+   "gain_db": -8,
+   "source_anchor": {
+    "clip": "c01_04",
+    "at": 73.78
+   }
   },
   {
    "id": "sx12",
@@ -1074,7 +1986,11 @@
     "offset_sec": 3.2
    },
    "kind": "beep",
-   "gain_db": -10
+   "gain_db": -10,
+   "source_anchor": {
+    "clip": "c01_04",
+    "at": 115.22
+   }
   },
   {
    "id": "sx13",
@@ -1083,7 +1999,11 @@
     "offset_sec": 6.2
    },
    "kind": "beep",
-   "gain_db": -10
+   "gain_db": -10,
+   "source_anchor": {
+    "clip": "c01_04",
+    "at": 118.22
+   }
   },
   {
    "id": "sx14",
@@ -1092,7 +2012,11 @@
     "offset_sec": 10.2
    },
    "kind": "beep",
-   "gain_db": -10
+   "gain_db": -10,
+   "source_anchor": {
+    "clip": "c01_04",
+    "at": 122.22
+   }
   }
  ],
  "bgm": [

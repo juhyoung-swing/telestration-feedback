@@ -1,97 +1,427 @@
 {
- "source": "directive_D",
+ "source": "directive_tight.json",
  "width": 1920,
  "height": 1080,
  "fps": 30,
- "total_sec": 481.715,
+ "total_sec": 421.767,
  "scenes": [
   {
    "scene_id": "sc02",
    "role": "opening",
    "abs_start": 0.0,
-   "abs_end": 34.0,
+   "abs_end": 28.633,
    "blocks": [
     {
      "block_id": "sc02_00",
      "kind": "a_roll",
      "file": "c01_01",
      "src_start": 0.0,
-     "src_end": 34.0,
+     "src_end": 5.24,
      "abs_start": 0.0,
-     "abs_end": 34.0
-    }
-   ]
-  },
-  {
-   "scene_id": "sc02_gap",
-   "role": "black_card",
-   "abs_start": 34.0,
-   "abs_end": 35.0,
-   "blocks": [
+     "abs_end": 5.233
+    },
     {
-     "block_id": "sc02_gap",
-     "kind": "black_card",
-     "asset_id": null,
-     "abs_start": 34.0,
-     "abs_end": 35.0
-    }
-   ]
-  },
-  {
-   "scene_id": "sc03",
-   "role": "chapter_open",
-   "abs_start": 35.0,
-   "abs_end": 37.5,
-   "blocks": [
+     "block_id": "sc02_01",
+     "kind": "a_roll",
+     "file": "c01_01",
+     "src_start": 5.69,
+     "src_end": 8.56,
+     "abs_start": 5.233,
+     "abs_end": 8.1
+    },
     {
-     "block_id": "sc03_cg",
-     "kind": "cg",
-     "asset_id": "as_card1",
-     "abs_start": 35.0,
-     "abs_end": 37.5
+     "block_id": "sc02_02",
+     "kind": "a_roll",
+     "file": "c01_01",
+     "src_start": 8.9,
+     "src_end": 17.45,
+     "abs_start": 8.1,
+     "abs_end": 16.667
+    },
+    {
+     "block_id": "sc02_03",
+     "kind": "a_roll",
+     "file": "c01_01",
+     "src_start": 18.25,
+     "src_end": 19.33,
+     "abs_start": 16.667,
+     "abs_end": 17.733
+    },
+    {
+     "block_id": "sc02_04",
+     "kind": "a_roll",
+     "file": "c01_01",
+     "src_start": 22.46,
+     "src_end": 31.77,
+     "abs_start": 17.733,
+     "abs_end": 27.033
+    },
+    {
+     "block_id": "sc02_05",
+     "kind": "a_roll",
+     "file": "c01_01",
+     "src_start": 32.04,
+     "src_end": 32.9,
+     "abs_start": 27.033,
+     "abs_end": 27.9
+    },
+    {
+     "block_id": "sc02_06",
+     "kind": "a_roll",
+     "file": "c01_01",
+     "src_start": 33.44,
+     "src_end": 34.17,
+     "abs_start": 27.9,
+     "abs_end": 28.633
     }
    ]
   },
   {
    "scene_id": "sc04",
    "role": "concept",
-   "abs_start": 37.5,
-   "abs_end": 162.9,
+   "abs_start": 28.633,
+   "abs_end": 136.433,
    "blocks": [
     {
      "block_id": "sc04_00",
      "kind": "a_roll",
      "file": "c01_02",
-     "src_start": 0.0,
-     "src_end": 44.18,
-     "abs_start": 37.5,
-     "abs_end": 81.68
+     "src_start": 3.06,
+     "src_end": 3.43,
+     "abs_start": 28.633,
+     "abs_end": 29.0
     },
     {
      "block_id": "sc04_01",
      "kind": "a_roll",
      "file": "c01_02",
-     "src_start": 53.16,
-     "src_end": 105.0,
-     "abs_start": 81.68,
-     "abs_end": 133.52
+     "src_start": 3.76,
+     "src_end": 6.76,
+     "abs_start": 29.0,
+     "abs_end": 32.0
     },
     {
      "block_id": "sc04_02",
      "kind": "a_roll",
      "file": "c01_02",
-     "src_start": 109.58,
-     "src_end": 138.96,
-     "abs_start": 133.52,
-     "abs_end": 162.9
+     "src_start": 7.1,
+     "src_end": 16.88,
+     "abs_start": 32.0,
+     "abs_end": 41.767
+    },
+    {
+     "block_id": "sc04_03",
+     "kind": "a_roll",
+     "file": "c01_02",
+     "src_start": 17.1,
+     "src_end": 19.78,
+     "abs_start": 41.767,
+     "abs_end": 44.433
+    },
+    {
+     "block_id": "sc04_04",
+     "kind": "a_roll",
+     "file": "c01_02",
+     "src_start": 20.47,
+     "src_end": 25.02,
+     "abs_start": 44.433,
+     "abs_end": 49.0
+    },
+    {
+     "block_id": "sc04_05",
+     "kind": "a_roll",
+     "file": "c01_02",
+     "src_start": 26.0,
+     "src_end": 29.0,
+     "abs_start": 49.0,
+     "abs_end": 52.0
+    },
+    {
+     "block_id": "sc04_06",
+     "kind": "a_roll",
+     "file": "c01_02",
+     "src_start": 29.35,
+     "src_end": 33.9,
+     "abs_start": 52.0,
+     "abs_end": 56.567
+    },
+    {
+     "block_id": "sc04_07",
+     "kind": "a_roll",
+     "file": "c01_02",
+     "src_start": 34.23,
+     "src_end": 37.94,
+     "abs_start": 56.567,
+     "abs_end": 60.267
+    },
+    {
+     "block_id": "sc04_08",
+     "kind": "a_roll",
+     "file": "c01_02",
+     "src_start": 38.29,
+     "src_end": 42.68,
+     "abs_start": 60.267,
+     "abs_end": 64.667
+    },
+    {
+     "block_id": "sc04_09",
+     "kind": "a_roll",
+     "file": "c01_02",
+     "src_start": 42.96,
+     "src_end": 45.98,
+     "abs_start": 64.667,
+     "abs_end": 67.7
+    },
+    {
+     "block_id": "sc04_10",
+     "kind": "a_roll",
+     "file": "c01_02",
+     "src_start": 46.41,
+     "src_end": 47.03,
+     "abs_start": 67.7,
+     "abs_end": 68.333
+    },
+    {
+     "block_id": "sc04_11",
+     "kind": "a_roll",
+     "file": "c01_02",
+     "src_start": 49.5,
+     "src_end": 53.43,
+     "abs_start": 68.333,
+     "abs_end": 72.267
+    },
+    {
+     "block_id": "sc04_12",
+     "kind": "a_roll",
+     "file": "c01_02",
+     "src_start": 53.85,
+     "src_end": 54.5,
+     "abs_start": 72.267,
+     "abs_end": 72.933
+    },
+    {
+     "block_id": "sc04_13",
+     "kind": "a_roll",
+     "file": "c01_02",
+     "src_start": 54.79,
+     "src_end": 60.95,
+     "abs_start": 72.933,
+     "abs_end": 79.1
+    },
+    {
+     "block_id": "sc04_14",
+     "kind": "a_roll",
+     "file": "c01_02",
+     "src_start": 61.23,
+     "src_end": 62.55,
+     "abs_start": 79.1,
+     "abs_end": 80.433
+    },
+    {
+     "block_id": "sc04_15",
+     "kind": "a_roll",
+     "file": "c01_02",
+     "src_start": 62.78,
+     "src_end": 65.66,
+     "abs_start": 80.433,
+     "abs_end": 83.3
+    },
+    {
+     "block_id": "sc04_16",
+     "kind": "a_roll",
+     "file": "c01_02",
+     "src_start": 65.92,
+     "src_end": 68.1,
+     "abs_start": 83.3,
+     "abs_end": 85.467
+    },
+    {
+     "block_id": "sc04_17",
+     "kind": "a_roll",
+     "file": "c01_02",
+     "src_start": 68.37,
+     "src_end": 70.92,
+     "abs_start": 85.467,
+     "abs_end": 88.033
+    },
+    {
+     "block_id": "sc04_18",
+     "kind": "a_roll",
+     "file": "c01_02",
+     "src_start": 71.33,
+     "src_end": 71.75,
+     "abs_start": 88.033,
+     "abs_end": 88.467
+    },
+    {
+     "block_id": "sc04_19",
+     "kind": "a_roll",
+     "file": "c01_02",
+     "src_start": 74.06,
+     "src_end": 74.49,
+     "abs_start": 88.467,
+     "abs_end": 88.9
+    },
+    {
+     "block_id": "sc04_20",
+     "kind": "a_roll",
+     "file": "c01_02",
+     "src_start": 74.83,
+     "src_end": 78.83,
+     "abs_start": 88.9,
+     "abs_end": 92.9
+    },
+    {
+     "block_id": "sc04_21",
+     "kind": "a_roll",
+     "file": "c01_02",
+     "src_start": 79.08,
+     "src_end": 82.37,
+     "abs_start": 92.9,
+     "abs_end": 96.2
+    },
+    {
+     "block_id": "sc04_22",
+     "kind": "a_roll",
+     "file": "c01_02",
+     "src_start": 82.67,
+     "src_end": 84.07,
+     "abs_start": 96.2,
+     "abs_end": 97.6
+    },
+    {
+     "block_id": "sc04_23",
+     "kind": "a_roll",
+     "file": "c01_02",
+     "src_start": 84.63,
+     "src_end": 93.99,
+     "abs_start": 97.6,
+     "abs_end": 106.967
+    },
+    {
+     "block_id": "sc04_24",
+     "kind": "a_roll",
+     "file": "c01_02",
+     "src_start": 94.24,
+     "src_end": 94.79,
+     "abs_start": 106.967,
+     "abs_end": 107.533
+    },
+    {
+     "block_id": "sc04_25",
+     "kind": "a_roll",
+     "file": "c01_02",
+     "src_start": 102.02,
+     "src_end": 102.37,
+     "abs_start": 107.533,
+     "abs_end": 107.9
+    },
+    {
+     "block_id": "sc04_26",
+     "kind": "a_roll",
+     "file": "c01_02",
+     "src_start": 102.64,
+     "src_end": 104.51,
+     "abs_start": 107.9,
+     "abs_end": 109.767
+    },
+    {
+     "block_id": "sc04_27",
+     "kind": "a_roll",
+     "file": "c01_02",
+     "src_start": 104.79,
+     "src_end": 113.25,
+     "abs_start": 109.767,
+     "abs_end": 118.233
+    },
+    {
+     "block_id": "sc04_28",
+     "kind": "a_roll",
+     "file": "c01_02",
+     "src_start": 113.51,
+     "src_end": 116.67,
+     "abs_start": 118.233,
+     "abs_end": 121.4
+    },
+    {
+     "block_id": "sc04_29",
+     "kind": "a_roll",
+     "file": "c01_02",
+     "src_start": 116.98,
+     "src_end": 119.5,
+     "abs_start": 121.4,
+     "abs_end": 123.933
+    },
+    {
+     "block_id": "sc04_30",
+     "kind": "a_roll",
+     "file": "c01_02",
+     "src_start": 119.78,
+     "src_end": 121.61,
+     "abs_start": 123.933,
+     "abs_end": 125.767
+    },
+    {
+     "block_id": "sc04_31",
+     "kind": "a_roll",
+     "file": "c01_02",
+     "src_start": 121.94,
+     "src_end": 123.19,
+     "abs_start": 125.767,
+     "abs_end": 127.033
+    },
+    {
+     "block_id": "sc04_32",
+     "kind": "a_roll",
+     "file": "c01_02",
+     "src_start": 123.57,
+     "src_end": 124.19,
+     "abs_start": 127.033,
+     "abs_end": 127.667
+    },
+    {
+     "block_id": "sc04_33",
+     "kind": "a_roll",
+     "file": "c01_02",
+     "src_start": 126.0,
+     "src_end": 128.1,
+     "abs_start": 127.667,
+     "abs_end": 129.767
+    },
+    {
+     "block_id": "sc04_34",
+     "kind": "a_roll",
+     "file": "c01_02",
+     "src_start": 128.39,
+     "src_end": 130.71,
+     "abs_start": 129.767,
+     "abs_end": 132.1
+    },
+    {
+     "block_id": "sc04_35",
+     "kind": "a_roll",
+     "file": "c01_02",
+     "src_start": 131.05,
+     "src_end": 132.29,
+     "abs_start": 132.1,
+     "abs_end": 133.333
+    },
+    {
+     "block_id": "sc04_36",
+     "kind": "a_roll",
+     "file": "c01_02",
+     "src_start": 132.82,
+     "src_end": 135.93,
+     "abs_start": 133.333,
+     "abs_end": 136.433
     }
    ]
   },
   {
    "scene_id": "sc05",
    "role": "demo",
-   "abs_start": 162.9,
-   "abs_end": 169.4,
+   "abs_start": 136.433,
+   "abs_end": 142.933,
    "blocks": [
     {
      "block_id": "sc05_00",
@@ -99,72 +429,321 @@
      "file": "c01_06",
      "src_start": 0.0,
      "src_end": 6.5,
-     "abs_start": 162.9,
-     "abs_end": 169.4
-    }
-   ]
-  },
-  {
-   "scene_id": "sc05_gap",
-   "role": "black_card",
-   "abs_start": 169.4,
-   "abs_end": 170.4,
-   "blocks": [
-    {
-     "block_id": "sc05_gap",
-     "kind": "black_card",
-     "asset_id": null,
-     "abs_start": 169.4,
-     "abs_end": 170.4
-    }
-   ]
-  },
-  {
-   "scene_id": "sc06",
-   "role": "chapter_open",
-   "abs_start": 170.4,
-   "abs_end": 172.9,
-   "blocks": [
-    {
-     "block_id": "sc06_cg",
-     "kind": "cg",
-     "asset_id": "as_card2",
-     "abs_start": 170.4,
-     "abs_end": 172.9
+     "abs_start": 136.433,
+     "abs_end": 142.933
     }
    ]
   },
   {
    "scene_id": "sc07",
    "role": "concept",
-   "abs_start": 172.9,
-   "abs_end": 264.14,
+   "abs_start": 142.933,
+   "abs_end": 217.667,
    "blocks": [
     {
      "block_id": "sc07_00",
      "kind": "a_roll",
      "file": "c01_03",
-     "src_start": 10.26,
-     "src_end": 90.0,
-     "abs_start": 172.9,
-     "abs_end": 252.64
+     "src_start": 12.1,
+     "src_end": 12.49,
+     "abs_start": 142.933,
+     "abs_end": 143.333
     },
     {
      "block_id": "sc07_01",
      "kind": "a_roll",
      "file": "c01_03",
-     "src_start": 96.6,
-     "src_end": 108.1,
-     "abs_start": 252.64,
-     "abs_end": 264.14
+     "src_start": 12.89,
+     "src_end": 16.25,
+     "abs_start": 143.333,
+     "abs_end": 146.7
+    },
+    {
+     "block_id": "sc07_02",
+     "kind": "a_roll",
+     "file": "c01_03",
+     "src_start": 17.9,
+     "src_end": 18.26,
+     "abs_start": 146.7,
+     "abs_end": 147.067
+    },
+    {
+     "block_id": "sc07_03",
+     "kind": "a_roll",
+     "file": "c01_03",
+     "src_start": 18.54,
+     "src_end": 22.16,
+     "abs_start": 147.067,
+     "abs_end": 150.7
+    },
+    {
+     "block_id": "sc07_04",
+     "kind": "a_roll",
+     "file": "c01_03",
+     "src_start": 22.4,
+     "src_end": 24.48,
+     "abs_start": 150.7,
+     "abs_end": 152.767
+    },
+    {
+     "block_id": "sc07_05",
+     "kind": "a_roll",
+     "file": "c01_03",
+     "src_start": 24.97,
+     "src_end": 28.58,
+     "abs_start": 152.767,
+     "abs_end": 156.367
+    },
+    {
+     "block_id": "sc07_06",
+     "kind": "a_roll",
+     "file": "c01_03",
+     "src_start": 28.89,
+     "src_end": 30.58,
+     "abs_start": 156.367,
+     "abs_end": 158.067
+    },
+    {
+     "block_id": "sc07_07",
+     "kind": "a_roll",
+     "file": "c01_03",
+     "src_start": 30.97,
+     "src_end": 31.53,
+     "abs_start": 158.067,
+     "abs_end": 158.633
+    },
+    {
+     "block_id": "sc07_08",
+     "kind": "a_roll",
+     "file": "c01_03",
+     "src_start": 32.34,
+     "src_end": 34.96,
+     "abs_start": 158.633,
+     "abs_end": 161.267
+    },
+    {
+     "block_id": "sc07_09",
+     "kind": "a_roll",
+     "file": "c01_03",
+     "src_start": 35.25,
+     "src_end": 40.54,
+     "abs_start": 161.267,
+     "abs_end": 166.567
+    },
+    {
+     "block_id": "sc07_10",
+     "kind": "a_roll",
+     "file": "c01_03",
+     "src_start": 40.84,
+     "src_end": 42.92,
+     "abs_start": 166.567,
+     "abs_end": 168.633
+    },
+    {
+     "block_id": "sc07_11",
+     "kind": "a_roll",
+     "file": "c01_03",
+     "src_start": 43.35,
+     "src_end": 44.86,
+     "abs_start": 168.633,
+     "abs_end": 170.133
+    },
+    {
+     "block_id": "sc07_12",
+     "kind": "a_roll",
+     "file": "c01_03",
+     "src_start": 45.17,
+     "src_end": 47.87,
+     "abs_start": 170.133,
+     "abs_end": 172.833
+    },
+    {
+     "block_id": "sc07_13",
+     "kind": "a_roll",
+     "file": "c01_03",
+     "src_start": 48.54,
+     "src_end": 51.35,
+     "abs_start": 172.833,
+     "abs_end": 175.633
+    },
+    {
+     "block_id": "sc07_14",
+     "kind": "a_roll",
+     "file": "c01_03",
+     "src_start": 51.9,
+     "src_end": 55.45,
+     "abs_start": 175.633,
+     "abs_end": 179.2
+    },
+    {
+     "block_id": "sc07_15",
+     "kind": "a_roll",
+     "file": "c01_03",
+     "src_start": 57.3,
+     "src_end": 59.96,
+     "abs_start": 179.2,
+     "abs_end": 181.867
+    },
+    {
+     "block_id": "sc07_16",
+     "kind": "a_roll",
+     "file": "c01_03",
+     "src_start": 60.18,
+     "src_end": 61.64,
+     "abs_start": 181.867,
+     "abs_end": 183.333
+    },
+    {
+     "block_id": "sc07_17",
+     "kind": "a_roll",
+     "file": "c01_03",
+     "src_start": 61.92,
+     "src_end": 64.49,
+     "abs_start": 183.333,
+     "abs_end": 185.9
+    },
+    {
+     "block_id": "sc07_18",
+     "kind": "a_roll",
+     "file": "c01_03",
+     "src_start": 64.78,
+     "src_end": 66.76,
+     "abs_start": 185.9,
+     "abs_end": 187.867
+    },
+    {
+     "block_id": "sc07_19",
+     "kind": "a_roll",
+     "file": "c01_03",
+     "src_start": 67.18,
+     "src_end": 68.13,
+     "abs_start": 187.867,
+     "abs_end": 188.833
+    },
+    {
+     "block_id": "sc07_20",
+     "kind": "a_roll",
+     "file": "c01_03",
+     "src_start": 68.61,
+     "src_end": 71.32,
+     "abs_start": 188.833,
+     "abs_end": 191.533
+    },
+    {
+     "block_id": "sc07_21",
+     "kind": "a_roll",
+     "file": "c01_03",
+     "src_start": 71.66,
+     "src_end": 73.74,
+     "abs_start": 191.533,
+     "abs_end": 193.6
+    },
+    {
+     "block_id": "sc07_22",
+     "kind": "a_roll",
+     "file": "c01_03",
+     "src_start": 74.0,
+     "src_end": 74.96,
+     "abs_start": 193.6,
+     "abs_end": 194.567
+    },
+    {
+     "block_id": "sc07_23",
+     "kind": "a_roll",
+     "file": "c01_03",
+     "src_start": 75.84,
+     "src_end": 76.69,
+     "abs_start": 194.567,
+     "abs_end": 195.433
+    },
+    {
+     "block_id": "sc07_24",
+     "kind": "a_roll",
+     "file": "c01_03",
+     "src_start": 79.24,
+     "src_end": 86.32,
+     "abs_start": 195.433,
+     "abs_end": 202.5
+    },
+    {
+     "block_id": "sc07_25",
+     "kind": "a_roll",
+     "file": "c01_03",
+     "src_start": 86.68,
+     "src_end": 88.91,
+     "abs_start": 202.5,
+     "abs_end": 204.733
+    },
+    {
+     "block_id": "sc07_26",
+     "kind": "a_roll",
+     "file": "c01_03",
+     "src_start": 96.52,
+     "src_end": 96.86,
+     "abs_start": 204.733,
+     "abs_end": 205.067
+    },
+    {
+     "block_id": "sc07_27",
+     "kind": "a_roll",
+     "file": "c01_03",
+     "src_start": 97.76,
+     "src_end": 101.47,
+     "abs_start": 205.067,
+     "abs_end": 208.767
+    },
+    {
+     "block_id": "sc07_28",
+     "kind": "a_roll",
+     "file": "c01_03",
+     "src_start": 101.9,
+     "src_end": 107.19,
+     "abs_start": 208.767,
+     "abs_end": 214.067
+    },
+    {
+     "block_id": "sc07_29",
+     "kind": "a_roll",
+     "file": "c01_03",
+     "src_start": 107.52,
+     "src_end": 108.39,
+     "abs_start": 214.067,
+     "abs_end": 214.933
+    },
+    {
+     "block_id": "sc07_30",
+     "kind": "a_roll",
+     "file": "c01_03",
+     "src_start": 120.66,
+     "src_end": 121.53,
+     "abs_start": 214.933,
+     "abs_end": 215.8
+    },
+    {
+     "block_id": "sc07_31",
+     "kind": "a_roll",
+     "file": "c01_03",
+     "src_start": 125.4,
+     "src_end": 126.49,
+     "abs_start": 215.8,
+     "abs_end": 216.9
+    },
+    {
+     "block_id": "sc07_32",
+     "kind": "a_roll",
+     "file": "c01_03",
+     "src_start": 137.76,
+     "src_end": 138.51,
+     "abs_start": 216.9,
+     "abs_end": 217.667
     }
    ]
   },
   {
    "scene_id": "sc07b",
    "role": "demo",
-   "abs_start": 264.14,
-   "abs_end": 272.14,
+   "abs_start": 217.667,
+   "abs_end": 225.667,
    "blocks": [
     {
      "block_id": "sc07b_00",
@@ -172,128 +751,446 @@
      "file": "c01_07",
      "src_start": 0.0,
      "src_end": 8.0,
-     "abs_start": 264.14,
-     "abs_end": 272.14
-    }
-   ]
-  },
-  {
-   "scene_id": "sc07b_gap",
-   "role": "black_card",
-   "abs_start": 272.14,
-   "abs_end": 273.14,
-   "blocks": [
-    {
-     "block_id": "sc07b_gap",
-     "kind": "black_card",
-     "asset_id": null,
-     "abs_start": 272.14,
-     "abs_end": 273.14
-    }
-   ]
-  },
-  {
-   "scene_id": "sc09",
-   "role": "chapter_open",
-   "abs_start": 273.14,
-   "abs_end": 275.64,
-   "blocks": [
-    {
-     "block_id": "sc09_cg",
-     "kind": "cg",
-     "asset_id": "as_card3",
-     "abs_start": 273.14,
-     "abs_end": 275.64
+     "abs_start": 217.667,
+     "abs_end": 225.667
     }
    ]
   },
   {
    "scene_id": "sc10",
    "role": "prop",
-   "abs_start": 275.64,
-   "abs_end": 349.613,
+   "abs_start": 225.667,
+   "abs_end": 300.9,
    "blocks": [
     {
      "block_id": "sc10_00",
      "kind": "a_roll",
      "file": "c01_04",
-     "src_start": 4.04,
-     "src_end": 56.18,
-     "abs_start": 275.64,
-     "abs_end": 327.78
+     "src_start": 3.92,
+     "src_end": 3.98,
+     "abs_start": 225.667,
+     "abs_end": 225.733
     },
     {
      "block_id": "sc10_01",
      "kind": "a_roll",
      "file": "c01_04",
-     "src_start": 59.72,
-     "src_end": 81.54,
-     "abs_start": 327.78,
-     "abs_end": 349.613
-    }
-   ]
-  },
-  {
-   "scene_id": "sc10_gap",
-   "role": "black_card",
-   "abs_start": 349.613,
-   "abs_end": 350.613,
-   "blocks": [
+     "src_start": 4.64,
+     "src_end": 5.13,
+     "abs_start": 225.733,
+     "abs_end": 226.233
+    },
     {
-     "block_id": "sc10_gap",
-     "kind": "black_card",
-     "asset_id": "as_card_summary",
-     "abs_start": 349.613,
-     "abs_end": 350.613
+     "block_id": "sc10_02",
+     "kind": "a_roll",
+     "file": "c01_04",
+     "src_start": 10.56,
+     "src_end": 16.48,
+     "abs_start": 226.233,
+     "abs_end": 232.167
+    },
+    {
+     "block_id": "sc10_03",
+     "kind": "a_roll",
+     "file": "c01_04",
+     "src_start": 16.77,
+     "src_end": 22.52,
+     "abs_start": 232.167,
+     "abs_end": 237.933
+    },
+    {
+     "block_id": "sc10_04",
+     "kind": "a_roll",
+     "file": "c01_04",
+     "src_start": 22.78,
+     "src_end": 28.15,
+     "abs_start": 237.933,
+     "abs_end": 243.3
+    },
+    {
+     "block_id": "sc10_05",
+     "kind": "a_roll",
+     "file": "c01_04",
+     "src_start": 28.41,
+     "src_end": 29.97,
+     "abs_start": 243.3,
+     "abs_end": 244.867
+    },
+    {
+     "block_id": "sc10_06",
+     "kind": "a_roll",
+     "file": "c01_04",
+     "src_start": 32.04,
+     "src_end": 33.62,
+     "abs_start": 244.867,
+     "abs_end": 246.433
+    },
+    {
+     "block_id": "sc10_07",
+     "kind": "a_roll",
+     "file": "c01_04",
+     "src_start": 34.02,
+     "src_end": 36.4,
+     "abs_start": 246.433,
+     "abs_end": 248.8
+    },
+    {
+     "block_id": "sc10_08",
+     "kind": "a_roll",
+     "file": "c01_04",
+     "src_start": 36.65,
+     "src_end": 43.99,
+     "abs_start": 248.8,
+     "abs_end": 256.133
+    },
+    {
+     "block_id": "sc10_09",
+     "kind": "a_roll",
+     "file": "c01_04",
+     "src_start": 46.54,
+     "src_end": 46.85,
+     "abs_start": 256.133,
+     "abs_end": 256.433
+    },
+    {
+     "block_id": "sc10_10",
+     "kind": "a_roll",
+     "file": "c01_04",
+     "src_start": 47.12,
+     "src_end": 52.94,
+     "abs_start": 256.433,
+     "abs_end": 262.267
+    },
+    {
+     "block_id": "sc10_11",
+     "kind": "a_roll",
+     "file": "c01_04",
+     "src_start": 53.19,
+     "src_end": 54.96,
+     "abs_start": 262.267,
+     "abs_end": 264.033
+    },
+    {
+     "block_id": "sc10_12",
+     "kind": "a_roll",
+     "file": "c01_04",
+     "src_start": 55.27,
+     "src_end": 58.09,
+     "abs_start": 264.033,
+     "abs_end": 266.867
+    },
+    {
+     "block_id": "sc10_13",
+     "kind": "a_roll",
+     "file": "c01_04",
+     "src_start": 58.33,
+     "src_end": 59.63,
+     "abs_start": 266.867,
+     "abs_end": 268.167
+    },
+    {
+     "block_id": "sc10_14",
+     "kind": "a_roll",
+     "file": "c01_04",
+     "src_start": 59.77,
+     "src_end": 61.57,
+     "abs_start": 268.167,
+     "abs_end": 269.967
+    },
+    {
+     "block_id": "sc10_15",
+     "kind": "a_roll",
+     "file": "c01_04",
+     "src_start": 62.76,
+     "src_end": 68.59,
+     "abs_start": 269.967,
+     "abs_end": 275.8
+    },
+    {
+     "block_id": "sc10_16",
+     "kind": "a_roll",
+     "file": "c01_04",
+     "src_start": 69.48,
+     "src_end": 69.83,
+     "abs_start": 275.8,
+     "abs_end": 276.167
+    },
+    {
+     "block_id": "sc10_17",
+     "kind": "a_roll",
+     "file": "c01_04",
+     "src_start": 70.12,
+     "src_end": 72.09,
+     "abs_start": 276.167,
+     "abs_end": 278.133
+    },
+    {
+     "block_id": "sc10_18",
+     "kind": "a_roll",
+     "file": "c01_04",
+     "src_start": 72.64,
+     "src_end": 73.85,
+     "abs_start": 278.133,
+     "abs_end": 279.333
+    },
+    {
+     "block_id": "sc10_19",
+     "kind": "a_roll",
+     "file": "c01_04",
+     "src_start": 74.13,
+     "src_end": 78.62,
+     "abs_start": 279.333,
+     "abs_end": 283.833
+    },
+    {
+     "block_id": "sc10_20",
+     "kind": "a_roll",
+     "file": "c01_04",
+     "src_start": 78.97,
+     "src_end": 79.94,
+     "abs_start": 283.833,
+     "abs_end": 284.8
+    },
+    {
+     "block_id": "sc10_21",
+     "kind": "a_roll",
+     "file": "c01_04",
+     "src_start": 80.19,
+     "src_end": 81.79,
+     "abs_start": 284.8,
+     "abs_end": 286.4
+    },
+    {
+     "block_id": "sc10_22",
+     "kind": "a_roll",
+     "file": "c01_04",
+     "src_start": 84.82,
+     "src_end": 86.65,
+     "abs_start": 286.4,
+     "abs_end": 288.233
+    },
+    {
+     "block_id": "sc10_23",
+     "kind": "a_roll",
+     "file": "c01_04",
+     "src_start": 86.94,
+     "src_end": 87.89,
+     "abs_start": 288.233,
+     "abs_end": 289.2
+    },
+    {
+     "block_id": "sc10_24",
+     "kind": "a_roll",
+     "file": "c01_04",
+     "src_start": 88.16,
+     "src_end": 90.41,
+     "abs_start": 289.2,
+     "abs_end": 291.467
+    },
+    {
+     "block_id": "sc10_25",
+     "kind": "a_roll",
+     "file": "c01_04",
+     "src_start": 94.66,
+     "src_end": 95.07,
+     "abs_start": 291.467,
+     "abs_end": 291.867
+    },
+    {
+     "block_id": "sc10_26",
+     "kind": "a_roll",
+     "file": "c01_04",
+     "src_start": 95.71,
+     "src_end": 101.46,
+     "abs_start": 291.867,
+     "abs_end": 297.633
+    },
+    {
+     "block_id": "sc10_27",
+     "kind": "a_roll",
+     "file": "c01_04",
+     "src_start": 101.74,
+     "src_end": 104.99,
+     "abs_start": 297.633,
+     "abs_end": 300.9
     }
    ]
   },
   {
    "scene_id": "sc11",
    "role": "summary",
-   "abs_start": 350.613,
-   "abs_end": 402.693,
+   "abs_start": 300.9,
+   "abs_end": 343.767,
    "blocks": [
     {
      "block_id": "sc11_00",
      "kind": "a_roll",
      "file": "c01_04",
-     "src_start": 112.02,
-     "src_end": 157.36,
-     "abs_start": 350.613,
-     "abs_end": 395.953
+     "src_start": 112.34,
+     "src_end": 112.74,
+     "abs_start": 300.9,
+     "abs_end": 301.3
     },
     {
      "block_id": "sc11_01",
      "kind": "a_roll",
      "file": "c01_04",
-     "src_start": 162.26,
-     "src_end": 169.0,
-     "abs_start": 395.953,
-     "abs_end": 402.693
-    }
-   ]
-  },
-  {
-   "scene_id": "sc11_gap",
-   "role": "black_card",
-   "abs_start": 402.693,
-   "abs_end": 403.693,
-   "blocks": [
+     "src_start": 113.54,
+     "src_end": 117.25,
+     "abs_start": 301.3,
+     "abs_end": 305.0
+    },
     {
-     "block_id": "sc11_gap",
-     "kind": "black_card",
-     "asset_id": "as_card_montage",
-     "abs_start": 402.693,
-     "abs_end": 403.693
+     "block_id": "sc11_02",
+     "kind": "a_roll",
+     "file": "c01_04",
+     "src_start": 117.49,
+     "src_end": 122.03,
+     "abs_start": 305.0,
+     "abs_end": 309.533
+    },
+    {
+     "block_id": "sc11_03",
+     "kind": "a_roll",
+     "file": "c01_04",
+     "src_start": 122.34,
+     "src_end": 123.01,
+     "abs_start": 309.533,
+     "abs_end": 310.2
+    },
+    {
+     "block_id": "sc11_04",
+     "kind": "a_roll",
+     "file": "c01_04",
+     "src_start": 123.31,
+     "src_end": 125.83,
+     "abs_start": 310.2,
+     "abs_end": 312.733
+    },
+    {
+     "block_id": "sc11_05",
+     "kind": "a_roll",
+     "file": "c01_04",
+     "src_start": 126.06,
+     "src_end": 127.37,
+     "abs_start": 312.733,
+     "abs_end": 314.033
+    },
+    {
+     "block_id": "sc11_06",
+     "kind": "a_roll",
+     "file": "c01_04",
+     "src_start": 128.38,
+     "src_end": 129.92,
+     "abs_start": 314.033,
+     "abs_end": 315.567
+    },
+    {
+     "block_id": "sc11_07",
+     "kind": "a_roll",
+     "file": "c01_04",
+     "src_start": 130.2,
+     "src_end": 131.55,
+     "abs_start": 315.567,
+     "abs_end": 316.933
+    },
+    {
+     "block_id": "sc11_08",
+     "kind": "a_roll",
+     "file": "c01_04",
+     "src_start": 132.04,
+     "src_end": 133.57,
+     "abs_start": 316.933,
+     "abs_end": 318.467
+    },
+    {
+     "block_id": "sc11_09",
+     "kind": "a_roll",
+     "file": "c01_04",
+     "src_start": 133.71,
+     "src_end": 139.84,
+     "abs_start": 318.467,
+     "abs_end": 324.6
+    },
+    {
+     "block_id": "sc11_10",
+     "kind": "a_roll",
+     "file": "c01_04",
+     "src_start": 140.13,
+     "src_end": 142.34,
+     "abs_start": 324.6,
+     "abs_end": 326.8
+    },
+    {
+     "block_id": "sc11_11",
+     "kind": "a_roll",
+     "file": "c01_04",
+     "src_start": 142.65,
+     "src_end": 143.99,
+     "abs_start": 326.8,
+     "abs_end": 328.133
+    },
+    {
+     "block_id": "sc11_12",
+     "kind": "a_roll",
+     "file": "c01_04",
+     "src_start": 144.22,
+     "src_end": 147.31,
+     "abs_start": 328.133,
+     "abs_end": 331.233
+    },
+    {
+     "block_id": "sc11_13",
+     "kind": "a_roll",
+     "file": "c01_04",
+     "src_start": 147.54,
+     "src_end": 153.68,
+     "abs_start": 331.233,
+     "abs_end": 337.367
+    },
+    {
+     "block_id": "sc11_14",
+     "kind": "a_roll",
+     "file": "c01_04",
+     "src_start": 154.0,
+     "src_end": 156.08,
+     "abs_start": 337.367,
+     "abs_end": 339.433
+    },
+    {
+     "block_id": "sc11_15",
+     "kind": "a_roll",
+     "file": "c01_04",
+     "src_start": 156.5,
+     "src_end": 157.61,
+     "abs_start": 339.433,
+     "abs_end": 340.533
+    },
+    {
+     "block_id": "sc11_16",
+     "kind": "a_roll",
+     "file": "c01_04",
+     "src_start": 165.96,
+     "src_end": 168.74,
+     "abs_start": 340.533,
+     "abs_end": 343.3
+    },
+    {
+     "block_id": "sc11_17",
+     "kind": "a_roll",
+     "file": "c01_04",
+     "src_start": 169.15,
+     "src_end": 169.61,
+     "abs_start": 343.3,
+     "abs_end": 343.767
     }
    ]
   },
   {
    "scene_id": "sc12",
    "role": "montage",
-   "abs_start": 403.693,
-   "abs_end": 481.693,
+   "abs_start": 343.767,
+   "abs_end": 421.767,
    "blocks": [
     {
      "block_id": "sc12_00",
@@ -301,8 +1198,8 @@
      "file": "c01_06",
      "src_start": 6.5,
      "src_end": 35.0,
-     "abs_start": 403.693,
-     "abs_end": 432.193
+     "abs_start": 343.767,
+     "abs_end": 372.267
     },
     {
      "block_id": "sc12_01",
@@ -310,8 +1207,8 @@
      "file": "c01_07",
      "src_start": 8.0,
      "src_end": 29.1,
-     "abs_start": 432.193,
-     "abs_end": 453.293
+     "abs_start": 372.267,
+     "abs_end": 393.367
     },
     {
      "block_id": "sc12_02",
@@ -319,8 +1216,8 @@
      "file": "c01_05",
      "src_start": 0.0,
      "src_end": 28.4,
-     "abs_start": 453.293,
-     "abs_end": 481.693
+     "abs_start": 393.367,
+     "abs_end": 421.767
     }
    ]
   }

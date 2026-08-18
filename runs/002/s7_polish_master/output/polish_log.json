@@ -1,0 +1,1045 @@
+{
+ "zooms": [
+  {
+   "id": "zm01",
+   "a": 17.733,
+   "b": 25.733,
+   "scale": 1.2,
+   "cx": 0.5,
+   "cy": 0.45,
+   "hold": 8.0,
+   "purpose": "emphasis"
+  },
+  {
+   "id": "zm02",
+   "a": 72.013,
+   "b": 82.013,
+   "scale": 1.25,
+   "cx": 0.53,
+   "cy": 0.45,
+   "hold": 10.0,
+   "purpose": "emphasis+conceal_cut"
+  },
+  {
+   "id": "zm03",
+   "a": 158.157,
+   "b": 170.157,
+   "scale": 1.6,
+   "cx": 0.48,
+   "cy": 0.72,
+   "hold": 12.0,
+   "purpose": "emphasis"
+  },
+  {
+   "id": "zm04",
+   "a": 204.733,
+   "b": 210.733,
+   "scale": 1.2,
+   "cx": 0.48,
+   "cy": 0.45,
+   "hold": 6.0,
+   "purpose": "conceal_cut"
+  },
+  {
+   "id": "zm05",
+   "a": 264.903,
+   "b": 272.903,
+   "scale": 1.3,
+   "cx": 0.5,
+   "cy": 0.42,
+   "hold": 8.0,
+   "purpose": "emphasis+conceal_cut"
+  }
+ ],
+ "reframe": [
+  {
+   "a": 0.0,
+   "b": 28.633,
+   "samples": 58,
+   "box": {
+    "x0": 0.4531,
+    "x1": 0.6438,
+    "y0": 0.4389,
+    "y1": 1.0
+   }
+  },
+  {
+   "a": 28.633,
+   "b": 136.433,
+   "samples": 214,
+   "box": {
+    "x0": 0.4156,
+    "x1": 0.65,
+    "y0": 0.4778,
+    "y1": 1.0
+   }
+  },
+  {
+   "a": 136.433,
+   "b": 142.933,
+   "samples": 13,
+   "box": {
+    "x0": 0.3625,
+    "x1": 0.8031,
+    "y0": 0.0611,
+    "y1": 1.0
+   }
+  },
+  {
+   "a": 142.933,
+   "b": 217.667,
+   "samples": 148,
+   "box": {
+    "x0": 0.4062,
+    "x1": 0.6312,
+    "y0": 0.4333,
+    "y1": 1.0
+   }
+  },
+  {
+   "a": 217.667,
+   "b": 225.667,
+   "samples": 16,
+   "box": {
+    "x0": 0.3156,
+    "x1": 0.7844,
+    "y0": 0.1833,
+    "y1": 1.0
+   }
+  },
+  {
+   "a": 225.667,
+   "b": 300.9,
+   "samples": 147,
+   "box": {
+    "x0": 0.4281,
+    "x1": 0.6219,
+    "y0": 0.4222,
+    "y1": 0.9833
+   }
+  },
+  {
+   "a": 300.9,
+   "b": 343.767,
+   "samples": 87,
+   "box": {
+    "x0": 0.425,
+    "x1": 0.6,
+    "y0": 0.4167,
+    "y1": 0.9944
+   }
+  },
+  {
+   "a": 343.767,
+   "b": 421.767,
+   "samples": 156,
+   "box": {
+    "x0": 0.3031,
+    "x1": 0.6094,
+    "y0": 0.3944,
+    "y1": 1.0
+   }
+  }
+ ],
+ "gains": [
+  {
+   "block_id": "sc02_00",
+   "file": "c01_01",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc02_01",
+   "file": "c01_01",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc02_02",
+   "file": "c01_01",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc02_03",
+   "file": "c01_01",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc02_04",
+   "file": "c01_01",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc02_05",
+   "file": "c01_01",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc02_06",
+   "file": "c01_01",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc04_00",
+   "file": "c01_02",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc04_01",
+   "file": "c01_02",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc04_02",
+   "file": "c01_02",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc04_03",
+   "file": "c01_02",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc04_04",
+   "file": "c01_02",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc04_05",
+   "file": "c01_02",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc04_06",
+   "file": "c01_02",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc04_07",
+   "file": "c01_02",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc04_08",
+   "file": "c01_02",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc04_09",
+   "file": "c01_02",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc04_10",
+   "file": "c01_02",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc04_11",
+   "file": "c01_02",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc04_12",
+   "file": "c01_02",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc04_13",
+   "file": "c01_02",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc04_14",
+   "file": "c01_02",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc04_15",
+   "file": "c01_02",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc04_16",
+   "file": "c01_02",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc04_17",
+   "file": "c01_02",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc04_18",
+   "file": "c01_02",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc04_19",
+   "file": "c01_02",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc04_20",
+   "file": "c01_02",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc04_21",
+   "file": "c01_02",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc04_22",
+   "file": "c01_02",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc04_23",
+   "file": "c01_02",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc04_24",
+   "file": "c01_02",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc04_25",
+   "file": "c01_02",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc04_26",
+   "file": "c01_02",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc04_27",
+   "file": "c01_02",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc04_28",
+   "file": "c01_02",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc04_29",
+   "file": "c01_02",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc04_30",
+   "file": "c01_02",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc04_31",
+   "file": "c01_02",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc04_32",
+   "file": "c01_02",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc04_33",
+   "file": "c01_02",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc04_34",
+   "file": "c01_02",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc04_35",
+   "file": "c01_02",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc04_36",
+   "file": "c01_02",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc05_00",
+   "file": "c01_06",
+   "measured_lufs": -70.0,
+   "target_lufs": -20,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc07_00",
+   "file": "c01_03",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc07_01",
+   "file": "c01_03",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc07_02",
+   "file": "c01_03",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc07_03",
+   "file": "c01_03",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc07_04",
+   "file": "c01_03",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc07_05",
+   "file": "c01_03",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc07_06",
+   "file": "c01_03",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc07_07",
+   "file": "c01_03",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc07_08",
+   "file": "c01_03",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc07_09",
+   "file": "c01_03",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc07_10",
+   "file": "c01_03",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc07_11",
+   "file": "c01_03",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc07_12",
+   "file": "c01_03",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc07_13",
+   "file": "c01_03",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc07_14",
+   "file": "c01_03",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc07_15",
+   "file": "c01_03",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc07_16",
+   "file": "c01_03",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc07_17",
+   "file": "c01_03",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc07_18",
+   "file": "c01_03",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc07_19",
+   "file": "c01_03",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc07_20",
+   "file": "c01_03",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc07_21",
+   "file": "c01_03",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc07_22",
+   "file": "c01_03",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc07_23",
+   "file": "c01_03",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc07_24",
+   "file": "c01_03",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc07_25",
+   "file": "c01_03",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc07_26",
+   "file": "c01_03",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc07_27",
+   "file": "c01_03",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc07_28",
+   "file": "c01_03",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc07_29",
+   "file": "c01_03",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc07_30",
+   "file": "c01_03",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc07_31",
+   "file": "c01_03",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc07_32",
+   "file": "c01_03",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc07b_00",
+   "file": "c01_07",
+   "measured_lufs": -70.0,
+   "target_lufs": -20,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc10_00",
+   "file": "c01_04",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc10_01",
+   "file": "c01_04",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc10_02",
+   "file": "c01_04",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc10_03",
+   "file": "c01_04",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc10_04",
+   "file": "c01_04",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc10_05",
+   "file": "c01_04",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc10_06",
+   "file": "c01_04",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc10_07",
+   "file": "c01_04",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc10_08",
+   "file": "c01_04",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc10_09",
+   "file": "c01_04",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc10_10",
+   "file": "c01_04",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc10_11",
+   "file": "c01_04",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc10_12",
+   "file": "c01_04",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc10_13",
+   "file": "c01_04",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc10_14",
+   "file": "c01_04",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc10_15",
+   "file": "c01_04",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc10_16",
+   "file": "c01_04",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc10_17",
+   "file": "c01_04",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc10_18",
+   "file": "c01_04",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc10_19",
+   "file": "c01_04",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc10_20",
+   "file": "c01_04",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc10_21",
+   "file": "c01_04",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc10_22",
+   "file": "c01_04",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc10_23",
+   "file": "c01_04",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc10_24",
+   "file": "c01_04",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc10_25",
+   "file": "c01_04",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc10_26",
+   "file": "c01_04",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc10_27",
+   "file": "c01_04",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc11_00",
+   "file": "c01_04",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc11_01",
+   "file": "c01_04",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc11_02",
+   "file": "c01_04",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc11_03",
+   "file": "c01_04",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc11_04",
+   "file": "c01_04",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc11_05",
+   "file": "c01_04",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc11_06",
+   "file": "c01_04",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc11_07",
+   "file": "c01_04",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc11_08",
+   "file": "c01_04",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc11_09",
+   "file": "c01_04",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc11_10",
+   "file": "c01_04",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc11_11",
+   "file": "c01_04",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc11_12",
+   "file": "c01_04",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc11_13",
+   "file": "c01_04",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc11_14",
+   "file": "c01_04",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc11_15",
+   "file": "c01_04",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc11_16",
+   "file": "c01_04",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc11_17",
+   "file": "c01_04",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc12_00",
+   "file": "c01_06",
+   "measured_lufs": -70.0,
+   "target_lufs": -20,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc12_01",
+   "file": "c01_07",
+   "measured_lufs": -70.0,
+   "target_lufs": -20,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc12_02",
+   "file": "c01_05",
+   "measured_lufs": -70.0,
+   "target_lufs": -20,
+   "gain_db": 18.0
+  }
+ ],
+ "sfx_count": 14,
+ "bgm": "없음 — as_bgm 미확보",
+ "note": "발화 -14 LUFS / 무발화 -20 LUFS 목표로 블록별 게인 후 -1.5dBTP 리미터"
+}
