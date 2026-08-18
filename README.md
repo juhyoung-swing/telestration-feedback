@@ -12,13 +12,35 @@ rally-*     플레이 영상 — 낮은 화각 · 폰 거치 · 대부분의 유
 match-*     경기 영상 — 높은 화각 · 코트가 화면 세로의 50% 이상
   match-analysis        타격·스윙·낙구 → 선수 리포트                           됨
 
-video-*     영상 편집 — 종목·장르에 묶이지 않는다
-  video-scripter        영상 → 대본 + 편집 지시서                             됨
+video-*     영상 일반 — 종목·장르에 묶이지 않는다
+  video-scripter        전사 · 대본 · 편집 지시서를 만든다   ★ 원재료 공장         됨
   video-edit            지시서대로 잘라 완성 영상                              됨
-  video-shortform       긴 영상에서 세로 클립을 뽑는다                          데모만
 
 lecture-*   강의 전용 — 가르치는 영상에서만 성립한다
   lecture-summary       수업 전/후 자료 (도해 포함)                            됨
+  lecture-shortform     티칭 포인트를 세로 클립으로                            데모만
+```
+
+## scripter 가 중심이다
+
+편집의 앞단이 아니라 **fan-out 지점**이다. 뒤의 모든 기능이 여기서 원재료를 먹는다.
+
+```
+                  ┌─→ video-edit          directive.json 을 실행해 영상을 만든다
+video-scripter ───┤
+                  ├─→ lecture-summary     대본을 읽어 수업 자료를 만든다
+                  └─→ lecture-shortform   전사를 읽어 좋은 구간을 고른다
+```
+
+`lecture-summary` 는 **완성 영상이 아니라 대본을 먹는다.** `student_pages.py` 가
+s1 산출물(`subject_track.json`)을 직접 읽고, 유닛 경계·축 문장·도해의 근거는
+전부 `edited_script.md` 에서 나왔다. **편집을 안 해도 자료는 만들 수 있다.**
+
+랠리 쪽도 같은 모양이다.
+
+```
+rally-detect ─ rallies.json ─→ rally-cut
+render_any.py 검출 캐시 ─→ rally-trajectory · match-analysis      (공용 입력)
 ```
 
 ## 접두어가 나누는 기준
@@ -29,7 +51,7 @@ video           영상을 어떻게 만드나
 lecture         배우는 사람에게 무엇을 주나
 ```
 
-### rally 와 match — 코트 좌표계가 성립하는가
+### rally ↔ match — 코트 좌표계가 성립하는가
 
 ```
 낮은 화각      코트가 화면 세로의 13%   재투영 오차 92.8 cm   코트 좌표 불가
@@ -42,7 +64,7 @@ lecture         배우는 사람에게 무엇을 주나
 | 궤적선 (화면 좌표) | 공 검출 | **된다** — 단 검출률 미측정 |
 | 낙구 · 인아웃 · 속도 · 코트맵 | 코트 좌표 변환 | **안 된다** |
 
-### video 와 lecture — 종목에 묶이나
+### video ↔ lecture — 종목에 묶이나
 
 `video-*` 안에 테니스도 강의도 없다.
 
@@ -57,47 +79,36 @@ s6  자막 · CG · 효과음            어떤 영상이든
 강의 특유의 것은 **"무음 ≠ 삭제, 시범 동작 보호"** 하나인데 그건 지시서에 들어가는
 **규칙**이다. 기계가 아니라 판단이다.
 
-`lecture-summary` 는 다르다. 유닛 · 오답↔정답 대조 · 체크리스트 · 수업 전/후라는
-구조 자체가 가르치는 영상에서만 성립한다.
+`lecture-*` 는 다르다. 유닛 · 오답↔정답 대조 · 체크리스트 · 티칭 포인트 선별은
+가르치는 영상에서만 성립한다.
 
-> **다만 `video-*` 는 아직 테니스 강의 하나로만 검증했다.**
+> **`video-*` 는 아직 테니스 강의 하나로만 검증했다.**
 > 이름은 의도이고, 다른 장르에서 되는지는 재본 적이 없다.
-
-## 두 스택은 코드를 공유하지 않는다
-
-```
-rally · match   CV — 선수 포즈 · 공 검출 · 코트 좌표계     ultralytics · opencv
-video · lecture 텍스트 — 전사 · 대본 · LLM               whisper · Claude API
-```
-
-환경이 다르고 겹치는 코드가 없다. **한 세션에서 같이 돌리지 않는다.**
-
-## 이어지는 순서
-
-```
-rally-detect ─ rallies.json ─→ rally-cut
-render_any.py 검출 캐시 ─→ rally-trajectory · match-analysis          (공용 입력)
-
-video-scripter ─ directive.json ─→ video-edit ─ 완성 영상 ─→ lecture-summary
-```
-
-이음선이 `directive.json` 하나다. **판단은 scripter 에서 끝나고 뒤는 실행만 한다.**
 
 ## 왜 나누고 왜 안 나누나
 
 **scripter 와 edit 은 나눈다 — 소비자가 다르다.**
 
 ```
-video-scripter  →  사람 편집자가 읽는다    "대본만 넘기면 외주 편집이 돌아가나"
-video-edit      →  시청자가 본다          완성 영상
+video-scripter  →  사람 편집자가 읽는다 (script.html)   "대본만 넘기면 외주가 돌아가나"
+video-edit      →  시청자가 본다 (완성 영상)
 ```
 
-자동 편집을 안 쓰고 대본만 넘기는 경로가 따로 있다. 고객이 다르면 기능이 다르다.
-
 **도해는 안 나눈다 — 부품이다.**
+파는 물건이 아니라 수업 전 페이지에 들어가는 재료다. `lecture-summary/src/diagram/`.
 
-파는 물건이 아니라 수업 전 페이지에 들어가는 재료다.
-그래서 `lecture-summary/src/diagram/` 안에 있다.
+**숏폼은 목적별로 나눈다 — 판단이 다르다.**
+포맷(9:16 · 자막 · 20~25초)은 같고 무엇을 고르냐가 다르다.
+
+## 아직 폴더가 없는 것
+
+**코드도 계획도 없으면 폴더를 만들지 않는다.** 빈 껍데기는 구조를 흐린다.
+
+```
+rally-highlight    잘한 랠리만 모은 숏폼      입력이 랠리 JSON — rally 쪽
+video-marketing    훅이 되는 구간 · 홍보용     판단만 다르고 포맷은 lecture-shortform 과 같음
+세로 리프레임 공용화   현재 중앙 고정 크롭       두 번째 사용자가 생길 때 뺀다
+```
 
 ## 폴더 안 구조
 

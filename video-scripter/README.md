@@ -1,15 +1,37 @@
 # 스크립터
 
-무편집 강의 원본을 **대본과 편집 지시서**로 바꾼다.
+무편집 영상을 **전사 · 대본 · 편집 지시서**로 바꾼다.
+Whisper 로 말을 받아쓰고, 인물을 추적하고, 대본과 맞춰 타임코드를 붙인다.
 
-출력이 둘이다.
+**뒤의 모든 기능이 여기서 원재료를 먹는다.** 편집의 앞단이 아니라 fan-out 지점이다.
 
 ```
-directive.json    기계가 먹는다 → ../video-edit
-script.html       사람 편집자가 읽는다
+                  ┌─→ video-edit         directive.json 을 실행해 영상을 만든다
+video-scripter ───┤
+                  ├─→ lecture-summary    대본을 읽어 수업 자료를 만든다
+                  └─→ lecture-shortform  전사를 읽어 좋은 구간을 고른다
 ```
 
-**"영상을 대본화해서 편집자에게 맡기면 되냐"** 는 질문의 답이 두 번째다.
+`lecture-summary` 는 **완성 영상이 아니라 대본을 먹는다.** 증거가 코드에 있다.
+
+```python
+# lecture-summary/src/student_pages.py
+tr = ROOT / "runs/002/s1_audio_visual_data_fusion/output/subject_track.json"
+```
+
+s1 산출물을 직접 읽는다. 유닛 경계 · 축 문장 · 도해의 근거도 전부 `edited_script.md`
+에서 나왔다. **편집을 안 해도 자료는 만들 수 있다.**
+
+## 출력 네 가지
+
+```
+전사 JSON        단어 단위 타임스탬프 · 말더듬 · 무음 구간
+subject_track    인물 박스 — 크롭·리프레임의 근거
+script.html      사람 편집자가 읽는다
+directive.json   기계가 먹는다
+```
+
+**"영상을 대본화해서 편집자에게 맡기면 되냐"** 는 질문의 답이 `script.html` 이다.
 자동 편집을 안 쓰더라도 이 산출물만으로 외주 편집이 돌아간다.
 
 ## 원칙 — 판단은 여기서 끝난다
