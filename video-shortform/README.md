@@ -3,9 +3,9 @@
 레슨 영상 하나에서 쓸 만한 구간을 골라 **세로 클립 여러 개**로 뽑는다.
 Reels · Shorts · TikTok 규격.
 
-## `../lecture-edit` 와 다른 점
+## `../video-edit` 와 다른 점
 
-| | lecture-edit | 여기 |
+| | video-edit | 여기 |
 |---|---|---|
 | 입력 | 강의 원본 + **대본** | 레슨 원본, **대본 없음** |
 | 판단 기준 | 대본과 일치하는가 | **좋은 구간인가** |
@@ -54,7 +54,7 @@ Reels · Shorts · TikTok 규격.
 ```
 
 **공이나 사람을 따라가지 않는다.** 경쟁 제품은 카메라맨처럼 공을 따라가는 리프레임을 판다.
-`../lecture-material` 의 `clip_loop()` 이 `subject_track.json` 으로 인물을 따라가니
+`../lecture-summary` 의 `clip_loop()` 이 `subject_track.json` 으로 인물을 따라가니
 그걸 가져오면 된다.
 
 ## 할 일

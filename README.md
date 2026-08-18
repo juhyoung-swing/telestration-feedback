@@ -4,24 +4,32 @@
 기능 8개. **폴더 하나가 기능 하나다.**
 
 ```
-랠리 — 낮은 화각 · 폰 거치 · 대부분의 유저가 이렇게 찍는다      상태
-  rally-detect          랠리를 자동으로 표시한다                 새로 만듦
-  rally-trajectory      샷의 경로를 영상 위에 그린다              검출률 재측정 필요
-  rally-cut             포인트 사이 빈 시간을 걷어낸다             반쯤
+rally-*     플레이 영상 — 낮은 화각 · 폰 거치 · 대부분의 유저가 이렇게 찍는다     상태
+  rally-detect          랠리를 자동으로 표시한다                              새로 만듦
+  rally-trajectory      샷의 경로를 영상 위에 그린다                           검출률 재측정 필요
+  rally-cut             포인트 사이 빈 시간을 걷어낸다                          반쯤
 
-경기 — 높은 화각 · 코트 전체가 화면의 50% 이상
-  match-analysis        타격·스윙·낙구 → 선수 리포트              됨
+match-*     경기 영상 — 높은 화각 · 코트가 화면 세로의 50% 이상
+  match-analysis        타격·스윙·낙구 → 선수 리포트                           됨
 
-강의
-  lecture-scripter      영상 → 대본 + 편집 지시서                 됨
-  lecture-edit          지시서대로 잘라 완성 영상                  됨
-  lecture-summary       수업 전/후 자료 (도해 포함)                됨
-  lecture-shortform     레슨에서 세로 클립을 뽑는다                데모만
+video-*     영상 편집 — 종목·장르에 묶이지 않는다
+  video-scripter        영상 → 대본 + 편집 지시서                             됨
+  video-edit            지시서대로 잘라 완성 영상                              됨
+  video-shortform       긴 영상에서 세로 클립을 뽑는다                          데모만
+
+lecture-*   강의 전용 — 가르치는 영상에서만 성립한다
+  lecture-summary       수업 전/후 자료 (도해 포함)                            됨
 ```
 
-## 랠리와 경기를 나누는 선은 촬영 조건이다
+## 접두어가 나누는 기준
 
-**코트 좌표계(호모그래피)가 성립하는가.** 그것 하나로 갈린다.
+```
+rally / match   무엇을 찍었나 + 촬영 조건이 무엇을 허락하나
+video           영상을 어떻게 만드나
+lecture         배우는 사람에게 무엇을 주나
+```
+
+### rally 와 match — 코트 좌표계가 성립하는가
 
 ```
 낮은 화각      코트가 화면 세로의 13%   재투영 오차 92.8 cm   코트 좌표 불가
@@ -34,14 +42,32 @@
 | 궤적선 (화면 좌표) | 공 검출 | **된다** — 단 검출률 미측정 |
 | 낙구 · 인아웃 · 속도 · 코트맵 | 코트 좌표 변환 | **안 된다** |
 
-`rally-*` 는 대부분의 유저가 실제로 찍는 영상을 대상으로 한다.
-`match-analysis` 는 촬영 조건을 갖춘 소수를 대상으로 한다.
+### video 와 lecture — 종목에 묶이나
 
-## 두 도메인은 코드를 공유하지 않는다
+`video-*` 안에 테니스도 강의도 없다.
 
 ```
-랠리·경기   CV — 선수 포즈 · 공 검출 · 코트 좌표계     ultralytics · opencv
-강의        텍스트 — 전사 · 대본 · LLM               whisper · Claude API
+s1  whisper 전사 + 인물 추적      어떤 영상이든
+s2  대본 매칭 → 지시서            대본이 있는 영상이면
+s3  무음 압축                    어떤 영상이든
+s4  물리적 컷                    어떤 영상이든
+s6  자막 · CG · 효과음            어떤 영상이든
+```
+
+강의 특유의 것은 **"무음 ≠ 삭제, 시범 동작 보호"** 하나인데 그건 지시서에 들어가는
+**규칙**이다. 기계가 아니라 판단이다.
+
+`lecture-summary` 는 다르다. 유닛 · 오답↔정답 대조 · 체크리스트 · 수업 전/후라는
+구조 자체가 가르치는 영상에서만 성립한다.
+
+> **다만 `video-*` 는 아직 테니스 강의 하나로만 검증했다.**
+> 이름은 의도이고, 다른 장르에서 되는지는 재본 적이 없다.
+
+## 두 스택은 코드를 공유하지 않는다
+
+```
+rally · match   CV — 선수 포즈 · 공 검출 · 코트 좌표계     ultralytics · opencv
+video · lecture 텍스트 — 전사 · 대본 · LLM               whisper · Claude API
 ```
 
 환경이 다르고 겹치는 코드가 없다. **한 세션에서 같이 돌리지 않는다.**
@@ -49,29 +75,29 @@
 ## 이어지는 순서
 
 ```
-랠리
-  rally-detect ─ rallies.json ─→ rally-cut
-  render_any.py 검출 캐시 ─→ rally-trajectory  ·  match-analysis     (공용 입력)
+rally-detect ─ rallies.json ─→ rally-cut
+render_any.py 검출 캐시 ─→ rally-trajectory · match-analysis          (공용 입력)
 
-강의
-  lecture-scripter ─ directive.json ─→ lecture-edit ─ 완성 영상 ─→ lecture-summary
+video-scripter ─ directive.json ─→ video-edit ─ 완성 영상 ─→ lecture-summary
 ```
 
-강의 쪽 이음선이 `directive.json` 하나다. **판단은 scripter 에서 끝나고 뒤는 실행만 한다.**
+이음선이 `directive.json` 하나다. **판단은 scripter 에서 끝나고 뒤는 실행만 한다.**
 
-## scripter 와 edit 을 왜 나누나 — 소비자가 다르다
+## 왜 나누고 왜 안 나누나
+
+**scripter 와 edit 은 나눈다 — 소비자가 다르다.**
 
 ```
-lecture-scripter  →  사람 편집자가 읽는다    "대본만 넘기면 외주 편집이 돌아가나"
-lecture-edit      →  시청자가 본다          완성 영상
+video-scripter  →  사람 편집자가 읽는다    "대본만 넘기면 외주 편집이 돌아가나"
+video-edit      →  시청자가 본다          완성 영상
 ```
 
 자동 편집을 안 쓰고 대본만 넘기는 경로가 따로 있다. 고객이 다르면 기능이 다르다.
 
-## 도해를 왜 안 나누나 — 부품이다
+**도해는 안 나눈다 — 부품이다.**
 
-도해는 파는 물건이 아니라 수업 전 페이지에 들어가는 재료다. 그래서 `lecture-summary/src/diagram/`
-안에 있다. 외부 이미지 생성 툴을 거치지만 그건 구현 디테일이지 제품 구분이 아니다.
+파는 물건이 아니라 수업 전 페이지에 들어가는 재료다.
+그래서 `lecture-summary/src/diagram/` 안에 있다.
 
 ## 폴더 안 구조
 
@@ -82,7 +108,7 @@ lecture-edit      →  시청자가 본다          완성 영상
   output/      산출물 (증거)
 ```
 
-## 지금 가장 급한 두 가지
+## 지금 가장 급한 두 가지 — 둘 다 측정이다
 
 ```
 1  정답 라벨을 찍는다     rally-cut/output/labeling.html

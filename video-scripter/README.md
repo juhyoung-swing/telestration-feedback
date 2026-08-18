@@ -5,7 +5,7 @@
 출력이 둘이다.
 
 ```
-directive.json    기계가 먹는다 → ../lecture-edit
+directive.json    기계가 먹는다 → ../video-edit
 script.html       사람 편집자가 읽는다
 ```
 
