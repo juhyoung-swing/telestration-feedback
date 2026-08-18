@@ -184,7 +184,20 @@ media/match/  경기 영상 7개 + 코트 키포인트
 media/        숏폼 레슨 원본
 models/       가중치 — yolov8n/x · yolo5_last · keypoints_model
 cvwork/       경기 쪽 작업 디렉터리
+glossary/     용어 사전 + 전사 오류 교정 규칙
+assets/       cg · footage · lut · sfx 소재
 ```
+
+### glossary 는 한 파일로 두 곳에서 쓴다
+
+```
+glossary.md              용어 목록 — s1 Whisper --initial-prompt 에 주입해 오인식 예방
+                                    s2 지시서 meta.glossary 에 그대로 들어간다
+glossary/corrections.json 전사 오류 교정 — 소리는 손대지 않고 문서·자막 표기만 고친다
+```
+
+**판단 규칙 R5(내용어가 있으면 문장을 안 버린다)가 이 사전에 의존한다.**
+종목이 바뀌면 여기를 갈면 된다.
 
 폴더 간 `import` 가 한 건도 없다. 폴더를 어떻게 나눠도 코드가 끊기지 않는 이유다.
 
