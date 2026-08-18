@@ -1,7 +1,7 @@
 # Project ACE
 
 테니스 영상을 넣으면 편집된 영상과 학습 자료가 나온다.
-기능 8개. **폴더 하나가 기능 하나다.**
+기능 9개. **폴더 하나가 기능 하나다.**
 
 ```
 rally-*     플레이 영상 — 낮은 화각 · 폰 거치 · 대부분의 유저가 이렇게 찍는다     상태
@@ -13,28 +13,40 @@ match-*     경기 영상 — 높은 화각 · 코트가 화면 세로의 50% �
   match-analysis        타격·스윙·낙구 → 선수 리포트                           됨
 
 video-*     영상 일반 — 종목·장르에 묶이지 않는다
-  video-scripter        전사 · 대본 · 편집 지시서를 만든다   ★ 원재료 공장         됨
-  video-edit            지시서대로 잘라 완성 영상                              됨
+  video-transcribe      전사 + 인물 추적. 사실만.        관찰                 됨
+  video-directive       무엇을 어떻게 자를지 확정한다.     판단                 됨
+  video-edit            지시서대로 잘라 완성 영상.        실행                 됨
 
 lecture-*   강의 전용 — 가르치는 영상에서만 성립한다
   lecture-summary       수업 전/후 자료 (도해 포함)                            됨
   lecture-shortform     티칭 포인트를 세로 클립으로                            데모만
 ```
 
-## scripter 가 중심이다
+## 관찰 · 판단 · 실행 세 층
 
-편집의 앞단이 아니라 **fan-out 지점**이다. 뒤의 모든 기능이 여기서 원재료를 먹는다.
+`video-*` 가 셋으로 나뉘는 이유는 **판단만 목적에 묶이기 때문**이다.
 
 ```
-                  ┌─→ video-edit          directive.json 을 실행해 영상을 만든다
-video-scripter ───┤
-                  ├─→ lecture-summary     대본을 읽어 수업 자료를 만든다
-                  └─→ lecture-shortform   전사를 읽어 좋은 구간을 고른다
+video-transcribe   관찰   사실만. 목적과 무관.        모든 기능의 원재료
+video-directive    판단   목적이 들어간다.            여기서 강의냐 마케팅이냐가 갈린다
+video-edit         실행   기계적으로. 새 판단 없음.
 ```
 
-`lecture-summary` 는 **완성 영상이 아니라 대본을 먹는다.** `student_pages.py` 가
-s1 산출물(`subject_track.json`)을 직접 읽고, 유닛 경계·축 문장·도해의 근거는
-전부 `edited_script.md` 에서 나왔다. **편집을 안 해도 자료는 만들 수 있다.**
+**같은 영상이 강의도 되고 마케팅 릴도 되는 건 판단 층에서 갈린다.**
+그래서 판단은 폴더가 아니라 `video-directive/rules/` 로 갈아끼운다.
+관찰과 실행은 중립이라 그대로 재사용한다.
+
+### transcribe 가 fan-out 지점이다
+
+```
+                     ┌─→ video-directive     전사 + 대본으로 지시서를 만든다
+video-transcribe ────┼─→ lecture-summary     subject_track 으로 크롭을 맞춘다
+                     └─→ lecture-shortform   전사로 구간을 고르고 인물을 따라간다
+```
+
+`lecture-summary` 는 **완성 영상이 아니라 대본과 전사를 먹는다.** `student_pages.py` 가
+`subject_track.json` 을 직접 읽고, 유닛 경계·축 문장·도해의 근거는 전부
+`edited_script.md` 에서 나왔다. **편집을 안 해도 자료는 만들 수 있다.**
 
 랠리 쪽도 같은 모양이다.
 
@@ -87,12 +99,16 @@ s6  자막 · CG · 효과음            어떤 영상이든
 
 ## 왜 나누고 왜 안 나누나
 
-**scripter 와 edit 은 나눈다 — 소비자가 다르다.**
+**directive 와 edit 은 나눈다 — 소비자가 다르다.**
 
 ```
-video-scripter  →  사람 편집자가 읽는다 (script.html)   "대본만 넘기면 외주가 돌아가나"
-video-edit      →  시청자가 본다 (완성 영상)
+video-directive  →  사람 편집자가 읽는다 (script.html)   "대본만 넘기면 외주가 돌아가나"
+video-edit       →  시청자가 본다 (완성 영상)
 ```
+
+**transcribe 를 떼는 이유 — 판단 밖에서도 쓰인다.**
+전사와 `subject_track.json` 을 지금 셋이 먹는다. 편집 지시서 없이도 쓰이는
+원재료라 판단 계층 안에 두면 안 된다.
 
 **도해는 안 나눈다 — 부품이다.**
 파는 물건이 아니라 수업 전 페이지에 들어가는 재료다. `lecture-summary/src/diagram/`.
@@ -106,9 +122,20 @@ video-edit      →  시청자가 본다 (완성 영상)
 
 ```
 rally-highlight    잘한 랠리만 모은 숏폼      입력이 랠리 JSON — rally 쪽
-video-marketing    훅이 되는 구간 · 홍보용     판단만 다르고 포맷은 lecture-shortform 과 같음
 세로 리프레임 공용화   현재 중앙 고정 크롭       두 번째 사용자가 생길 때 뺀다
 ```
+
+**마케팅 숏폼은 폴더가 아니라 규칙 파일이다.** `video-directive/rules/marketing.json`.
+포맷도 판단 기계도 같고 규칙만 다르다.
+
+## 지금 알려진 구조적 부채
+
+**판단 규칙 R1~R7이 `trim_script.py` 에 하드코딩돼 있다.**
+`prompts/` 를 만들어놓고 비워 뒀다. 지금 구조로는 목적을 갈아끼울 수 없다 —
+같은 영상으로 마케팅 지시서를 만들 수 없다.
+
+7개 중 5개는 이미 목적 중립이다. 뺄 것은 R3(챕터 카드 전제)·R5(용어집 의존)와
+임계값 몇 개뿐이라 큰 작업은 아니다. 아직 안 했다.
 
 ## 폴더 안 구조
 
