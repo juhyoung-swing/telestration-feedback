@@ -146,6 +146,18 @@ rally-highlight    잘한 랠리만 모은 숏폼      입력이 랠리 JSON —
   output/      산출물 (증거)
 ```
 
+## 환경
+
+```bash
+uv venv --python 3.12 .venv
+VIRTUAL_ENV=$PWD/.venv uv pip install -r requirements.txt
+```
+
+**경기(CV)와 강의(전사) 두 스택을 한 환경에 합쳤다.** 예전엔 폴더마다 `.venv` 가
+따로 있어서 스크립트마다 다른 파이썬을 써야 했다.
+
+전사는 `mlx-whisper`(애플실리콘용)다. `openai-whisper` 가 아니다.
+
 ## 실행 방법이 두 갈래다
 
 ```

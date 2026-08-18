@@ -1,0 +1,15 @@
+# Python 3.12.12 · Apple Silicon (M1 Pro) 기준
+#   uv venv --python 3.12 .venv
+#   VIRTUAL_ENV=$PWD/.venv uv pip install -r requirements.txt
+#
+# 경기(CV)와 강의(전사) 두 스택을 한 환경에 합쳤다. 예전엔 폴더마다 따로 있었다.
+ultralytics==8.4.117
+torch==2.13.0
+torchvision
+opencv-python==5.0.0.93
+librosa==0.11.0
+matplotlib
+pandas
+scipy
+pillow
+mlx-whisper==0.4.3     # 애플실리콘용. openai-whisper 아님
