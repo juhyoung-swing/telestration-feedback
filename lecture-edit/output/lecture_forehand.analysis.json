@@ -1,0 +1,396 @@
+{
+  "meta": {
+    "duration": "08:03.0",
+    "timecode_format": "MM:SS.s",
+    "scene_count": 12
+  },
+  "scenes": [
+    {
+      "scene_id": "s01",
+      "span": { "start": "00:00.0", "end": "00:13.5" },
+      "type": "intro",
+      "speech_summary": "선수처럼 강력한 포핸드를 만들기 위한 핵심 꿀팁 세 가지 소개 예고",
+      "coach_action": "말없이 동작만 (내레이션 오버레이)",
+      "shot": { "angle": "다각도(측면/정면/후면)", "size": "풀샷", "location": "실내 테니스 코트", "wardrobe": "흰색 반팔 티셔츠, 파란 반바지" },
+      "audio_source": { "type": "voiceover", "note": "타구 시연 클립 위 별도 더빙 내레이션" },
+      "zoom": [
+        { "at": "00:00.0", "direction": "in", "intensity": "strong", "style": "cut", "context": "세로 비율 컷 인트로", "purpose": "시선 집중" }
+      ],
+      "transition_in": { "type": "hard_cut", "duration_sec": 0, "elements": [] },
+      "transition_out": { "type": "graphic_wipe", "duration_sec": 1.2, "elements": ["화염 이펙트 및 WHAT A SHOT 로고 애니메이션", "폭발음 SFX"] },
+      "subtitles": [
+        { "span": { "start": "00:00.0", "end": "00:01.5" }, "text": "이번 영상에서는", "kind": "speech", "position": "bottom", "size": "medium", "animation": "none", "style_note": "흰색 자막 검은 배경박스" },
+        { "span": { "start": "00:01.5", "end": "00:04.5" }, "text": "선수처럼 강력한 포핸드를 만들기위해", "kind": "speech", "position": "bottom", "size": "medium", "animation": "none", "style_note": "강력한 포핸드 빨간 강조" },
+        { "span": { "start": "00:04.8", "end": "00:07.0" }, "text": "중요한 꿀팁 세가지를", "kind": "speech", "position": "bottom", "size": "medium", "animation": "none", "style_note": "흰색 자막" },
+        { "span": { "start": "00:07.0", "end": "00:09.5" }, "text": "핵심만 요약해서 빠르게 알려드릴게요!", "kind": "speech_edited", "position": "bottom", "size": "medium", "animation": "none", "style_note": "흰색 자막" }
+      ],
+      "graphics": [],
+      "sfx": [
+        { "at": "00:09.5", "kind": "fire_whoosh", "synced_with": "화염 로고 등장" }
+      ],
+      "bgm": { "present": true, "character": "경쾌하고 빠른 비트", "change_at": "00:10.0" },
+      "b_roll": [],
+      "function": "포핸드 핵심 레슨 예고 및 채널 오프닝",
+      "density": "heavy",
+      "density_note": "빠른 컷 전환, 화면 비율 변형, 화염 인트로 그래픽"
+    },
+    {
+      "scene_id": "s02",
+      "span": { "start": "00:13.5", "end": "00:41.5" },
+      "type": "concept",
+      "speech_summary": "포핸드에서 가장 중요한 세 가지 요소(시선/거리잡기, 골반 회전, 피니쉬 자세) 개요 제시",
+      "coach_action": "말하며 제스처 및 라켓 동작",
+      "shot": { "angle": "정면", "size": "미디엄샷", "location": "실내 테니스 코트", "wardrobe": "흰색 반팔 티셔츠, 파란 반바지" },
+      "audio_source": { "type": "sync", "note": "코치 마이크 동시녹음" },
+      "zoom": [
+        { "at": "00:31.0", "direction": "in", "intensity": "slight", "style": "cut", "context": "세 가지 완성 시 파워와 정확도 향상 설명", "purpose": "강조" }
+      ],
+      "transition_in": { "type": "graphic_wipe", "duration_sec": 0.5, "elements": ["로고 페이드아웃"] },
+      "transition_out": { "type": "black_card", "duration_sec": 1.0, "elements": ["검은 화면 텍스트 타이틀"] },
+      "subtitles": [
+        { "span": { "start": "00:21.0", "end": "00:23.5" }, "text": "1. 시선(거리잡기)", "kind": "title", "position": "top_center", "size": "large", "animation": "pop", "style_note": "초록 굵은 글씨" },
+        { "span": { "start": "00:24.0", "end": "00:27.0" }, "text": "2. 골반 회전 사용하는 법", "kind": "title", "position": "top_center", "size": "large", "animation": "pop", "style_note": "초록 굵은 글씨" },
+        { "span": { "start": "00:27.5", "end": "00:30.0" }, "text": "3. 피니쉬 자세", "kind": "title", "position": "top_center", "size": "large", "animation": "pop", "style_note": "초록 굵은 글씨" }
+      ],
+      "graphics": [
+        { "span": { "start": "00:14.0", "end": "00:16.0" }, "shape": "label", "target": "코치 이름", "color": "yellow", "animation": false, "position": "nameplate" }
+      ],
+      "sfx": [
+        { "at": "00:21.2", "kind": "pop", "synced_with": "1번 항목 자막 등장" },
+        { "at": "00:24.2", "kind": "pop", "synced_with": "2번 항목 자막 등장" },
+        { "at": "00:27.8", "kind": "pop", "synced_with": "3번 항목 자막 등장" }
+      ],
+      "bgm": { "present": true, "character": "차분하고 경쾌한 로우파이 비트", "change_at": null },
+      "b_roll": [],
+      "function": "레슨 목차 제시 및 중요성 전달",
+      "density": "medium",
+      "density_note": "상단 번호별 타이틀 자막 및 효과음 동기화"
+    },
+    {
+      "scene_id": "s03",
+      "span": { "start": "00:41.5", "end": "00:43.5" },
+      "type": "chapter_open",
+      "speech_summary": "1번 챕터 시작 카드",
+      "coach_action": "말없이 화면 미등장",
+      "shot": { "angle": "정면", "size": "풀샷", "location": "그래픽", "wardrobe": "해당없음" },
+      "audio_source": { "type": "no_speech", "note": "무음" },
+      "zoom": [],
+      "transition_in": { "type": "hard_cut", "duration_sec": 0, "elements": [] },
+      "transition_out": { "type": "hard_cut", "duration_sec": 0, "elements": [] },
+      "subtitles": [
+        { "span": { "start": "00:41.5", "end": "00:43.5" }, "text": "시선(거리잡기)", "kind": "title", "position": "center", "size": "large", "animation": "none", "style_note": "검은 바탕에 흰색 볼드 텍스트" }
+      ],
+      "graphics": [],
+      "sfx": [],
+      "bgm": { "present": true, "character": "로우파이 비트", "change_at": null },
+      "b_roll": [],
+      "function": "챕터 1 진입 명시",
+      "density": "light",
+      "density_note": "텍스트 카드만 노출"
+    },
+    {
+      "scene_id": "s04",
+      "span": { "start": "00:43.5", "end": "02:35.5" },
+      "type": "concept",
+      "speech_summary": "시선과 유닛턴을 통해 옆면을 정면으로 만들어 타점 거리 확보하는 방법 설명",
+      "coach_action": "말하며 공과 라켓으로 직접 자세 시연",
+      "shot": { "angle": "정면 및 측면", "size": "미디엄/풀샷", "location": "실내 테니스 코트", "wardrobe": "흰색 반팔 티셔츠, 파란 반바지" },
+      "audio_source": { "type": "sync", "note": "현장 동시녹음 마이크" },
+      "zoom": [
+        { "at": "01:01.5", "direction": "in", "intensity": "slight", "style": "cut", "context": "유닛턴 후 옆으로 시선 두는 동작 설명", "purpose": "상체 및 시선 디테일 강조" }
+      ],
+      "transition_in": { "type": "hard_cut", "duration_sec": 0, "elements": [] },
+      "transition_out": { "type": "hard_cut", "duration_sec": 0, "elements": [] },
+      "subtitles": [
+        { "span": { "start": "00:44.0", "end": "00:46.5" }, "text": "거리잡기를 어려워하는 이유?", "kind": "title", "position": "top_center", "size": "large", "animation": "pop", "style_note": "노란색 굵은 글씨" },
+        { "span": { "start": "02:23.5", "end": "02:26.0" }, "text": "1. 유닛턴", "kind": "title", "position": "top_left", "size": "medium", "animation": "pop", "style_note": "초록색 테두리 자막" },
+        { "span": { "start": "02:26.5", "end": "02:28.5" }, "text": "2. 공 째려보기", "kind": "title", "position": "top_left", "size": "medium", "animation": "pop", "style_note": "초록색 테두리 자막" },
+        { "span": { "start": "02:29.0", "end": "02:33.0" }, "text": "3. 임팩트 끝까지 바라보기", "kind": "title", "position": "top_left", "size": "medium", "animation": "pop", "style_note": "초록색 테두리 자막" }
+      ],
+      "graphics": [
+        { "span": { "start": "01:02.0", "end": "01:07.5" }, "shape": "화살표", "target": "시선 방향 및 타점 간격", "color": "green", "animation": true, "position": "상체 및 라켓 부근" }
+      ],
+      "sfx": [
+        { "at": "02:24.0", "kind": "beep", "synced_with": "1번 항목 등장" },
+        { "at": "02:26.8", "kind": "beep", "synced_with": "2번 항목 등장" },
+        { "at": "02:29.3", "kind": "beep", "synced_with": "3번 항목 등장" }
+      ],
+      "bgm": { "present": true, "character": "경쾌한 인스트루멘탈", "change_at": null },
+      "b_roll": [],
+      "function": "거리 조절 실패 원인 분석 및 시선 고정 단계별 티칭",
+      "density": "heavy",
+      "density_note": "화살표 시각화, 단계별 요약 자막, 줌 및 동시 동작 시연"
+    },
+    {
+      "scene_id": "s05",
+      "span": { "start": "02:35.5", "end": "02:42.0" },
+      "type": "demo",
+      "speech_summary": "1번 팁(시선 및 유닛턴)을 적용한 실제 포핸드 샷 시범",
+      "coach_action": "말없이 연속 포핸드 스트로크 동작",
+      "shot": { "angle": "정면", "size": "풀샷", "location": "실내 테니스 코트", "wardrobe": "흰색 반팔 티셔츠, 파란 반바지" },
+      "audio_source": { "type": "sync", "note": "라켓 타구음 및 코트 현장음" },
+      "zoom": [],
+      "transition_in": { "type": "hard_cut", "duration_sec": 0, "elements": [] },
+      "transition_out": { "type": "black_card", "duration_sec": 1.0, "elements": ["화면 전환 효과"] },
+      "subtitles": [],
+      "graphics": [],
+      "sfx": [],
+      "bgm": { "present": true, "character": "비트 유지", "change_at": null },
+      "b_roll": [],
+      "function": "개념 적용 타구 시연",
+      "density": "light",
+      "density_note": "자막 없이 시연 동작에 집중"
+    },
+    {
+      "scene_id": "s06",
+      "span": { "start": "02:42.0", "end": "02:45.0" },
+      "type": "chapter_open",
+      "speech_summary": "2번 챕터 시작 카드",
+      "coach_action": "말없이 화면 미등장",
+      "shot": { "angle": "정면", "size": "풀샷", "location": "그래픽", "wardrobe": "해당없음" },
+      "audio_source": { "type": "no_speech", "note": "무음" },
+      "zoom": [],
+      "transition_in": { "type": "graphic_wipe", "duration_sec": 0.4, "elements": ["블러 전환"] },
+      "transition_out": { "type": "hard_cut", "duration_sec": 0, "elements": [] },
+      "subtitles": [
+        { "span": { "start": "02:42.5", "end": "02:45.0" }, "text": "골반사용(회전)", "kind": "title", "position": "center", "size": "large", "animation": "none", "style_note": "검은 바탕 흰색 굵은 텍스트" }
+      ],
+      "graphics": [],
+      "sfx": [],
+      "bgm": { "present": true, "character": "비트 유지", "change_at": null },
+      "b_roll": [],
+      "function": "챕터 2 진입 안내",
+      "density": "light",
+      "density_note": "단순 타이틀 카드"
+    },
+    {
+      "scene_id": "s07",
+      "span": { "start": "02:45.0", "end": "04:12.5" },
+      "type": "concept",
+      "speech_summary": "오른발 회전을 선행시켜 골반 회전을 만들고 채찍처럼 힘을 전달하는 원리 설명",
+      "coach_action": "말하며 발동작과 골반 회전 시연",
+      "shot": { "angle": "정면 및 측면", "size": "미디엄/풀샷", "location": "실내 테니스 코트", "wardrobe": "흰색 반팔 티셔츠, 파란 반바지" },
+      "audio_source": { "type": "sync", "note": "동시녹음 음성" },
+      "zoom": [
+        { "at": "03:03.0", "direction": "in", "intensity": "strong", "style": "cut", "context": "하체 스탠스 및 오른발 회전 동작", "purpose": "하체/골반 움직임 확대" }
+      ],
+      "transition_in": { "type": "hard_cut", "duration_sec": 0, "elements": [] },
+      "transition_out": { "type": "hard_cut", "duration_sec": 0, "elements": [] },
+      "subtitles": [
+        { "span": { "start": "04:02.5", "end": "04:05.5" }, "text": "1. 오른발을 돌리면서 골반회전", "kind": "title", "position": "top_right", "size": "medium", "animation": "pop", "style_note": "초록 테두리 자막" },
+        { "span": { "start": "04:06.0", "end": "04:08.5" }, "text": "2. 몸이 먼저 따라감", "kind": "title", "position": "top_right", "size": "medium", "animation": "pop", "style_note": "초록 테두리 자막" },
+        { "span": { "start": "04:09.0", "end": "04:11.5" }, "text": "3. 라켓을 채찍치듯이", "kind": "title", "position": "top_right", "size": "medium", "animation": "pop", "style_note": "초록 테두리 자막" }
+      ],
+      "graphics": [
+        { "span": { "start": "02:55.5", "end": "02:58.5" }, "shape": "원 및 영역", "target": "오른발 축", "color": "green/yellow", "animation": false, "position": "하체 오른발 부근" },
+        { "span": { "start": "03:09.5", "end": "03:11.5" }, "shape": "회전 화살표 궤적선", "target": "골반 회전 방향", "color": "red", "animation": true, "position": "골반 부근" }
+      ],
+      "sfx": [
+        { "at": "04:03.0", "kind": "beep", "synced_with": "1번 항목 자막 등장" },
+        { "at": "04:06.3", "kind": "beep", "synced_with": "2번 항목 자막 등장" },
+        { "at": "04:09.2", "kind": "beep", "synced_with": "3번 항목 자막 등장" }
+      ],
+      "bgm": { "present": true, "character": "로우파이 인스트루멘탈", "change_at": null },
+      "b_roll": [],
+      "function": "골반 회전 메커니즘 설명 및 오류 자세 교정",
+      "density": "heavy",
+      "density_note": "하체 줌인, 궤적 그래픽, 번호 리스트 자막"
+    },
+    {
+      "scene_id": "s08",
+      "span": { "start": "04:12.5", "end": "04:36.0" },
+      "type": "drill",
+      "speech_summary": "집에서 매트를 이용해 골반 회전 감각을 익히는 런지 스윙 드릴 소개",
+      "coach_action": "매트 위에서 런지 자세로 스윙 시연하며 내레이션",
+      "shot": { "angle": "측면 및 정면", "size": "풀샷", "location": "매트 위 코트 바닥", "wardrobe": "줄무늬 카라티, 녹색 반바지" },
+      "audio_source": { "type": "voiceover", "note": "드릴 동작 화면 위 별도 내레이션" },
+      "zoom": [],
+      "transition_in": { "type": "hard_cut", "duration_sec": 0, "elements": [] },
+      "transition_out": { "type": "black_card", "duration_sec": 0.8, "elements": ["검은 화면"] },
+      "subtitles": [
+        { "span": { "start": "04:13.0", "end": "04:17.0" }, "text": "포핸드 파워를 내기 위해서는 골반 활용이 필수적", "kind": "speech_edited", "position": "bottom", "size": "medium", "animation": "none", "style_note": "흰색 자막" }
+      ],
+      "graphics": [],
+      "sfx": [],
+      "bgm": { "present": true, "character": "경쾌한 비트", "change_at": null },
+      "b_roll": [],
+      "function": "홈 트레이닝 연습법 제공",
+      "density": "medium",
+      "density_note": "의상/세팅 변경 및 보강 연습법 단독 구성"
+    },
+    {
+      "scene_id": "s09",
+      "span": { "start": "04:36.0", "end": "04:38.5" },
+      "type": "chapter_open",
+      "speech_summary": "3번 챕터 시작 카드",
+      "coach_action": "말없이 화면 미등장",
+      "shot": { "angle": "정면", "size": "풀샷", "location": "그래픽", "wardrobe": "해당없음" },
+      "audio_source": { "type": "no_speech", "note": "무음" },
+      "zoom": [],
+      "transition_in": { "type": "hard_cut", "duration_sec": 0, "elements": [] },
+      "transition_out": { "type": "hard_cut", "duration_sec": 0, "elements": [] },
+      "subtitles": [
+        { "span": { "start": "04:36.5", "end": "04:38.5" }, "text": "피니쉬 자세", "kind": "title", "position": "center", "size": "large", "animation": "none", "style_note": "검은 바탕 흰색 굵은 텍스트" }
+      ],
+      "graphics": [],
+      "sfx": [],
+      "bgm": { "present": true, "character": "비트 유지", "change_at": null },
+      "b_roll": [],
+      "function": "챕터 3 진입 안내",
+      "density": "light",
+      "density_note": "단순 타이틀 카드"
+    },
+    {
+      "scene_id": "s10",
+      "span": { "start": "04:38.5", "end": "05:57.5" },
+      "type": "prop",
+      "speech_summary": "농구공을 활용하여 겨드랑이 공간을 확보하고 올바른 피니쉬 자세 만드는 방법 시연",
+      "coach_action": "농구공과 라켓을 들고 시연하며 설명",
+      "shot": { "angle": "정면", "size": "미디엄/풀샷", "location": "실내 테니스 코트", "wardrobe": "흰색 반팔 티셔츠, 파란 반바지" },
+      "audio_source": { "type": "sync", "note": "동시녹음 음성" },
+      "zoom": [
+        { "at": "05:22.5", "direction": "in", "intensity": "slight", "style": "cut", "context": "농구공 들고 설명하는 순간", "purpose": "소도구 활용 집중" }
+      ],
+      "transition_in": { "type": "hard_cut", "duration_sec": 0, "elements": [] },
+      "transition_out": { "type": "black_card", "duration_sec": 0.8, "elements": ["검은 화면"] },
+      "subtitles": [
+        { "span": { "start": "05:36.0", "end": "05:38.5" }, "text": "선수같은 피니쉬 자세 완성!", "kind": "title", "position": "bottom", "size": "large", "animation": "pop", "style_note": "파란색 굵은 텍스트" },
+        { "span": { "start": "05:44.0", "end": "05:46.5" }, "text": "이렇게 스윙을 만드는 이유는?", "kind": "title", "position": "bottom", "size": "large", "animation": "pop", "style_note": "노란색 굵은 텍스트" }
+      ],
+      "graphics": [
+        { "span": { "start": "04:46.0", "end": "04:49.0" }, "shape": "원", "target": "겨드랑이와 팔 사이 공간", "color": "red", "animation": false, "position": "상체 가슴 부근" },
+        { "span": { "start": "04:58.5", "end": "05:01.0" }, "shape": "삽입 오브젝트(농구공 그래픽)", "target": "가슴과 팔 사이 공간 시각화", "color": "orange", "animation": true, "position": "상체 중앙" }
+      ],
+      "sfx": [
+        { "at": "04:58.8", "kind": "pop", "synced_with": "농구공 그래픽 등장" },
+        { "at": "05:36.2", "kind": "ding", "synced_with": "피니쉬 완성 자막 등장" }
+      ],
+      "bgm": { "present": true, "character": "경쾌한 비트 유지", "change_at": null },
+      "b_roll": [],
+      "function": "소도구 직관적 피니쉬 교정 및 원리 설명",
+      "density": "heavy",
+      "density_note": "오브젝트 합성 그래픽, 소도구 시연, 강조 텍스트"
+    },
+    {
+      "scene_id": "s11",
+      "span": { "start": "05:57.5", "end": "06:44.5" },
+      "type": "summary",
+      "speech_summary": "오늘 배운 세 가지(시선, 골반, 피니쉬) 총정리 및 엔딩 멘트",
+      "coach_action": "말하며 핵심 3단계 동작 복습 후 인사",
+      "shot": { "angle": "정면", "size": "미디엄샷", "location": "실내 테니스 코트", "wardrobe": "흰색 반팔 티셔츠, 파란 반바지" },
+      "audio_source": { "type": "sync", "note": "동시녹음 코치 음성" },
+      "zoom": [],
+      "transition_in": { "type": "black_card", "duration_sec": 1.0, "elements": ["핵심요약! 타이틀 카드"] },
+      "transition_out": { "type": "black_card", "duration_sec": 1.0, "elements": ["이미지트레이닝 타이틀 카드"] },
+      "subtitles": [
+        { "span": { "start": "05:58.0", "end": "05:59.5" }, "text": "핵심요약!", "kind": "title", "position": "center", "size": "large", "animation": "none", "style_note": "검은 바탕 흰색 볼드" },
+        { "span": { "start": "06:02.5", "end": "06:05.0" }, "text": "1. 유닛턴하고 시선보기", "kind": "title", "position": "top_left", "size": "medium", "animation": "pop", "style_note": "초록 테두리 자막" },
+        { "span": { "start": "06:05.5", "end": "06:08.5" }, "text": "2. 골반사용(오른발회전)", "kind": "title", "position": "top_left", "size": "medium", "animation": "pop", "style_note": "초록 테두리 자막" },
+        { "span": { "start": "06:12.0", "end": "06:15.5" }, "text": "3. 공간만들어주며 피니쉬", "kind": "title", "position": "top_left", "size": "medium", "animation": "pop", "style_note": "초록 테두리 자막" }
+      ],
+      "graphics": [],
+      "sfx": [
+        { "at": "06:03.0", "kind": "beep", "synced_with": "1번 요약 자막" },
+        { "at": "06:06.0", "kind": "beep", "synced_with": "2번 요약 자막" },
+        { "at": "06:12.5", "kind": "beep", "synced_with": "3번 요약 자막" }
+      ],
+      "bgm": { "present": true, "character": "마무리 분위기의 경쾌한 음악", "change_at": null },
+      "b_roll": [],
+      "function": "전체 강의 요약 및 학습 내용 재강조",
+      "density": "medium",
+      "density_note": "요약 리스트 자막 및 동작 복습"
+    },
+    {
+      "scene_id": "s12",
+      "span": { "start": "06:44.5", "end": "08:03.0" },
+      "type": "montage",
+      "speech_summary": "배운 3가지 요소를 집중해서 보는 이미지 트레이닝용 연속 타구 몽타주",
+      "coach_action": "말없이 측면, 후면, 정면에서 연속 포핸드 스트로크",
+      "shot": { "angle": "측면, 후면, 정면 순환", "size": "풀샷", "location": "실내 테니스 코트", "wardrobe": "흰색 반팔 티셔츠, 파란 반바지" },
+      "audio_source": { "type": "sync", "note": "코트 현장 타구음" },
+      "zoom": [],
+      "transition_in": { "type": "black_card", "duration_sec": 1.0, "elements": ["이미지트레이닝 타이틀"] },
+      "transition_out": { "type": "fade", "duration_sec": 1.0, "elements": ["영상 종료 페이드아웃"] },
+      "subtitles": [
+        { "span": { "start": "06:45.0", "end": "06:47.0" }, "text": "이미지트레이닝", "kind": "title", "position": "center", "size": "large", "animation": "none", "style_note": "검은 바탕 흰색 볼드" },
+        { "span": { "start": "06:47.0", "end": "08:03.0" }, "text": "오늘 배운 세가지를 집중해서 보세요!\n1. 유닛턴 2. 골반 3. 피니쉬공간", "kind": "label", "position": "top_center", "size": "medium", "animation": "none", "style_note": "상단 고정 안내 박스 자막" }
+      ],
+      "graphics": [
+        { "span": { "start": "06:47.0", "end": "07:08.5" }, "shape": "원", "target": "1. 유닛턴 텍스트 강조", "color": "red", "animation": false, "position": "상단 자막 바 1번 항목" },
+        { "span": { "start": "07:09.0", "end": "07:29.5" }, "shape": "원", "target": "2. 골반 텍스트 강조", "color": "red", "animation": false, "position": "상단 자막 바 2번 항목" },
+        { "span": { "start": "07:30.0", "end": "08:03.0" }, "shape": "원", "target": "3. 피니쉬공간 텍스트 강조", "color": "red", "animation": false, "position": "상단 자막 바 3번 항목" }
+      ],
+      "sfx": [],
+      "bgm": { "present": true, "character": "리드미컬한 엔딩 비트", "change_at": null },
+      "b_roll": [],
+      "function": "다각도 시연을 통한 시각적 이미지 트레이닝",
+      "density": "medium",
+      "density_note": "상단 고정 체크리스트 및 포커스 전환 그래픽 원"
+    }
+  ],
+  "scene_type_patterns": [
+    {
+      "type": "concept",
+      "avg_duration_sec": 75,
+      "always": ["동시녹음 음성", "하단 발화 자막", "동작 시연 병행"],
+      "sometimes": [
+        { "element": "부위 및 궤적 지시 그래픽(화살표/원)", "condition": "신체 특정 부위나 회전축을 시각화할 때" },
+        { "element": "중간 컷 줌인", "condition": "하체 스탠스 등 세부 동작을 강조할 때" },
+        { "element": "단계별 번호 리스트 자막", "condition": "개념을 3단계로 정리할 때" }
+      ],
+      "never": ["과도한 배경음악 변화", "장소 이동"],
+      "typical_entry": "black_card 챕터 타이틀 카드 후 hard_cut",
+      "typical_exit": "demo 또는 다음 챕터 타이틀 카드로 전환"
+    },
+    {
+      "type": "chapter_open",
+      "avg_duration_sec": 2.5,
+      "always": ["검은 배경 중앙 흰색 굵은 텍스트", "무음 또는 BGM만 유지"],
+      "sometimes": [],
+      "never": ["코치 음성", "복잡한 모션 그래픽"],
+      "typical_entry": "hard_cut 또는 graphic_wipe",
+      "typical_exit": "hard_cut으로 본편 진입"
+    },
+    {
+      "type": "montage",
+      "avg_duration_sec": 78,
+      "always": ["상단 고정 체크리스트 자막", "말없는 다각도 연속 타구 시연", "타구음 강조"],
+      "sometimes": [
+        { "element": "체크리스트 순차 하이라이트 원", "condition": "타임라인 구간별 관전 포인트 변경 시" }
+      ],
+      "never": ["코치 설명 음성", "과도한 컷 인서트"],
+      "typical_entry": "black_card 이미지트레이닝 타이틀",
+      "typical_exit": "fade_to_black"
+    }
+  ],
+  "transition_map": [
+    { "between": ["s01", "s02"], "type": "graphic_wipe", "reason": "인트로 하이라이트에서 코치 본 오프닝으로 전환" },
+    { "between": ["s02", "s03"], "type": "black_card", "reason": "목차 소개 완료 후 챕터 1 진입" },
+    { "between": ["s03", "s04"], "type": "hard_cut", "reason": "타이틀 카드에서 챕터 1 본편 진입" },
+    { "between": ["s04", "s05"], "type": "hard_cut", "reason": "개념 설명에서 시범 타구로 즉각 연결" },
+    { "between": ["s05", "s06"], "type": "black_card", "reason": "챕터 1 종료 후 챕터 2 진입" },
+    { "between": ["s06", "s07"], "type": "hard_cut", "reason": "타이틀 카드에서 챕터 2 본편 진입" },
+    { "between": ["s07", "s08"], "type": "hard_cut", "reason": "코트 레슨에서 홈트레이닝 보강 드릴 세팅 변경" },
+    { "between": ["s08", "s09"], "type": "black_card", "reason": "챕터 2 드릴 완료 후 챕터 3 진입" },
+    { "between": ["s09", "s10"], "type": "hard_cut", "reason": "타이틀 카드에서 챕터 3 본편 진입" },
+    { "between": ["s10", "s11"], "type": "black_card", "reason": "3가지 팁 설명 완료 후 핵심 요약 카드 진입" },
+    { "between": ["s11", "s12"], "type": "black_card", "reason": "강의 마무리 후 이미지 트레이닝 몽타주 진입" }
+  ],
+  "zoom_grammar": {
+    "avg_interval_sec": 65,
+    "longest_static_span": { "span": { "start": "06:45.0", "end": "08:03.0" }, "why": "이미지 트레이닝 몽타주 구간으로 전체 타구 폼을 온전히 관찰할 수 있도록 풀샷 고정 유지" },
+    "emphasis_vs_rhythm": "강조 줌은 발동작/골반/시선 등 세부 동작 지시 시점에 맞춰 컷 줌인되며, 리듬 줌은 거의 쓰이지 않고 주로 정보 전달 집중을 위해 정적 프레이밍을 유지함",
+    "used_to_conceal_cuts": true,
+    "notes": ["강의 도중 하체 폼을 보여줄 때 컷 편집 지점을 줌인으로 연결해 매끄럽게 처리"]
+  },
+  "density_map": [
+    { "span": { "start": "00:00.0", "end": "00:13.5" }, "level": "heavy", "intent": "빠른 화면 전환과 화염 이펙트로 시청자 이탈 방지" },
+    { "span": { "start": "00:13.5", "end": "00:41.5" }, "level": "medium", "intent": "목차 항목 번호별 팝업으로 전달력 확보" },
+    { "span": { "start": "00:43.5", "end": "02:35.5" }, "level": "heavy", "intent": "화살표 그래픽과 3단계 요약 자막으로 핵심 이론 전달" },
+    { "span": { "start": "02:35.5", "end": "02:42.0" }, "level": "light", "intent": "자막 없이 시범 동작 자체에 집중 유도" },
+    { "span": { "start": "02:45.0", "end": "04:12.5" }, "level": "heavy", "intent": "하체 줌인과 골반 궤적선 그래픽으로 디테일 강조" },
+    { "span": { "start": "04:38.5", "end": "05:57.5" }, "level": "heavy", "intent": "농구공 오브젝트 그래픽과 소도구 활용으로 직관적 이해 유도" },
+    { "span": { "start": "05:57.5", "end": "06:44.5" }, "level": "medium", "intent": "핵심 3요소 재정리로 학습 마무리" },
+    { "span": { "start": "06:44.5", "end": "08:03.0" }, "level": "medium", "intent": "상단 체크리스트를 순차적으로 짚어주며 시각적 트레이닝 효과 극대화" }
+  ]
+}

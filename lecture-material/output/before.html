@@ -1,0 +1,78 @@
+<!doctype html><html lang=ko><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>선수처럼 강력한 포핸드 — 핵심 3가지</title><style>
+:root{--navy:#17335F;--yellow:#E4EF3D;--ink:#1B2233;--soft:#6B7488;--rule:#E6E9F0;
+ --red:#E2483D;--ground:#EFF1F4}
+*{box-sizing:border-box}
+body{margin:0;background:#D9DCE3;color:var(--ink);line-height:1.65;word-break:keep-all;
+ font-family:"Pretendard Variable",Pretendard,"Apple SD Gothic Neo",-apple-system,system-ui,sans-serif}
+main{max-width:430px;margin:0 auto;background:#fff;min-height:100vh}
+@media(min-width:520px){main{margin:20px auto;min-height:0;border-radius:20px;overflow:hidden}}
+header{display:flex;gap:12px;align-items:flex-start;padding:20px 20px 10px}
+.back{flex:none;width:34px;height:34px;border-radius:50%;background:var(--ground);
+ color:var(--ink);text-decoration:none;display:grid;place-items:center;font-size:1.2rem;
+ line-height:1;padding-bottom:3px}
+.kind{margin:0 0 3px;font-size:.68rem;letter-spacing:.1em;color:var(--soft);font-weight:800}
+header h1{margin:0;font-size:1.18rem;font-weight:800;letter-spacing:-.02em;line-height:1.35}
+.meta{display:flex;gap:16px;margin:0;padding:0 20px 14px 66px;font-size:.8rem;color:var(--soft)}
+.tabs{display:flex;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.tabs a{flex:1;text-align:center;padding:12px 0;font-size:.86rem;font-weight:700;
+ color:var(--soft);text-decoration:none}
+.tabs a.on{color:var(--navy);box-shadow:inset 0 -3px 0 var(--yellow)}
+.hero{padding:0;border-top:0}
+.hero video.loop{border-radius:0}
+.lead{font-size:1.02rem;font-weight:600;line-height:1.6}
+.dia{position:relative;margin:0 0 12px}
+.dia img{width:100%;height:auto;display:block;border-radius:11px;background:var(--ground)}
+.fix{color:var(--soft);font-size:.9rem}
+.deck{padding:16px 0 4px}
+.track{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;
+ padding:0 20px;scrollbar-width:none}
+.track::-webkit-scrollbar{display:none}
+.slide{flex:0 0 calc(100% - 40px);scroll-snap-align:center;margin:0}
+.fig{position:relative;background:var(--ground);border-radius:12px;overflow:hidden}
+.fig img{width:100%;height:auto;display:block}
+.pend{position:absolute;left:9px;top:9px;background:rgba(23,51,95,.86);color:#fff;
+ font-size:.63rem;letter-spacing:.04em;padding:3px 8px;border-radius:20px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:2px}
+.two span{position:relative;display:block}
+.two img{width:100%;height:auto;display:block}
+.two i{position:absolute;left:0;right:0;bottom:0;font-style:normal;font-size:.68rem;
+ padding:5px 7px;color:#fff;line-height:1.35}
+.two i u{display:block;text-decoration:none;font-size:.64rem;opacity:.82}
+.two .bad img{filter:grayscale(1) contrast(.92)}
+.two .bad i{background:rgba(226,72,61,.92)}
+.two .good i{background:rgba(23,51,95,.92)}
+figcaption{font-size:.82rem;color:var(--ink);margin-top:10px;line-height:1.55}
+figcaption span{color:var(--soft);font-size:.79rem}
+.dots{display:flex;gap:5px;justify-content:center;margin-top:12px}
+.dots i{width:6px;height:6px;border-radius:50%;background:var(--rule)}
+.dots i.on{background:var(--navy)}
+section{padding:22px 20px;border-top:1px solid var(--rule)}
+section h2{margin:0 0 10px;font-size:.76rem;letter-spacing:.06em;font-weight:800;color:var(--navy)}
+section p{margin:0 0 10px;font-size:.93rem}
+section p:last-child{margin-bottom:0}
+.unit video.loop{margin-top:11px}
+.unit,.grp{border-top:1px solid var(--rule);padding-top:15px;margin-top:15px}
+.unit:first-of-type,.grp:first-of-type{border-top:0;padding-top:0;margin-top:0}
+h3{display:flex;gap:8px;align-items:center;margin:0 0 9px;font-size:1rem;font-weight:700}
+h3 em{font-style:normal;font-size:.82rem;color:var(--soft);font-weight:500}
+.no{flex:none;width:23px;height:23px;border-radius:50%;background:var(--yellow);
+ color:var(--navy);font-weight:800;font-size:.76rem;display:grid;place-items:center}
+h4{margin:15px 0 5px;font-size:.71rem;letter-spacing:.06em;font-weight:800;color:var(--soft)}
+.sum{margin:12px 0 0;padding:0;list-style:none;counter-reset:s}
+.sum li{display:flex;gap:9px;align-items:center;padding:5px 0;font-size:.95rem;
+ font-weight:700;counter-increment:s}
+.sum li::before{content:counter(s);flex:none;width:21px;height:21px;border-radius:50%;
+ background:var(--yellow);color:var(--navy);font-size:.72rem;font-weight:800;
+ display:grid;place-items:center}
+label{display:flex;gap:10px;align-items:center;padding:6px 0;font-size:.93rem}
+input[type=checkbox]{width:19px;height:19px;accent-color:var(--navy);flex:none}
+.err{color:var(--red);font-weight:600;font-size:.9rem}
+.drill{font-size:1.02rem}
+.drill b{color:var(--navy)}
+video.loop{width:100%;height:auto;display:block;border-radius:11px;background:var(--ground)}
+.goal video.loop{margin-top:2px}
+.cap{font-size:.79rem;color:var(--soft);margin-top:8px}
+.loops{display:grid;gap:11px;margin-top:14px}
+.loops figcaption{font-size:.8rem;color:var(--soft);font-weight:600;margin-top:6px}
+figure{margin:0}
+</style></head><body><main><header><a class="back" href="#">‹</a><div><p class="kind">수업 전</p><h1>선수처럼 강력한 포핸드 — 핵심 3가지</h1></div></header><p class="meta"><span>◷ 8 min</span><span>김기준 코치</span></p><nav class="tabs"><a href="before.html" class="on">수업 전</a><a href="after.html" class="">수업 후</a></nav><section class="hero"><video class="loop" autoplay muted loop playsinline src="loop_finish.mp4"></video></section><section><h2>소개</h2><p class="lead">선수처럼 강력한 포핸드를 만드는 세 가지를 익힙니다.</p></section><section><h2>개요</h2><p>시선으로 타점 거리를 잡고, 골반 회전으로 파워를 만들고, 피니시에서 공간을 남깁니다.</p><p>파워가 실리고, 정확도가 올라가고, 원하는 코스로 공을 보낼 수 있게 됩니다.</p></section><section><h2>배울 내용</h2><div class="unit"><h3><span class="no">1</span>시선 <em>거리 잡기</em></h3><figure class="dia"><img src="dia_gaze.png" alt="시선" loading="lazy"><figcaption>몸을 옆으로 틀고 공을 째려본다 — 시선이 닿는 곳이 타점이다</figcaption></figure><p>공을 정면으로 보고 따라가면 첫 스텝이 정면으로 빠지고, 공이 몸에 가까워져 팔로 당기게 됩니다. 몸을 옆으로 틀어 공을 째려보면 타점을 멀리 둘 수 있습니다.</p></div><div class="unit"><h3><span class="no">2</span>골반 <em>회전으로 파워 만들기</em></h3><figure class="dia"><img src="dia_hip.png" alt="골반" loading="lazy"><figcaption>골반이 먼저 돌고 라켓은 뒤따라 나온다</figcaption></figure><p>오른발 축이 뒤에 남으면 몸이 뒤로 무너지고 파워가 안 실립니다. 오른발을 먼저 돌려 골반 회전을 만들면 라켓이 뒤따라 나오며 채찍처럼 힘이 실립니다.</p></div><div class="unit"><h3><span class="no">3</span>피니시 <em>공간 만들기</em></h3><figure class="dia"><img src="dia_finish.png" alt="피니시" loading="lazy"><figcaption>가슴과 팔 사이에 농구공 하나가 들어갈 공간을 남긴다</figcaption></figure><p>시선과 골반이 좋아도 겨드랑이가 붙으면 당기는 스윙이 됩니다. 가슴과 팔 사이에 농구공 하나만큼 공간을 두고 감싸 올리면 원하는 피니시가 나옵니다.</p></div></section></main></body></html>

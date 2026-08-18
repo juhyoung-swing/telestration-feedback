@@ -1,0 +1,17 @@
+# 원본·렌더 영상 — 재생성 가능하거나 용량이 크다
+media/
+_archive/
+*.mp4
+*.mov
+*.webm
+*.wav
+*.mp3
+
+# 단, 데모 산출물은 예외로 추적하고 싶으면 여기 추가
+# !lecture-shortform/output/숏폼1_그립.mp4
+
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+!.gitkeep

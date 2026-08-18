@@ -1,0 +1,10 @@
+{
+  "video": "input/match_d.mp4",
+  "window": [
+    120.0,
+    300.0
+  ],
+  "method": "all_players_stillness",
+  "play_ratio": 0.0,
+  "rallies": []
+}

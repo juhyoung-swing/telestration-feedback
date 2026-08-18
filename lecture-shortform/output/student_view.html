@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>수업 후 자료 · 포핸드 기초</title>
+<style>
+  :root {
+    --clay: #B14F35;
+    --good: #3F6E51;
+    --fix: #A2652A;
+    --ground: #FBFAF8;
+    --surface: #FFFFFF;
+    --ink: #221A16;
+    --ink-soft: #6B5C54;
+    --ink-faint: #9C8C83;
+    --rule: #E6DED7;
+    --chip: #F3EDE8;
+    --shell: #EFE9E4;
+
+    --f-sans: "Apple SD Gothic Neo", Pretendard, -apple-system, BlinkMacSystemFont,
+              "Segoe UI", system-ui, sans-serif;
+    --f-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --clay: #DE7B58;
+      --good: #7FB694;
+      --fix: #DBA25C;
+      --ground: #141010;
+      --surface: #1E1917;
+      --ink: #EDE5E0;
+      --ink-soft: #A99A92;
+      --ink-faint: #7A6B64;
+      --rule: #332A26;
+      --chip: #2A2321;
+      --shell: #0D0A0A;
+    }
+  }
+  :root[data-theme="dark"] {
+    --clay: #DE7B58; --good: #7FB694; --fix: #DBA25C;
+    --ground: #141010; --surface: #1E1917; --ink: #EDE5E0;
+    --ink-soft: #A99A92; --ink-faint: #7A6B64; --rule: #332A26;
+    --chip: #2A2321; --shell: #0D0A0A;
+  }
+  :root[data-theme="light"] {
+    --clay: #B14F35; --good: #3F6E51; --fix: #A2652A;
+    --ground: #FBFAF8; --surface: #FFFFFF; --ink: #221A16;
+    --ink-soft: #6B5C54; --ink-faint: #9C8C83; --rule: #E6DED7;
+    --chip: #F3EDE8; --shell: #EFE9E4;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--shell);
+    color: var(--ink);
+    font-family: var(--f-sans);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .phone {
+    max-width: 430px;
+    margin: 0 auto;
+    background: var(--ground);
+    min-height: 100vh;
+  }
+  @media (min-width: 520px) {
+    .phone {
+      margin: 24px auto;
+      min-height: 0;
+      border: 1px solid var(--rule);
+      border-radius: 18px;
+      overflow: hidden;
+    }
+  }
+
+  /* ---- app bar ---- */
+  .bar {
+    padding: 20px 20px 16px;
+    border-bottom: 1px solid var(--rule);
+    background: var(--surface);
+  }
+  .bar .eyebrow {
+    font-family: var(--f-mono);
+    font-size: .68rem;
+    letter-spacing: .13em;
+    text-transform: uppercase;
+    color: var(--clay);
+    margin: 0 0 6px;
+  }
+  .bar h1 {
+    margin: 0 0 8px;
+    font-size: 1.45rem;
+    font-weight: 800;
+    letter-spacing: -.025em;
+    text-wrap: balance;
+  }
+  .bar .meta {
+    margin: 0;
+    font-size: .82rem;
+    color: var(--ink-soft);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ---- summary ---- */
+  .summary {
+    margin: 0;
+    padding: 18px 20px;
+    background: var(--chip);
+    border-bottom: 1px solid var(--rule);
+    font-size: .95rem;
+  }
+  .summary strong { color: var(--clay); }
+
+  /* ---- sections ---- */
+  section { padding: 26px 20px; border-bottom: 1px solid var(--rule); }
+  section:last-of-type { border-bottom: 0; }
+
+  .sec-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin: 0 0 4px;
+  }
+  .sec-head h2 {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 800;
+    letter-spacing: -.015em;
+  }
+  .sec-head .count {
+    font-family: var(--f-mono);
+    font-size: .72rem;
+    color: var(--ink-faint);
+    font-variant-numeric: tabular-nums;
+  }
+  .sec-note {
+    margin: 0 0 18px;
+    font-size: .86rem;
+    color: var(--ink-soft);
+  }
+
+  /* ---- clip card ---- */
+  .clips { display: flex; flex-direction: column; gap: 22px; }
+  .clip { display: flex; flex-direction: column; gap: 0; }
+  .clip video {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 10px 10px 0 0;
+    background: #000;
+  }
+  .clip .body {
+    padding: 12px 14px 14px;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-top: 0;
+    border-radius: 0 0 10px 10px;
+  }
+  .chip {
+    display: inline-block;
+    font-family: var(--f-mono);
+    font-size: .66rem;
+    letter-spacing: .08em;
+    padding: 3px 8px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+  }
+  .chip.good { color: var(--good); border: 1px solid var(--good); }
+  .chip.fix  { color: var(--fix);  border: 1px solid var(--fix); }
+
+  blockquote {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: -.01em;
+    line-height: 1.5;
+  }
+  blockquote::before { content: "“"; color: var(--ink-faint); }
+  blockquote::after  { content: "”"; color: var(--ink-faint); }
+  .clip .src {
+    margin: 8px 0 0;
+    font-family: var(--f-mono);
+    font-size: .7rem;
+    color: var(--ink-faint);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ---- 개선점 ---- */
+  .fixes { display: flex; flex-direction: column; gap: 26px; }
+  .fix-item { }
+  .fix-top {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 2px;
+  }
+  .rank {
+    font-family: var(--f-mono);
+    font-size: .8rem;
+    font-weight: 700;
+    color: var(--fix);
+  }
+  .fix-top h3 {
+    margin: 0;
+    font-size: 1.02rem;
+    font-weight: 800;
+    letter-spacing: -.015em;
+  }
+  .hits {
+    margin-left: auto;
+    font-family: var(--f-mono);
+    font-size: .72rem;
+    color: var(--ink-faint);
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+  .fix-why { margin: 0 0 10px; font-size: .88rem; color: var(--ink-soft); }
+
+  figure { margin: 0 0 12px; }
+  figure svg { width: 100%; height: auto; display: block; overflow: visible; }
+  figcaption {
+    margin-top: 4px;
+    font-size: .76rem;
+    color: var(--ink-faint);
+  }
+
+  .quotes { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }
+  .quotes li {
+    display: flex;
+    gap: 10px;
+    font-size: .88rem;
+    align-items: baseline;
+  }
+  .quotes time {
+    font-family: var(--f-mono);
+    font-size: .74rem;
+    color: var(--ink-faint);
+    flex: 0 0 auto;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ---- homework ---- */
+  .hw {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    padding: 16px;
+  }
+  .hw p { margin: 0 0 10px; }
+  .hw p:last-child { margin-bottom: 0; }
+  .hw .task { font-size: 1.02rem; font-weight: 700; letter-spacing: -.01em; }
+  .links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+  .links a {
+    font-size: .84rem;
+    color: var(--clay);
+    text-decoration: none;
+    border: 1px solid var(--clay);
+    border-radius: 999px;
+    padding: 5px 12px;
+  }
+  .links a:hover, .links a:focus-visible { background: var(--clay); color: var(--ground); }
+  .links a:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+  ul.checks { margin: 0; padding-left: 1.1em; font-size: .9rem; }
+  ul.checks li { margin-bottom: 5px; }
+
+  footer {
+    padding: 20px;
+    background: var(--shell);
+    font-size: .74rem;
+    color: var(--ink-faint);
+    line-height: 1.55;
+  }
+  footer strong { color: var(--ink-soft); }
+</style>
+</head>
+<body>
+<main class="phone">
+
+  <div class="bar">
+    <p class="eyebrow">수업 후 자료</p>
+    <h1>포핸드 기초 — 1회차</h1>
+    <p class="meta">2026. 8. 12. · 문동희 코치 · 11분 45초</p>
+  </div>
+
+  <p class="summary">
+    후반부에 <strong>공을 의식하지 않게 되면서</strong> 스윙이 편해졌고, 그 스윙으로 공이 넘어갔습니다.
+    가장 많이 나온 지적은 <strong>손목</strong>이었습니다.
+  </p>
+
+  <section>
+    <div class="sec-head">
+      <h2>잘한 점</h2>
+      <span class="count">3개 장면</span>
+    </div>
+    <p class="sec-note">코치가 좋다고 말한 순간입니다.</p>
+
+    <div class="clips">
+      <article class="clip">
+        <video controls preload="metadata" playsinline
+               poster="posters/fb1_good_relaxed.jpg"
+               src="clips/fb1_good_relaxed.mp4"></video>
+        <div class="body">
+          <span class="chip good">공을 의식하지 않음</span>
+          <blockquote>지금 잘 됐죠</blockquote>
+          <p class="src">원본 09:57 — 10:04</p>
+        </div>
+      </article>
+
+      <article class="clip">
+        <video controls preload="metadata" playsinline
+               poster="posters/fb2_good_praise.jpg"
+               src="clips/fb2_good_praise.mp4"></video>
+        <div class="body">
+          <span class="chip good">스윙이 편해짐</span>
+          <blockquote>어휴 좋다</blockquote>
+          <p class="src">원본 10:04 — 10:09</p>
+        </div>
+      </article>
+
+      <article class="clip">
+        <video controls preload="metadata" playsinline
+               poster="posters/fb3_good_over.jpg"
+               src="clips/fb3_good_over.mp4"></video>
+        <div class="body">
+          <span class="chip good">공이 넘어감</span>
+          <blockquote>그렇죠 넘어가네요</blockquote>
+          <p class="src">원본 10:18 — 10:26</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <h2>개선점</h2>
+      <span class="count">지적 횟수 순</span>
+    </div>
+    <p class="sec-note">수업 중 코치가 같은 지적을 몇 번 했는지 세어 순서를 매겼습니다.</p>
+
+    <div class="fixes">
+
+      <div class="fix-item">
+        <div class="fix-top">
+          <span class="rank">1</span>
+          <h3>손목</h3>
+          <span class="hits">4회 · 5분에 걸쳐</span>
+        </div>
+        <p class="fix-why">수업 전체에 흩어져 반복됐습니다. 코치가 마지막에 “아까 얘기했듯이”라고 말했습니다.</p>
+
+        <figure>
+          <svg viewBox="0 0 320 30" role="img"
+               aria-label="손목 지적 4회가 4분 6초부터 9분 8초까지 넓게 흩어져 있다">
+            <line x1="8" y1="15" x2="312" y2="15" stroke="currentColor" stroke-opacity=".2" stroke-width="1.5"/>
+            <line x1="114" y1="6" x2="114" y2="24" stroke="var(--fix)" stroke-width="3"/>
+            <line x1="120" y1="6" x2="120" y2="24" stroke="var(--fix)" stroke-width="3"/>
+            <line x1="184" y1="6" x2="184" y2="24" stroke="var(--fix)" stroke-width="3"/>
+            <line x1="244" y1="6" x2="244" y2="24" stroke="var(--fix)" stroke-width="3"/>
+            <text x="8" y="29" font-size="8" fill="currentColor" fill-opacity=".45">0:00</text>
+            <text x="312" y="29" font-size="8" text-anchor="end" fill="currentColor" fill-opacity=".45">11:45</text>
+          </svg>
+          <figcaption>지적 시점이 넓게 퍼져 있습니다 — 고쳐지지 않고 계속 나온 습관입니다.</figcaption>
+        </figure>
+
+        <ul class="quotes">
+          <li><time>04:06</time><span>너무 많이 꺾지 말고, 풀어 놓으세요</span></li>
+          <li><time>04:19</time><span>손목 조금 풀어 주시고</span></li>
+          <li><time>06:49</time><span>손목 너무 강하게. 강하게 틀지 말고</span></li>
+          <li><time>09:08</time><span>아까 얘기했듯이 여기도 조금 풀어 주시고</span></li>
+        </ul>
+
+        <div class="clips" style="margin-top:14px">
+          <article class="clip">
+            <video controls preload="metadata" playsinline
+                   poster="posters/fb4_fix_wrist.jpg"
+                   src="clips/fb4_fix_wrist.mp4"></video>
+            <div class="body">
+              <span class="chip fix">손목</span>
+              <blockquote>강하게 틀지 말고, 지금도 조금 더 풀어 주시고</blockquote>
+              <p class="src">원본 06:49 — 06:56</p>
+            </div>
+          </article>
+        </div>
+      </div>
+
+      <div class="fix-item">
+        <div class="fix-top">
+          <span class="rank">2</span>
+          <h3>라켓면</h3>
+          <span class="hits">3회 · 30초에 집중</span>
+        </div>
+        <p class="fix-why">공을 치기 시작한 직후에 몰려 나왔습니다. 넘기려는 마음이 면 각도를 바꿉니다.</p>
+
+        <figure>
+          <svg viewBox="0 0 320 30" role="img"
+               aria-label="라켓면 지적 3회가 9분 15초부터 9분 41초 사이 30초 구간에 몰려 있다">
+            <line x1="8" y1="15" x2="312" y2="15" stroke="currentColor" stroke-opacity=".2" stroke-width="1.5"/>
+            <line x1="247" y1="6" x2="247" y2="24" stroke="var(--fix)" stroke-width="3"/>
+            <line x1="255" y1="6" x2="255" y2="24" stroke="var(--fix)" stroke-width="3"/>
+            <line x1="259" y1="6" x2="259" y2="24" stroke="var(--fix)" stroke-width="3"/>
+            <text x="8" y="29" font-size="8" fill="currentColor" fill-opacity=".45">0:00</text>
+            <text x="312" y="29" font-size="8" text-anchor="end" fill="currentColor" fill-opacity=".45">11:45</text>
+          </svg>
+          <figcaption>한 곳에 뭉쳐 있습니다 — 공을 치는 순간에만 나오는 문제입니다.</figcaption>
+        </figure>
+
+        <ul class="quotes">
+          <li><time>09:15</time><span>뒤에서 덮으셔야 돼요. 앞으로 덮으면 걸릴 확률이 높아요</span></li>
+          <li><time>09:32</time><span>면이 변하면 안 돼요. 그대로 끝까지</span></li>
+          <li><time>09:41</time><span>이게 면이 뜨게 — 그건 하면 안 됩니다</span></li>
+        </ul>
+
+        <div class="clips" style="margin-top:14px">
+          <article class="clip">
+            <video controls preload="metadata" playsinline
+                   poster="posters/fb5_fix_face.jpg"
+                   src="clips/fb5_fix_face.mp4"></video>
+            <div class="body">
+              <span class="chip fix">라켓면</span>
+              <blockquote>이게 면이 뜨게 — 그건 하면 안 됩니다</blockquote>
+              <p class="src">원본 09:40 — 09:47</p>
+            </div>
+          </article>
+        </div>
+      </div>
+
+      <div class="fix-item">
+        <div class="fix-top">
+          <span class="rank">3</span>
+          <h3>허리 회전</h3>
+          <span class="hits">2회</span>
+        </div>
+        <p class="fix-why">왼쪽부터 열면 공이 몸 뒤에서 맞습니다.</p>
+
+        <ul class="quotes">
+          <li><time>05:40</time><span>왼쪽 허리를 먼저 돌리면 자꾸 뒤에서 맞습니다</span></li>
+          <li><time>06:24</time><span>오른쪽 라인만 앞으로</span></li>
+        </ul>
+
+        <div class="clips" style="margin-top:14px">
+          <article class="clip">
+            <video controls preload="metadata" playsinline
+                   poster="posters/fb6_fix_hip.jpg"
+                   src="clips/fb6_fix_hip.mp4"></video>
+            <div class="body">
+              <span class="chip fix">허리 회전</span>
+              <blockquote>왼쪽은 놔두고 오른쪽만</blockquote>
+              <p class="src">원본 05:40 — 05:52</p>
+            </div>
+          </article>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>숙제</h2></div>
+    <div class="hw">
+      <p class="task">손목 풀고 고정한 상태로, 발 틀듯이 몸만 트는 동작</p>
+      <p style="font-size:.88rem;color:var(--ink-soft)">
+        라켓 없이도 됩니다. 1순위 개선점이 손목이고, 코치가 준 해법은
+        “손목을 고정해 놓고 몸만 측면으로 틀면서”(03:34)였습니다.
+      </p>
+      <div class="links">
+        <a href="#">복습 · 손목 고정</a>
+        <a href="#">복습 · 덮고 사선으로</a>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>다음 수업에서 확인할 것</h2></div>
+    <ul class="checks">
+      <li>손목 지적 횟수가 4회보다 줄었는가</li>
+      <li>공을 치기 시작할 때 라켓면이 뜨는 습관이 남았는가</li>
+      <li>왼쪽 허리부터 돌리는 순서가 교정됐는가</li>
+    </ul>
+  </section>
+
+  <footer>
+    <strong>이 화면은 프로토타입입니다.</strong> 클립·인용·지적 횟수는 실제 수업 영상(11분 45초)의
+    자동자막에서 추출했습니다. 코치가 새로 쓴 문장은 없습니다 — 전부 수업 중 코치가 한 말이며,
+    타구 장면과 짝지어 횟수를 세고 순서를 붙인 결과입니다. 최종 전달 전 코치 확인이 필요합니다.
+  </footer>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,145 @@
+{
+  "schema_version": "1.1-draft",
+  "meta": {
+    "project_id": "forehand_3points_001",
+    "source": {
+      "type": "multi_file",
+      "dir": "raw/",
+      "files": [
+        { "id": "c01_01", "file": "c01_01.mp4", "duration_sec": 37.17 },
+        { "id": "c01_02", "file": "c01_02.mp4", "duration_sec": 148.20 },
+        { "id": "c01_03", "file": "c01_03.mp4", "duration_sec": 225.30 },
+        { "id": "c01_04", "file": "c01_04.mp4", "duration_sec": 173.10 },
+        { "id": "c01_05", "file": "c01_05.mp4", "duration_sec": 88.90 },
+        { "id": "c01_06", "file": "c01_06.mp4", "duration_sec": 58.97 },
+        { "id": "c01_07", "file": "c01_07.mp4", "duration_sec": 29.10 }
+      ],
+      "fps": 30,
+      "resolution": "1920x1080"
+    },
+    "output": { "format": "lecture", "aspect": "16:9" },
+    "language": "ko",
+    "created_at": "2026-08-14T19:40:00+09:00",
+    "directive_variant": "A",
+    "schema_note": "1.0 은 단일 원본을 가정한다. 원본이 7개 파일이라 a_roll 에 file 을 추가했다."
+  },
+
+  "exclusions": [],
+  "protected": [],
+
+  "storyline": [
+    {
+      "block_id": "b01",
+      "role": "hook",
+      "a_roll": [{ "file": "c01_04", "start": 12.88, "end": 15.80 }],
+      "narration_ref": "잘하고도 스윙이 안 나오시는 분들이 꼭 있어요",
+      "note": "원본 10분째 문장을 훅으로 전진 배치. 증상부터 때린다"
+    },
+    {
+      "block_id": "b02",
+      "role": "problem",
+      "a_roll": [
+        { "file": "c01_02", "start": 6.58, "end": 15.64 },
+        { "file": "c01_02", "start": 28.68, "end": 44.18 }
+      ],
+      "narration_ref": "대부분은 멀어서 실수하는 것보다 가까워서 실수하는 경우가 많거든요",
+      "note": "증상 확장 — 첫 스텝이 정면으로 빠져 자세가 무너진다"
+    },
+    {
+      "block_id": "b03",
+      "role": "opening",
+      "a_roll": [
+        { "file": "c01_01", "start": 0.0, "end": 19.52 },
+        { "file": "c01_01", "start": 31.70, "end": 34.00 }
+      ],
+      "narration_ref": "안녕하세요. 김준코치입니다",
+      "note": "인사를 훅 뒤로. 공감 다음에 화자 소개"
+    },
+    {
+      "block_id": "b04",
+      "role": "point",
+      "a_roll": [{ "file": "c01_02", "start": 53.16, "end": 70.78 }],
+      "narration_ref": "유니턴을 하면서 상대방을 째려보는 거예요",
+      "note": "포인트 1 — 시선"
+    },
+    {
+      "block_id": "b05",
+      "role": "point",
+      "a_roll": [{ "file": "c01_02", "start": 82.22, "end": 105.00 }],
+      "narration_ref": "임팩트 전에 고개를 돌리시는 분들은 여기를 못 따라가게 되니까",
+      "note": "포인트 1 보강 — 시선을 임팩트까지"
+    },
+    {
+      "block_id": "b06",
+      "role": "demo",
+      "a_roll": [{ "file": "c01_06", "start": 0.0, "end": 58.90 }],
+      "narration_ref": "(무발화)",
+      "note": "측면 앵글 무발화 시범. 오디오 기준 편집이면 통째로 사라지는 구간"
+    },
+    {
+      "block_id": "b07",
+      "role": "point",
+      "a_roll": [{ "file": "c01_03", "start": 10.26, "end": 66.70 }],
+      "narration_ref": "두 번째는 이제 거리를 잡았으니까 골반 사용입니다",
+      "note": "포인트 2 — 골반 회전이 파워의 근원"
+    },
+    {
+      "block_id": "b08",
+      "role": "point",
+      "a_roll": [{ "file": "c01_03", "start": 66.70, "end": 90.00 }],
+      "narration_ref": "오른발을 여기서 딱 버티는 게 아니라 자연스럽게 내가 끌려나가는 것",
+      "note": "포인트 2 보강 — 버티지 말고 끌려나가라"
+    },
+    {
+      "block_id": "b09",
+      "role": "demo",
+      "a_roll": [{ "file": "c01_03", "start": 96.60, "end": 108.10 }],
+      "narration_ref": "다시 한번 보여드리면",
+      "note": "강사가 직접 예고한 시범"
+    },
+    {
+      "block_id": "b10",
+      "role": "point",
+      "a_roll": [{ "file": "c01_04", "start": 4.04, "end": 56.18 }],
+      "narration_ref": "세 번째는 피니시입니다",
+      "note": "포인트 3 — 피니시 공간, 팔꿈치를 왼손으로 밀기"
+    },
+    {
+      "block_id": "b11",
+      "role": "point",
+      "a_roll": [{ "file": "c01_04", "start": 59.72, "end": 81.54 }],
+      "narration_ref": "농구공 다이소에 다 있을 거예요",
+      "note": "가장 강한 이미지. 단독 블록으로 분리해 묻히지 않게 한다"
+    },
+    {
+      "block_id": "b12",
+      "role": "demo",
+      "a_roll": [{ "file": "c01_07", "start": 0.0, "end": 29.10 }],
+      "narration_ref": "(무발화)",
+      "note": "후면 롱샷 랠리"
+    },
+    {
+      "block_id": "b13",
+      "role": "summary",
+      "a_roll": [{ "file": "c01_04", "start": 112.02, "end": 133.60 }],
+      "narration_ref": "그래서 오늘 배운 거 세 가지",
+      "note": "세 가지 재정리"
+    },
+    {
+      "block_id": "b14",
+      "role": "outro",
+      "a_roll": [
+        { "file": "c01_04", "start": 142.04, "end": 157.36 },
+        { "file": "c01_04", "start": 162.26, "end": 169.00 }
+      ],
+      "narration_ref": "공을 진짜 끝까지 안 봐요",
+      "note": "포인트 1(시선)로 되돌아오는 콜백 → 수미상관. 그다음 마무리"
+    }
+  ],
+
+  "b_roll": [],
+  "assets": [],
+  "subtitles": [],
+  "sfx": [],
+  "polish": { "loudness_lufs": -14, "denoise": false, "deliverable": "webm" }
+}

@@ -1,0 +1,57 @@
+{
+  "type": "object",
+  "properties": {
+    "exclusions": {
+      "type": "array",
+      "description": "잘라내야 할 구간. 확실하지 않으면 넣지 않는다. 빈 배열도 유효한 답이다.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "start": {
+            "type": "number",
+            "description": "원본 영상 타임코드, 초 단위. 소수점 첫째 자리."
+          },
+          "end": {
+            "type": "number",
+            "description": "원본 영상 타임코드, 초 단위. start 보다 커야 한다."
+          },
+          "reason": {
+            "type": "string",
+            "enum": ["gaze_off", "equipment", "retake"],
+            "description": "gaze_off=시선이 카메라를 벗어남, equipment=장비 조작, retake=다시 하려고 멈춤"
+          },
+          "note": {
+            "type": "string",
+            "description": "화면에서 관찰한 사실만 한 줄. 추측 금지."
+          }
+        },
+        "required": ["start", "end", "reason", "note"],
+        "propertyOrdering": ["start", "end", "reason", "note"]
+      }
+    },
+    "protected": {
+      "type": "array",
+      "description": "절대 잘라내면 안 되는 구간. 무음이어도 시범이면 여기에 넣는다.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "start": { "type": "number" },
+          "end": { "type": "number" },
+          "reason": {
+            "type": "string",
+            "enum": ["silent_demo", "key_motion"],
+            "description": "silent_demo=말 없이 동작만 보여주는 시범, key_motion=스윙·임팩트·피니시 등 동작 자체가 핵심인 순간"
+          },
+          "note": {
+            "type": "string",
+            "description": "무슨 동작인지 화면에서 본 대로. 반복 횟수가 보이면 적는다."
+          }
+        },
+        "required": ["start", "end", "reason", "note"],
+        "propertyOrdering": ["start", "end", "reason", "note"]
+      }
+    }
+  },
+  "required": ["exclusions", "protected"],
+  "propertyOrdering": ["exclusions", "protected"]
+}
