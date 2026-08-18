@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>포핸드 기초 · 온라인 강의</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  :root {
+    --navy: #17335F;
+    --yellow: #E4EF3D;
+    --ink: #1B2233;
+    --ink-soft: #67718A;
+    --rule: #E4E7EE;
+    --ground: #F4F5F8;
+    --card: #FFFFFF;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: #DDE0E7; color: var(--ink);
+    font-family: "Pretendard Variable", Pretendard, "Apple SD Gothic Neo", -apple-system, system-ui, sans-serif;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    word-break: keep-all;
+  }
+  .phone { max-width: 430px; margin: 0 auto; background: var(--ground); min-height: 100vh; }
+  @media (min-width: 520px) { .phone { margin: 24px auto; min-height: 0; border-radius: 18px; overflow: hidden; } }
+
+  header { background: var(--navy); color: #fff; padding: 28px 22px 24px; }
+  header .eyebrow { font-size: .7rem; letter-spacing: .16em; color: var(--yellow); text-transform: uppercase; margin: 0 0 10px; font-weight: 700; }
+  header h1 { margin: 0 0 6px; font-size: 1.55rem; font-weight: 800; letter-spacing: -.02em; }
+  header .meta { margin: 0 0 14px; font-size: .84rem; color: #B9C3D8; font-weight: 500; }
+  header .goal { margin: 0; font-size: .93rem; color: #E7EBF4; }
+
+  nav { background: var(--card); border-bottom: 1px solid var(--rule); padding: 16px 22px 18px; }
+  nav p { margin: 0 0 8px; font-size: .74rem; color: var(--ink-soft); font-weight: 700; }
+  nav ol { margin: 0; padding: 0 0 0 1.4em; font-size: .92rem; }
+  nav li { margin: 4px 0; }
+  nav a { color: var(--ink); text-decoration: none; font-weight: 500; }
+  nav .t { color: var(--ink-soft); font-size: .78rem; margin-left: 6px; font-weight: 400; }
+
+  .unit { background: var(--card); margin: 12px 0; padding-bottom: 24px; }
+  .unit-head { padding: 20px 22px 14px; }
+  .unit-head .no { display: inline-block; background: var(--yellow); color: var(--navy); font-weight: 800; font-size: .72rem; letter-spacing: .06em; padding: 3px 10px; border-radius: 999px; margin-bottom: 10px; }
+  .unit-head h2 { margin: 0 0 4px; font-size: 1.16rem; font-weight: 800; letter-spacing: -.015em; }
+  .unit-head .meta { margin: 0; font-size: .8rem; color: var(--ink-soft); }
+
+  video { width: 100%; height: auto; display: block; background: #000; }
+
+  .body { padding: 24px 22px 4px; }
+  .body p { margin: 0; font-size: .94rem; }
+  .body p.label { font-size: .8rem; color: var(--navy); font-weight: 800; margin: 40px 0 10px; }
+  .body p.label:first-child { margin-top: 0; }
+  .points { margin: 0; padding-left: 1.15em; font-size: .92rem; }
+  .points li { margin: 5px 0; }
+  .fix { border-left: 3px solid var(--yellow); background: #FBFCEF; padding: 12px 15px; font-size: .9rem; border-radius: 0 6px 6px 0; }
+  .fix .err { color: var(--ink-soft); }
+  .fix .cue { font-weight: 700; margin-top: 4px; }
+
+  figure { margin: 0; }
+  figure img { width: 100%; height: auto; display: block; border-radius: 8px; }
+  figcaption { font-size: .8rem; color: var(--ink-soft); margin-top: 7px; }
+  .scenes { display: flex; flex-direction: column; gap: 14px; }
+  .slides { position: relative; }
+  .track { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory;
+           -webkit-overflow-scrolling: touch; scrollbar-width: none; padding-bottom: 4px; }
+  .track::-webkit-scrollbar { display: none; }
+  .slide { flex: 0 0 100%; scroll-snap-align: start; }
+  .slide img { width: 100%; height: auto; display: block; border-radius: 8px;
+               border: 1px solid var(--rule); background: #fff; }
+  .slide figcaption { font-size: .8rem; color: var(--ink-soft); margin-top: 8px; }
+  .dots { display: flex; justify-content: center; gap: 6px; margin-top: 10px; }
+  .dots i { width: 6px; height: 6px; border-radius: 999px; background: #C9CFDC; display: block; transition: background .2s, width .2s; }
+  .dots i.on { background: var(--navy); width: 18px; }
+
+</style>
+</head>
+<body>
+<main class="phone">
+
+  <header>
+    <p class="eyebrow">Forehand Basics</p>
+    <h1>포핸드 기초</h1>
+    <p class="meta">입문 · 11분 45초 · 유닛 5개 · 문동희 코치</p>
+    <p class="goal">그립부터 준비 자세, 스윙 3단계까지 익혀 공을 정확하게 맞추고 넘기는 법을 배웁니다.</p>
+  </header>
+
+  <nav>
+    <p>목차</p>
+    <ol>
+      <li><a href="#u1">포핸드 그립 잡기</a><span class="t">57초</span></li>
+      <li><a href="#u2">준비 자세</a><span class="t">1분 4초</span></li>
+      <li><a href="#u3">유닛 턴과 테이크백</a><span class="t">1분 26초</span></li>
+      <li><a href="#u4">라켓 드롭과 사선 스윙, 피니시</a><span class="t">2분 34초</span></li>
+      <li><a href="#u5">타점 설정과 공 맞추기</a><span class="t">3분 58초</span></li>
+      <li><a href="#summary">세 박자로 기억하기</a><span class="t">정리</span></li>
+    </ol>
+  </nav>
+
+  <section class="unit" id="u1">
+    <div class="unit-head">
+      <span class="no">UNIT 1</span>
+      <h2>포핸드 그립 잡기</h2>
+      <p class="meta">57초 · 개념 설명</p>
+    </div>
+    <video controls preload="metadata" playsinline poster="stills/poster_1.jpg?v=3" src="clips/unit_1.mp4?v=3"></video>
+    <div class="body">
+      <p class="label">목표</p>
+      <p>손바닥 면과 라켓 면을 일치시켜 직관적인 그립 감각을 익힌다.</p>
+      <p class="label">동작 설명</p>
+      <p>왼손 끝 마디로 라켓 목을 잡고, 오른 손바닥을 라켓 면에 댄 채 그대로 내려와 악수하듯이 잡는다. 손바닥이 움직이는 대로 라켓 면이 움직인다고 생각하면 면 조절이 쉬워진다. 그립 명칭은 입문 단계에서 중요하지 않다.</p>
+      <p class="label">핵심 포인트</p>
+      <ul class="points">
+        <li>손바닥 면과 라켓 스트링 면의 평행 유지</li>
+        <li>그립 끝까지 손을 내려서 악수하듯 가볍게 쥔다</li>
+        <li>손바닥의 방향이 곧 라켓 면의 방향</li>
+      </ul>
+      <p class="label">기억할 장면</p>
+      <div class="slides">
+        <div class="track">
+          
+          <figure class="slide"><img src="diagrams/u1_grip_bevel.png" alt="손잡이 8각 단면에서 손이 닿는 위치" loading="lazy"><figcaption>손잡이 8각 단면에서 손이 닿는 위치</figcaption></figure>
+          <figure class="slide"><img src="stills/scene_1.jpg" alt="손바닥을 라켓 면에 대어 면의 방향을 확인하는 동작" loading="lazy"><figcaption>손바닥을 라켓 면에 대어 면의 방향을 확인하는 동작</figcaption></figure>
+        </div>
+        <div class="dots"><i class="on"></i><i></i></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="unit" id="u2">
+    <div class="unit-head">
+      <span class="no">UNIT 2</span>
+      <h2>준비 자세</h2>
+      <p class="meta">1분 4초 · 시범</p>
+    </div>
+    <video controls preload="metadata" playsinline poster="stills/poster_2.jpg?v=3" src="clips/unit_2.mp4?v=3"></video>
+    <div class="body">
+      <p class="label">목표</p>
+      <p>안정적인 하체 스탠스와 스윙을 시작하기 위한 팔의 각도를 만든다.</p>
+      <p class="label">동작 설명</p>
+      <p>발은 어깨 넓이로 벌리고 무릎을 살짝 굽힌다. 라켓은 몸 앞으로 살짝 내밀고, 팔꿈치와 손목의 각도를 미리 만들어 둔다. 준비 자세가 만들어져 있어야 다음 동작이 쉽게 이어진다.</p>
+      <p class="label">핵심 포인트</p>
+      <ul class="points">
+        <li>어깨 너비의 안정적인 스탠스</li>
+        <li>무릎은 가볍게 굽힌다</li>
+        <li>팔꿈치 방향과 공간을 미리 만들어 둔다</li>
+      </ul>
+      <p class="label">흔한 실수</p>
+      <div class="fix">
+        <div class="err">팔을 완전히 펴거나 손목을 세워 꺾는다</div>
+        <div class="cue">"풀어 놓으세요, 너무 많이 꺾지 말고"</div>
+      </div>
+      <p class="label">기억할 장면</p>
+      <div class="slides">
+        <div class="track">
+          
+          <figure class="slide"><img src="diagrams/u2_ready.png" alt="정면에서 본 스탠스 폭과 측면에서 본 무릎·라켓 위치" loading="lazy"><figcaption>정면에서 본 스탠스 폭과 측면에서 본 무릎·라켓 위치</figcaption></figure>
+          <figure class="slide"><img src="stills/scene_2.jpg" alt="어깨 넓이로 벌린 발과 살짝 굽힌 무릎 자세" loading="lazy"><figcaption>어깨 넓이로 벌린 발과 살짝 굽힌 무릎 자세</figcaption></figure>
+        </div>
+        <div class="dots"><i class="on"></i><i></i></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="unit" id="u3">
+    <div class="unit-head">
+      <span class="no">UNIT 3</span>
+      <h2>유닛 턴과 테이크백</h2>
+      <p class="meta">1분 26초 · 시범</p>
+    </div>
+    <video controls preload="metadata" playsinline poster="stills/poster_3.jpg?v=3" src="clips/unit_3.mp4?v=3"></video>
+    <div class="body">
+      <p class="label">목표</p>
+      <p>팔로만 라켓을 빼지 않고 몸 전체를 틀어 스윙을 준비한다.</p>
+      <p class="label">동작 설명</p>
+      <p>'하나'에 발만 틀고, 발을 틀면서 손도 그대로 옆으로 튼다. 왼손은 앞으로 뻗어 균형을 잡는다. 손을 뒤로 제끼면 손목이 움직이므로, 발 틀듯이 몸 전체를 틀어 라켓을 옮긴다.</p>
+      <p class="label">핵심 포인트</p>
+      <ul class="points">
+        <li>발과 어깨가 같이 회전한다</li>
+        <li>손목을 고정한 채 라켓을 옆으로 옮긴다</li>
+        <li>왼손을 뻗어 거리감과 균형을 잡는다</li>
+      </ul>
+      <p class="label">흔한 실수</p>
+      <div class="fix">
+        <div class="err">라켓을 등 뒤로 과하게 뺀다</div>
+        <div class="cue">"손을 뒤로 제끼지 말고 발 틀듯이 몸만 틀어주세요"</div>
+      </div>
+      <p class="label">기억할 장면</p>
+      <div class="slides">
+        <div class="track">
+          
+          <figure class="slide"><img src="diagrams/u3_turn.png" alt="발이 측면으로 도는 회전. 팔만 빼는 동작은 피한다" loading="lazy"><figcaption>발이 측면으로 도는 회전. 팔만 빼는 동작은 피한다</figcaption></figure>
+          <figure class="slide"><img src="stills/scene_3.jpg" alt="발과 상체가 측면으로 회전된 유닛 턴 자세" loading="lazy"><figcaption>발과 상체가 측면으로 회전된 유닛 턴 자세</figcaption></figure>
+        </div>
+        <div class="dots"><i class="on"></i><i></i></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="unit" id="u4">
+    <div class="unit-head">
+      <span class="no">UNIT 4</span>
+      <h2>라켓 드롭과 사선 스윙, 피니시</h2>
+      <p class="meta">2분 34초 · 시범</p>
+    </div>
+    <video controls preload="metadata" playsinline poster="stills/poster_4.jpg?v=3" src="clips/unit_4.mp4?v=3"></video>
+    <div class="body">
+      <p class="label">목표</p>
+      <p>라켓 면을 덮어 아래로 떨군 뒤 사선 위 방향으로 부드럽게 휘두른다.</p>
+      <p class="label">동작 설명</p>
+      <p>라켓 면을 살짝 덮어 아래로 떨군 뒤, 사선 위로 올라가 왼손 위치에서 공을 만난다. 마무리는 양 팔꿈치를 채주는 느낌으로 어깨 위에서 잡는다. 왼쪽 어깨는 열지 않고 오른쪽 라인만 앞으로 나간다.</p>
+      <p class="label">핵심 포인트</p>
+      <ul class="points">
+        <li>면을 덮으며 아래로 드롭</li>
+        <li>아래에서 위로 향하는 사선 스윙</li>
+        <li>양 팔꿈치를 들어 올리며 마무리</li>
+      </ul>
+      <p class="label">흔한 실수</p>
+      <div class="fix">
+        <div class="err">왼쪽 어깨를 너무 빨리 열어버린다</div>
+        <div class="cue">"왼쪽은 놔두고 오른쪽 라인만 앞으로 오세요"</div>
+      </div>
+      <p class="label">기억할 장면</p>
+      <div class="slides">
+        <div class="track">
+          
+          <figure class="slide"><img src="diagrams/u4_low_to_high.png" alt="아래에서 위로 향하는 사선 궤적과 라켓 면의 변화" loading="lazy"><figcaption>아래에서 위로 향하는 사선 궤적과 라켓 면의 변화</figcaption></figure>
+          <figure class="slide"><img src="stills/scene_4a.jpg" alt="사선 위로 뻗어 나가는 스윙 궤적" loading="lazy"><figcaption>사선 위로 뻗어 나가는 스윙 궤적</figcaption></figure>
+          <figure class="slide"><img src="stills/scene_4b.jpg" alt="양 팔꿈치를 높게 들어 올린 피니시 자세" loading="lazy"><figcaption>양 팔꿈치를 높게 들어 올린 피니시 자세</figcaption></figure>
+        </div>
+        <div class="dots"><i class="on"></i><i></i><i></i></div>
+      </div>
+      </div>
+  </section>
+
+  <section class="unit" id="u5">
+    <div class="unit-head">
+      <span class="no">UNIT 5</span>
+      <h2>타점 설정과 공 맞추기</h2>
+      <p class="meta">3분 58초 · 실전 적용</p>
+    </div>
+    <video controls preload="metadata" playsinline poster="stills/poster_5.jpg?v=3" src="clips/unit_5.mp4?v=3"></video>
+    <div class="body">
+      <p class="label">목표</p>
+      <p>공을 때리려 하지 말고, 스윙 궤적 안에 공을 두고 지나간다.</p>
+      <p class="label">동작 설명</p>
+      <p>타점은 앞발보다 공 하나 정도 앞이다. 공을 넘길 생각을 하지 않고, 스윙 연습하는 자리에 공이 있다고 생각하며 그대로 지나간다. 밑에서 위로 긁고 올라가는 사선 궤적을 유지한다.</p>
+      <p class="label">핵심 포인트</p>
+      <ul class="points">
+        <li>타점은 몸보다 앞</li>
+        <li>공을 때리지 말고 긁고 지나간다</li>
+        <li>공보다 스윙의 완결성에 집중</li>
+      </ul>
+      <p class="label">흔한 실수</p>
+      <div class="fix">
+        <div class="err">공을 넘기려고 임팩트에서 손목을 꺾거나 스윙을 멈춘다</div>
+        <div class="cue">"공 의식하지 말고 그냥 지나가는 스윙을 하세요"</div>
+      </div>
+      <p class="label">기억할 장면</p>
+      <div class="slides">
+        <div class="track">
+          
+          <figure class="slide"><img src="diagrams/u5_contact.png" alt="앞발보다 공 하나 앞. 너무 뒤나 앞은 피한다" loading="lazy"><figcaption>앞발보다 공 하나 앞. 너무 뒤나 앞은 피한다</figcaption></figure>
+          <figure class="slide"><img src="stills/scene_5.jpg" alt="스윙을 멈추지 않고 끝까지 통과시키는 연습" loading="lazy"><figcaption>스윙을 멈추지 않고 끝까지 통과시키는 연습</figcaption></figure>
+        </div>
+        <div class="dots"><i class="on"></i><i></i></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="unit" id="summary">
+    <div class="unit-head">
+      <span class="no">정리</span>
+      <h2>세 박자로 기억하기</h2>
+      <p class="meta">수업 후 복습</p>
+    </div>
+    <div class="body">
+      <p class="label">동작 순서</p>
+      <figure>
+        <img src="diagrams/three_steps.png" alt="턴, 드롭, 스윙 세 단계" loading="lazy">
+        <figcaption>하나에 몸을 틀고, 둘에 라켓을 떨구고, 셋에 사선으로 올린다</figcaption>
+      </figure>
+      <p class="label">오늘 배운 것</p>
+      <ul class="points">
+        <li>손바닥 방향이 곧 라켓 면의 방향이다</li>
+        <li>팔로만 빼지 않고 몸 전체를 틀어 준비한다</li>
+        <li>면을 덮어 떨군 뒤 아래에서 위로 사선으로 올린다</li>
+        <li>공을 때리지 말고 스윙 궤적 안에 공을 둔다</li>
+      </ul>
+      <p class="label">다음 수업까지</p>
+      <div class="fix">
+        <div class="cue">거울 앞에서 공 없이 하나·둘·셋 구분 동작 연습</div>
+        <div class="err">라켓 없이 손만으로 해도 됩니다</div>
+      </div>
+    </div>
+  </section>
+
+</main>
+<script>
+document.querySelectorAll('.slides').forEach(function(box){
+  var track = box.querySelector('.track'), dots = box.querySelectorAll('.dots i');
+  track.addEventListener('scroll', function(){
+    var i = Math.round(track.scrollLeft / track.clientWidth);
+    dots.forEach(function(d, k){ d.classList.toggle('on', k === i); });
+  }, {passive:true});
+});
+</script>
+</body>
+</html>
