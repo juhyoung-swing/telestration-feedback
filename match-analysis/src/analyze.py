@@ -337,6 +337,24 @@ def clean(seq, jump=2.5):
 
 # 렌더할 때마다 새 버전 번호를 붙인다 (이전 결과를 덮어쓰지 않는다)
 import glob as _glob
+
+
+def _h264(path):
+    """OpenCV VideoWriter 는 mp4v(MPEG-4 Part 2)만 안정적으로 쓴다.
+    그 코덱은 브라우저 HTML5 video 가 재생하지 못한다 — QuickTime 에서는 열려서
+    눈치채기 어렵다. 다 쓴 뒤 h264 로 갈아끼운다."""
+    import os
+    import subprocess
+    tmp = f"{path}.h264.mp4"
+    r = subprocess.run(["ffmpeg", "-y", "-v", "error", "-i", str(path),
+                        "-c:v", "h264_videotoolbox", "-b:v", "8000k",
+                        "-pix_fmt", "yuv420p", "-movflags", "+faststart", tmp],
+                       capture_output=True, text=True)
+    if r.returncode == 0 and os.path.exists(tmp):
+        os.replace(tmp, path)
+    else:
+        print(f"[h264] 변환 실패, mp4v 그대로 둔다: {path}", flush=True)
+
 _ver = 1 + max([int(os.path.basename(f).split("_v")[1].split(".")[0])
                 for f in _glob.glob(f"{OUT}/overlay_v*.mp4")] or [0])
 VID = f"{OUT}/overlay_v{_ver}.mp4"
@@ -435,5 +453,6 @@ for i in range(_lo, _hi):
         _t(f"P2  {last_sw[2]}", (374, H-48), .82, (255, 255, 255))
     vw.write(v)
 vw.release(); cap.release()
+_h264(VID)
 json.dump(result, open(f"{OUT}/results_v{_ver}.json", "w"), indent=2, ensure_ascii=False)
 print(f"{VID}  (+ results_v{_ver}.json)", flush=True)

@@ -11,6 +11,24 @@ import cv2
 import numpy as np
 import librosa
 
+
+def _h264(path):
+    """OpenCV VideoWriter 는 mp4v(MPEG-4 Part 2)만 안정적으로 쓴다.
+    그 코덱은 브라우저 HTML5 video 가 재생하지 못한다 — QuickTime 에서는 열려서
+    눈치채기 어렵다. 다 쓴 뒤 h264 로 갈아끼운다."""
+    import os
+    import subprocess
+    tmp = f"{path}.h264.mp4"
+    r = subprocess.run(["ffmpeg", "-y", "-v", "error", "-i", str(path),
+                        "-c:v", "h264_videotoolbox", "-b:v", "8000k",
+                        "-pix_fmt", "yuv420p", "-movflags", "+faststart", tmp],
+                       capture_output=True, text=True)
+    if r.returncode == 0 and os.path.exists(tmp):
+        os.replace(tmp, path)
+    else:
+        print(f"[h264] 변환 실패, mp4v 그대로 둔다: {path}", flush=True)
+
+
 TAG, VIDEO = "match_b", "input/match_b.mp4"
 CACHE_T0, CACHE_DUR = 300, 30
 T0 = float(sys.argv[1]) if len(sys.argv) > 1 else 300.0
@@ -233,4 +251,5 @@ for i in range(NF):
     cv2.putText(v, "km/h", (px+470, py+136), cv2.FONT_HERSHEY_SIMPLEX, .6, (190,190,190), 2)
     vw.write(v)
 vw.release(); cap.release()
+_h264(f"{OUT}/final.mp4")
 print(f"{OUT}/final.mp4", flush=True)

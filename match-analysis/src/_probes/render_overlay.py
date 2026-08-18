@@ -12,6 +12,24 @@ import torch, torchvision
 from torchvision import transforms
 from ultralytics import YOLO
 
+
+def _h264(path):
+    """OpenCV VideoWriter 는 mp4v(MPEG-4 Part 2)만 안정적으로 쓴다.
+    그 코덱은 브라우저 HTML5 video 가 재생하지 못한다 — QuickTime 에서는 열려서
+    눈치채기 어렵다. 다 쓴 뒤 h264 로 갈아끼운다."""
+    import os
+    import subprocess
+    tmp = f"{path}.h264.mp4"
+    r = subprocess.run(["ffmpeg", "-y", "-v", "error", "-i", str(path),
+                        "-c:v", "h264_videotoolbox", "-b:v", "8000k",
+                        "-pix_fmt", "yuv420p", "-movflags", "+faststart", tmp],
+                       capture_output=True, text=True)
+    if r.returncode == 0 and os.path.exists(tmp):
+        os.replace(tmp, path)
+    else:
+        print(f"[h264] 변환 실패, mp4v 그대로 둔다: {path}", flush=True)
+
+
 VIDEO = "input/match_amateur.mp4"
 T0 = float(sys.argv[1]) if len(sys.argv) > 1 else 35.0
 DUR = float(sys.argv[2]) if len(sys.argv) > 2 else 10.0
@@ -214,6 +232,7 @@ for i, f in enumerate(frames):
     cv2.putText(v, f"Frame: {i}", (20, 46), cv2.FONT_HERSHEY_SIMPLEX, 1.1, (0, 255, 0), 2)
     writer.write(v)
 writer.release()
+_h264("output/overlay_demo.mp4")
 
 json.dump(dict(window=[T0, T0+DUR], n_frames=N,
                ball_detect_rate=round(float(good.mean()), 3),

@@ -260,7 +260,7 @@ runs/   단계 좌표계     s1_… · s2_… · s3_… · s4_… · s6_…
   match-analysis    analyze · rally_map · make_review · make_kp_editor   ✓
 ```
 
-### 이번에 고친 실제 버그 둘
+### 이번에 고친 실제 버그 셋
 
 **1. `render.py` 가 8분 러닝에서 원래 안 됐다.**
 블록 128개마다 `if()` 를 겹쳐 라우드니스 식을 만드는데, ffmpeg 식 평가기가 터졌다.
@@ -270,6 +270,11 @@ runs/   단계 좌표계     s1_… · s2_… · s3_… · s4_… · s6_…
 **2. `runs/` 안 concat 파일 15개에 옛 절대경로가 박혀 있었다.**
 `overlay.txt` · `concat.txt` 는 ffmpeg concat 형식이라 절대경로를 그대로 쓴다.
 일괄 치환했다.
+
+**3. OpenCV 가 만든 영상 23개를 브라우저가 재생하지 못했다.**
+`cv2.VideoWriter` 는 `mp4v`(MPEG-4 Part 2)만 안정적으로 쓰는데, Chrome·Safari 는
+HTML5 video 로 그 코덱을 재생하지 않는다. **QuickTime 에서는 열려서 눈치채기 어렵다.**
+`VideoWriter` 를 쓰는 8곳 전부에 `_h264()` 를 붙여 다 쓴 뒤 h264 로 갈아끼운다.
 
 ### 안 돌린 것
 
