@@ -1,7 +1,7 @@
 # Project ACE
 
 테니스 영상을 넣으면 편집된 영상과 학습 자료가 나온다.
-기능 9개. **폴더 하나가 기능 하나다.**
+기능 8개. **폴더 하나가 기능 하나다.**
 
 ```
 랠리 — 낮은 화각 · 폰 거치 · 대부분의 유저가 이렇게 찍는다      상태
@@ -15,8 +15,7 @@
 강의
   lecture-scripter      영상 → 대본 + 편집 지시서                 됨
   lecture-edit          지시서대로 잘라 완성 영상                  됨
-  lecture-infographic   대본과 프레임에서 도해를 만든다             됨
-  lecture-material      수강생용 수업 전/후 자료                   됨
+  lecture-summary       수업 전/후 자료 (도해 포함)                됨
   lecture-shortform     레슨에서 세로 클립을 뽑는다                데모만
 ```
 
@@ -55,12 +54,24 @@
   render_any.py 검출 캐시 ─→ rally-trajectory  ·  match-analysis     (공용 입력)
 
 강의
-  lecture-scripter ─ directive.json ─→ lecture-edit ─ 완성 영상 ─→ lecture-material
-                                                                      ↑
-                                            lecture-infographic ─ 도해 ┘
+  lecture-scripter ─ directive.json ─→ lecture-edit ─ 완성 영상 ─→ lecture-summary
 ```
 
 강의 쪽 이음선이 `directive.json` 하나다. **판단은 scripter 에서 끝나고 뒤는 실행만 한다.**
+
+## scripter 와 edit 을 왜 나누나 — 소비자가 다르다
+
+```
+lecture-scripter  →  사람 편집자가 읽는다    "대본만 넘기면 외주 편집이 돌아가나"
+lecture-edit      →  시청자가 본다          완성 영상
+```
+
+자동 편집을 안 쓰고 대본만 넘기는 경로가 따로 있다. 고객이 다르면 기능이 다르다.
+
+## 도해를 왜 안 나누나 — 부품이다
+
+도해는 파는 물건이 아니라 수업 전 페이지에 들어가는 재료다. 그래서 `lecture-summary/src/diagram/`
+안에 있다. 외부 이미지 생성 툴을 거치지만 그건 구현 디테일이지 제품 구분이 아니다.
 
 ## 폴더 안 구조
 
