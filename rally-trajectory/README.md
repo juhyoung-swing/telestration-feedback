@@ -59,7 +59,8 @@ render_any.py            검출 캐시 생성
 probe_scale.py           imgsz·TTA 파라미터 탐색
 ```
 
-`render_any.py` 는 `../match-analysis` 도 쓴다. **검출 캐시는 두 기능의 공용 입력이다.**
+`render_any.py` 는 `../match-analysis` 도 쓴다. **검출 캐시는 두 기능의 공용 입력이라
+여기 한 곳에만 둔다** — 사본을 만들면 고칠 때 갈라진다.
 
 ## output
 

@@ -21,7 +21,7 @@ import sys
 from difflib import SequenceMatcher
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[3]
 ORDER = ["c01_01", "c01_02", "c01_03", "c01_04"]   # 무발화 클립은 뺀다
 MIN_CUT = 0.4                                       # 이보다 짧은 틈은 컷으로 세지 않는다
 

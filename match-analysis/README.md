@@ -73,3 +73,4 @@ python make_review.py output/analysis/match_b_45_67/results_final_v3.json
 여기 남은 것은 **코트 좌표가 있어야만 되는 것** 뿐이다 — 낙구 3D 복원, 미니코트 맵, 리포트.
 
 `render_any.py` 가 만드는 검출 캐시는 두 기능의 공용 입력이다.
+**사본을 두지 않는다** — `../rally-trajectory/src/render_any.py` 한 곳에만 있다.

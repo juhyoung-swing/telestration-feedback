@@ -1,0 +1,48 @@
+{
+ "blocks": [
+  {
+   "block_id": "sc02_00",
+   "scene": "sc02",
+   "from": "c01_01 0.00–15.30",
+   "asked_sec": 15.3,
+   "got_sec": 15.3,
+   "drift_sec": 0.0
+  },
+  {
+   "block_id": "sc02_01",
+   "scene": "sc02",
+   "from": "c01_01 16.15–19.30",
+   "asked_sec": 3.15,
+   "got_sec": 3.167,
+   "drift_sec": 0.017
+  },
+  {
+   "block_id": "sc02_02",
+   "scene": "sc02",
+   "from": "c01_01 21.00–32.70",
+   "asked_sec": 11.7,
+   "got_sec": 11.7,
+   "drift_sec": -0.0
+  },
+  {
+   "block_id": "sc02_03",
+   "scene": "sc02",
+   "from": "c01_01 32.70–33.20",
+   "asked_sec": 0.5,
+   "got_sec": 0.5,
+   "drift_sec": 0.0
+  },
+  {
+   "block_id": "sc02_04",
+   "scene": "sc02",
+   "from": "c01_01 33.60–34.50",
+   "asked_sec": 0.9,
+   "got_sec": 0.9,
+   "drift_sec": 0.0
+  }
+ ],
+ "planned_sec": 31.567,
+ "actual_sec": 31.567,
+ "audio_sec": 31.567,
+ "max_drift_sec": 0.017
+}

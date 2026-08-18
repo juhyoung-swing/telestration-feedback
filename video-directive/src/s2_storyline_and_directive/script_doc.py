@@ -10,7 +10,7 @@
 그래서 이 파일은 하나의 원천(지시서 + 전사)에서 둘 다 뽑는다.
 사람이 옮겨 적지 않으니 둘이 어긋날 수 없다.
 
-output: docs/script.md · docs/script.html
+output: video-directive/output/script.md · script.html
 
 usage: python script_doc.py [run_dir] [directive.json]
 """
@@ -19,7 +19,7 @@ import json
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[3]
 CLIPS = ("c01_01", "c01_02", "c01_03", "c01_04")
 
 ROLE = {"intro": "인트로", "opening": "목차", "chapter_open": "챕터카드",
@@ -106,8 +106,9 @@ def main() -> None:
             M.append("\n> 검은 화면 · 챕터 제목만\n")
         else:
             M.append("\n> 무발화 — 시범 화면\n")
-    (ROOT / "docs").mkdir(exist_ok=True)
-    (ROOT / "docs/script.md").write_text("\n".join(M))
+    DOC = Path(__file__).resolve().parents[2] / "output"   # video-directive/output
+    DOC.mkdir(parents=True, exist_ok=True)
+    (DOC / "script.md").write_text("\n".join(M))
 
     # ── HTML ─────────────────────────────────────────────────────────────
     H = [f"<header><p class='eyebrow'>Script</p><h1>포핸드 핵심 세 가지</h1>",
@@ -142,7 +143,7 @@ def main() -> None:
                         else "무발화 — 시범 화면") + "</div>")
         H.append("</section>")
 
-    (ROOT / "docs/script.html").write_text(
+    (DOC / "script.html").write_text(
         '<!doctype html><html lang=ko><head><meta charset=utf-8>'
         '<meta name=viewport content="width=device-width,initial-scale=1">'
         "<title>포핸드 핵심 세 가지 · 대본</title><style>" + CSS + "</style></head>"
@@ -151,8 +152,8 @@ def main() -> None:
     said = sum(1 for r in rows if r["speech"])
     print(f"블록 {len(rows)}개 · 발화 블록 {said}개 · 신규 제작 "
           f"{sum(1 for r in rows if not r['on'])}개 · 완성 {tc(total)}")
-    print(f"→ {(ROOT / 'docs/script.md')}")
-    print(f"→ {(ROOT / 'docs/script.html')}")
+    print(f"→ {DOC / 'script.md'}")
+    print(f"→ {DOC / 'script.html'}")
 
 
 CSS = """

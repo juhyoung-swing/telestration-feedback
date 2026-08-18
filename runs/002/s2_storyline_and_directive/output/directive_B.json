@@ -1,0 +1,211 @@
+{
+  "schema_version": "1.2-draft",
+  "meta": {
+    "project_id": "forehand_3points_001",
+    "source": {
+      "type": "multi_file",
+      "dir": "raw/",
+      "files": [
+        { "id": "c01_01", "file": "c01_01.mp4", "duration_sec": 37.17, "use": "인트로·목차" },
+        { "id": "c01_02", "file": "c01_02.mp4", "duration_sec": 148.20, "use": "① 시선·거리잡기" },
+        { "id": "c01_03", "file": "c01_03.mp4", "duration_sec": 225.30, "use": "② 골반 회전" },
+        { "id": "c01_04", "file": "c01_04.mp4", "duration_sec": 173.10, "use": "③ 피니시·요약·아웃트로" },
+        { "id": "c01_05", "file": "c01_05.mp4", "duration_sec": 88.90, "use": "피니시 공간 시범 (무발화)" },
+        { "id": "c01_06", "file": "c01_06.mp4", "duration_sec": 58.97, "use": "유닛턴 시범 (무발화)" },
+        { "id": "c01_07", "file": "c01_07.mp4", "duration_sec": 29.10, "use": "골반 시범 (무발화)" }
+      ],
+      "fps": 30,
+      "resolution": "1920x1080"
+    },
+    "output": { "format": "lecture", "aspect": "16:9" },
+    "language": "ko",
+    "directive_variant": "B",
+    "created_at": "2026-08-15T18:10:00+09:00",
+    "changes_from_A": [
+      "무발화 3개를 용도에 맞게 재배치 (A 는 c01_07 을 피니시 뒤에 잘못 넣었다)",
+      "챕터 카드 3장 생성 (원본에 없음)",
+      "타이틀 자막을 구조 장치로 계획",
+      "서로 다른 소스를 잇는 지점에 줌 지정 — 컷 은폐",
+      "무발화 소재를 짧은 시범(12초) + 마지막 몽타주(78초)로 분리",
+      "① 시선에 가장 긴 시간 배분 (97초)",
+      "b10 시작을 15.80 으로 옮겨 훅 문장 중복 제거"
+    ]
+  },
+
+  "exclusions": [],
+  "protected": [
+    { "id": "p001", "file": "c01_05", "start": 0.0, "end": 88.9, "reason": "silent_demo", "source": "human", "note": "피니시 공간 시범 전체" },
+    { "id": "p002", "file": "c01_06", "start": 0.0, "end": 58.9, "reason": "silent_demo", "source": "human", "note": "유닛턴 시범 전체" },
+    { "id": "p003", "file": "c01_07", "start": 0.0, "end": 29.1, "reason": "silent_demo", "source": "human", "note": "골반 시범 전체" }
+  ],
+
+  "storyline": [
+    {
+      "block_id": "b01", "role": "hook",
+      "a_roll": [{ "file": "c01_04", "start": 12.88, "end": 15.80 }],
+      "narration_ref": "잘하고도 스윙이 안 나오시는 분들이 꼭 있어요",
+      "note": "원본 발화를 내레이션처럼 쓰고 화면은 B-roll 타구로 덮는다. 사람은 후녹음했지만 우리는 원본으로 같은 형태를 만든다"
+    },
+    {
+      "block_id": "b02", "role": "problem",
+      "a_roll": [{ "file": "c01_02", "start": 6.58, "end": 15.64 }],
+      "narration_ref": "가까워서 실수하는 경우가 많거든요",
+      "note": "증상 확장. 여기까지가 훅 묶음 12초 — 사람 편집본 13.5초와 같은 분량"
+    },
+    {
+      "block_id": "b03", "role": "opening",
+      "a_roll": [
+        { "file": "c01_01", "start": 0.0, "end": 19.52 },
+        { "file": "c01_01", "start": 31.70, "end": 34.00 }
+      ],
+      "narration_ref": "안녕하세요. 김준코치입니다",
+      "note": "인사 + 목차. 상단 번호 자막 3개가 여기 붙는다"
+    },
+
+    {
+      "block_id": "b04", "role": "chapter_open",
+      "a_roll": [],
+      "generated": { "asset_id": "as01", "duration_sec": 2.5 },
+      "note": "생성 카드 — 원본에 없다"
+    },
+    {
+      "block_id": "b05", "role": "point",
+      "a_roll": [
+        { "file": "c01_02", "start": 28.68, "end": 44.18 },
+        { "file": "c01_02", "start": 53.16, "end": 105.00 },
+        { "file": "c01_02", "start": 109.58, "end": 138.96 }
+      ],
+      "narration_ref": "유니턴을 하면서 상대방을 째려보는 거예요",
+      "note": "① 시선 — 97초. 첫 포인트에 가장 길게 (사람 112초)"
+    },
+    {
+      "block_id": "b06", "role": "demo",
+      "a_roll": [{ "file": "c01_06", "start": 0.0, "end": 12.00 }],
+      "narration_ref": "(무발화 — 유닛턴 시범)",
+      "note": "짧은 확인 시범. 59초 전체를 쓰지 않는다. 나머지는 몽타주로"
+    },
+
+    {
+      "block_id": "b07", "role": "chapter_open",
+      "a_roll": [],
+      "generated": { "asset_id": "as02", "duration_sec": 2.5 }
+    },
+    {
+      "block_id": "b08", "role": "point",
+      "a_roll": [
+        { "file": "c01_03", "start": 10.26, "end": 90.00 },
+        { "file": "c01_03", "start": 96.60, "end": 108.10 }
+      ],
+      "narration_ref": "두 번째는 이제 거리를 잡았으니까 골반 사용입니다",
+      "note": "② 골반 91초. 뒤 구간은 강사가 직접 예고한 '다시 한번 보여드리면'"
+    },
+    {
+      "block_id": "b09", "role": "demo",
+      "a_roll": [{ "file": "c01_07", "start": 0.0, "end": 12.00 }],
+      "narration_ref": "(무발화 — 골반 시범)",
+      "note": "A 안에서 이 클립을 피니시 뒤에 잘못 넣었다. 골반용이다"
+    },
+
+    {
+      "block_id": "b10", "role": "chapter_open",
+      "a_roll": [],
+      "generated": { "asset_id": "as03", "duration_sec": 2.5 }
+    },
+    {
+      "block_id": "b11", "role": "point",
+      "a_roll": [{ "file": "c01_04", "start": 15.80, "end": 56.18 }],
+      "narration_ref": "그 이유는 마지막 피니시를 겨드랑이와 팔을 붙어서",
+      "note": "③ 피니시. 시작을 15.80 으로 — 4.04 로 하면 b01 훅 문장이 또 나온다"
+    },
+    {
+      "block_id": "b12", "role": "prop",
+      "a_roll": [{ "file": "c01_04", "start": 59.72, "end": 81.54 }],
+      "narration_ref": "농구공 다이소에 다 있을 거예요",
+      "note": "소도구 블록. 사람은 여기에 농구공 그래픽을 합성했다"
+    },
+    {
+      "block_id": "b13", "role": "demo",
+      "a_roll": [{ "file": "c01_05", "start": 0.0, "end": 12.00 }],
+      "narration_ref": "(무발화 — 피니시 공간 시범)",
+      "note": "피니시 공간용 클립. 나머지 77초는 몽타주로"
+    },
+
+    {
+      "block_id": "b14", "role": "summary",
+      "a_roll": [{ "file": "c01_04", "start": 112.02, "end": 133.60 }],
+      "narration_ref": "그래서 오늘 배운 거 세 가지",
+      "note": "핵심요약 카드 진입 후"
+    },
+    {
+      "block_id": "b15", "role": "montage",
+      "a_roll": [
+        { "file": "c01_06", "start": 12.00, "end": 35.00 },
+        { "file": "c01_07", "start": 12.00, "end": 29.10 },
+        { "file": "c01_05", "start": 12.00, "end": 50.00 }
+      ],
+      "narration_ref": "(무발화)",
+      "note": "이미지 트레이닝 78초. 상단 체크리스트 고정 + 구간마다 하이라이트 이동. 순서가 ①②③ 과 일치한다"
+    },
+    {
+      "block_id": "b16", "role": "outro",
+      "a_roll": [
+        { "file": "c01_04", "start": 142.04, "end": 157.36 },
+        { "file": "c01_04", "start": 162.26, "end": 169.00 }
+      ],
+      "narration_ref": "공을 진짜 끝까지 안 봐요",
+      "note": "① 시선으로 되돌아오는 콜백 + 마무리"
+    }
+  ],
+
+  "b_roll": [
+    {
+      "id": "br01",
+      "anchor": { "block_id": "b01", "offset_sec": 0.0 },
+      "duration_sec": 2.9,
+      "source": { "type": "source_clip", "file": "c01_06", "start": 40.0, "end": 42.9, "speed": 1.0 },
+      "note": "훅 발화 위에 타구 화면. A-roll 오디오 유지"
+    }
+  ],
+
+  "assets": [
+    { "id": "as01", "type": "cg", "status": "need_create", "description": "챕터 카드 1 — 검은 배경, 흰 볼드 '시선 (거리잡기)'", "spec": { "style": "chapter_card", "text": "시선 (거리잡기)" } },
+    { "id": "as02", "type": "cg", "status": "need_create", "description": "챕터 카드 2 — '골반 사용 (회전)'", "spec": { "style": "chapter_card", "text": "골반 사용 (회전)" } },
+    { "id": "as03", "type": "cg", "status": "need_create", "description": "챕터 카드 3 — '피니시 자세'", "spec": { "style": "chapter_card", "text": "피니시 자세" } },
+    { "id": "as04", "type": "sfx", "status": "need_create", "description": "번호 자막 등장음 (pop)" },
+    { "id": "as05", "type": "broll_footage", "status": "need_shoot", "description": "집에서 하는 골반 회전 드릴 (매트 위 런지). 사람 편집본 s08 에 해당하는 소재가 우리 원본에 없다" },
+    { "id": "as06", "type": "voiceover", "status": "need_record", "description": "훅 내레이션. 지금은 원본 발화로 대체했다", "spec": { "text_ref": "선수처럼 강력한 포핸드를 만들기 위한 핵심 세 가지" } }
+  ],
+
+  "subtitles": [
+    { "id": "st01", "anchor": { "block_id": "b03", "offset_sec": 7.5 }, "duration_sec": 2.5, "text": "1. 시선 (거리잡기)", "style": "title" },
+    { "id": "st02", "anchor": { "block_id": "b03", "offset_sec": 10.5 }, "duration_sec": 2.5, "text": "2. 골반 회전 사용하는 법", "style": "title" },
+    { "id": "st03", "anchor": { "block_id": "b03", "offset_sec": 13.5 }, "duration_sec": 2.5, "text": "3. 마무리 피니시", "style": "title" },
+    { "id": "st04", "anchor": { "block_id": "b05", "offset_sec": 0.5 }, "duration_sec": 3.0, "text": "거리잡기를 어려워하는 이유?", "style": "emphasis" },
+    { "id": "st05", "anchor": { "block_id": "b05", "offset_sec": 78.0 }, "duration_sec": 2.5, "text": "1. 유닛턴", "style": "title" },
+    { "id": "st06", "anchor": { "block_id": "b05", "offset_sec": 81.0 }, "duration_sec": 2.5, "text": "2. 공 째려보기", "style": "title" },
+    { "id": "st07", "anchor": { "block_id": "b05", "offset_sec": 84.0 }, "duration_sec": 3.0, "text": "3. 임팩트까지 바라보기", "style": "title" },
+    { "id": "st08", "anchor": { "block_id": "b15", "offset_sec": 0.0 }, "duration_sec": 78.1, "text": "오늘 배운 세 가지를 집중해서 보세요\n1. 유닛턴  2. 골반  3. 피니시 공간", "style": "label" }
+  ],
+
+  "sfx": [
+    { "id": "sx01", "anchor": { "block_id": "b03", "offset_sec": 7.7 }, "asset_id": "as04", "gain_db": -8 },
+    { "id": "sx02", "anchor": { "block_id": "b03", "offset_sec": 10.7 }, "asset_id": "as04", "gain_db": -8 },
+    { "id": "sx03", "anchor": { "block_id": "b03", "offset_sec": 13.7 }, "asset_id": "as04", "gain_db": -8 }
+  ],
+
+  "zoom": [
+    { "id": "zm01", "anchor": { "block_id": "b05", "offset_sec": 15.5 }, "scale": 1.25, "style": "cut", "purpose": "conceal_cut", "note": "c01_02 28.68→53.16 점프를 감춘다" },
+    { "id": "zm02", "anchor": { "block_id": "b05", "offset_sec": 67.3 }, "scale": 1.25, "style": "cut", "purpose": "conceal_cut", "note": "105.00→109.58 점프" },
+    { "id": "zm03", "anchor": { "block_id": "b08", "offset_sec": 79.7 }, "scale": 1.3, "style": "cut", "purpose": "conceal_cut", "note": "90.00→96.60 점프" },
+    { "id": "zm04", "anchor": { "block_id": "b16", "offset_sec": 15.3 }, "scale": 1.2, "style": "cut", "purpose": "conceal_cut", "note": "157.36→162.26 점프" }
+  ],
+
+  "polish": {
+    "loudness_lufs": -14,
+    "loudness_lufs_silent": -20,
+    "per_block": true,
+    "bgm": { "present": true, "character": "차분한 로우파이 비트", "gain_db": -22 },
+    "denoise": false,
+    "deliverable": "webm"
+  }
+}

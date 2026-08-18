@@ -1,0 +1,1441 @@
+{
+ "kept": 93,
+ "dropped": 3,
+ "speech_sec_before": 376.7,
+ "speech_sec_after": 386.7,
+ "score_vs_human": {
+  "human_cut_sec": 155.3,
+  "we_also_cut_sec": 107.0,
+  "we_missed_sec": 48.3
+ },
+ "decisions": [
+  {
+   "scene_id": "sc02",
+   "clip": "c01_01",
+   "start": 0.0,
+   "end": 1.26,
+   "text": "안녕하세요. 김준코치입니다.",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    0.0,
+    1.51
+   ]
+  },
+  {
+   "scene_id": "sc02",
+   "clip": "c01_01",
+   "start": 1.4,
+   "end": 7.18,
+   "text": "오늘 포핸드 제가 제일 중요하게 생각하는 세 가지를 혼자 티칭을 해볼까 하는데",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    1.28,
+    7.43
+   ]
+  },
+  {
+   "scene_id": "sc02",
+   "clip": "c01_01",
+   "start": 7.18,
+   "end": 19.08,
+   "text": "첫째는 시선 거리 잡기, 두 번째는 골반 회전 사용하는 법, 세 번째는 마무리 피니시까지 한번 다뤄보려고 합니다.",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    7.06,
+    19.33
+   ]
+  },
+  {
+   "scene_id": "sc02",
+   "clip": "c01_01",
+   "start": 19.52,
+   "end": 21.84,
+   "text": "이제 제가 세 가지를 제일 중요시하는 것은",
+   "verdict": "keep",
+   "rule": "R4",
+   "why": "문장 머리 군더더기만 떼어냄",
+   "trimmed_head": "이제",
+   "kept_span": [
+    19.58,
+    22.09
+   ]
+  },
+  {
+   "scene_id": "sc02",
+   "clip": "c01_01",
+   "start": 21.84,
+   "end": 25.38,
+   "text": "어쨌든 이 세 가지가 완벽하게 돼야 파워도 실릴 수 있고",
+   "verdict": "keep",
+   "rule": "R4",
+   "why": "문장 머리 군더더기만 떼어냄",
+   "trimmed_head": "어쨌든",
+   "kept_span": [
+    22.46,
+    25.63
+   ]
+  },
+  {
+   "scene_id": "sc02",
+   "clip": "c01_01",
+   "start": 25.38,
+   "end": 29.56,
+   "text": "그 다음에 정확도도 올라가고 내가 원하는 코스에다 보낼 수 있기 때문에",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    25.26,
+    29.81
+   ]
+  },
+  {
+   "scene_id": "sc02",
+   "clip": "c01_01",
+   "start": 29.56,
+   "end": 31.6,
+   "text": "제일 중요한 세 가지라고 생각합니다.",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    29.44,
+    31.85
+   ]
+  },
+  {
+   "scene_id": "sc02",
+   "clip": "c01_01",
+   "start": 31.7,
+   "end": 33.92,
+   "text": "그러면 한번 가보실게요.",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    31.58,
+    34.0
+   ]
+  },
+  {
+   "scene_id": "sc04",
+   "clip": "c01_02",
+   "start": 0.0,
+   "end": 3.18,
+   "text": "처음에는 시선, 거리잡기인데",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    0.0,
+    3.43
+   ]
+  },
+  {
+   "scene_id": "sc04",
+   "clip": "c01_02",
+   "start": 3.18,
+   "end": 6.58,
+   "text": "이제 대부분 거리가 다 안 잡히는 이유는",
+   "verdict": "keep",
+   "rule": "R4",
+   "why": "문장 머리 군더더기만 떼어냄",
+   "trimmed_head": "이제",
+   "kept_span": [
+    3.88,
+    6.83
+   ]
+  },
+  {
+   "scene_id": "sc04",
+   "clip": "c01_02",
+   "start": 6.58,
+   "end": 10.74,
+   "text": "정면으로 보고 가다 보니까 땡기는 승이 많아져요",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    6.46,
+    10.99
+   ]
+  },
+  {
+   "scene_id": "sc04",
+   "clip": "c01_02",
+   "start": 10.74,
+   "end": 15.64,
+   "text": "대부분은 멀어서 실수하는 것보다 가까워서 실수하는 경우가 많거든요",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    10.62,
+    15.89
+   ]
+  },
+  {
+   "scene_id": "sc04",
+   "clip": "c01_02",
+   "start": 15.64,
+   "end": 19.48,
+   "text": "이 이유는 저희가 공을 볼 때 처음에 상대방을 보면",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    15.52,
+    19.73
+   ]
+  },
+  {
+   "scene_id": "sc04",
+   "clip": "c01_02",
+   "start": 19.48,
+   "end": 24.84,
+   "text": "포핸드라고 결정이 지어졌을 때는 옆을 향해서 보고 가야",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    19.36,
+    25.09
+   ]
+  },
+  {
+   "scene_id": "sc04",
+   "clip": "c01_02",
+   "start": 24.84,
+   "end": 28.68,
+   "text": "타점 자체를 옆에다 두고 거기에 멀리 두게 되는데",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    24.72,
+    28.93
+   ]
+  },
+  {
+   "scene_id": "sc04",
+   "clip": "c01_02",
+   "start": 28.68,
+   "end": 35.14,
+   "text": "대부분의 가까운 분들을 보면 첫 스텝이 정면으로 빠지게 되다 보니까",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    28.56,
+    35.39
+   ]
+  },
+  {
+   "scene_id": "sc04",
+   "clip": "c01_02",
+   "start": 35.14,
+   "end": 44.1,
+   "text": "마무리 공도 정면에서 자꾸 이렇게 눕거나 아니면 가까워서 당기고 자세가 무너지게 돼요.",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    35.02,
+    44.35
+   ]
+  },
+  {
+   "scene_id": "sc04",
+   "clip": "c01_02",
+   "start": 44.18,
+   "end": 53.16,
+   "text": "근데 이제 제가 가장 중요하게 생각하는 한 가지는",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    44.06,
+    53.41
+   ]
+  },
+  {
+   "scene_id": "sc04",
+   "clip": "c01_02",
+   "start": 53.16,
+   "end": 56.44,
+   "text": "첫째, 내가 포핸드로 결정을 했다",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    53.04,
+    56.69
+   ]
+  },
+  {
+   "scene_id": "sc04",
+   "clip": "c01_02",
+   "start": 56.44,
+   "end": 59.56,
+   "text": "그러면 유니턴을 하면서 상대방을 째려보는 거예요",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    56.32,
+    59.81
+   ]
+  },
+  {
+   "scene_id": "sc04",
+   "clip": "c01_02",
+   "start": 59.56,
+   "end": 65.54,
+   "text": "째려보게 되면 나도 모르게 공을 정면에 두면 옆이 정면이 되게 되죠",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    59.44,
+    65.79
+   ]
+  },
+  {
+   "scene_id": "sc04",
+   "clip": "c01_02",
+   "start": 65.54,
+   "end": 67.68,
+   "text": "그래서 시선이 옆이 정면이 되게 되다 보니까",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    65.42,
+    67.93
+   ]
+  },
+  {
+   "scene_id": "sc04",
+   "clip": "c01_02",
+   "start": 67.68,
+   "end": 70.78,
+   "text": "거리를 정확하게 멀리 두게 돼요",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    67.56,
+    71.03
+   ]
+  },
+  {
+   "scene_id": "sc04",
+   "clip": "c01_02",
+   "start": 70.78,
+   "end": 74.18,
+   "text": "그리고 이 미세한 차이는 어디서 잡냐면",
+   "verdict": "drop",
+   "rule": "R2",
+   "why": "자문자답 도입. 뒤 문장이 답을 바로 말한다",
+   "trimmed_head": ""
+  },
+  {
+   "scene_id": "sc04",
+   "clip": "c01_02",
+   "start": 74.18,
+   "end": 78.66,
+   "text": "이 미세한 차이는 저희가 공을 끝까지 봄에 따라서",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    74.06,
+    78.91
+   ]
+  },
+  {
+   "scene_id": "sc04",
+   "clip": "c01_02",
+   "start": 78.66,
+   "end": 82.22,
+   "text": "조금의 변화에 되는 공을 라켓을 따라갈 수가 있어요",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    78.54,
+    82.47
+   ]
+  },
+  {
+   "scene_id": "sc04",
+   "clip": "c01_02",
+   "start": 82.22,
+   "end": 93.88,
+   "text": "대부분 이 상태에서 임팩트 전에 고개를 돌리시는 분들은 여기를 못 따라가게 되니까 예측해서 그냥 스윙을 휘둘러서 타점이 이렇게 정확하게 안 맞게 돼요.",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    82.1,
+    94.13
+   ]
+  },
+  {
+   "scene_id": "sc04",
+   "clip": "c01_02",
+   "start": 94.54,
+   "end": 109.58,
+   "text": "근데 저희가 만약 시선을 계속 임팩트까지 가져간다면 공이 순간적으로 잘못되게 튀더라도 어떻게든 임팩트를 가져가게 됩니다.",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    93.88,
+    109.83
+   ]
+  },
+  {
+   "scene_id": "sc04",
+   "clip": "c01_02",
+   "start": 109.58,
+   "end": 113.02,
+   "text": "그리고 멀어져도 발이 따라가게 되고",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    109.46,
+    113.27
+   ]
+  },
+  {
+   "scene_id": "sc04",
+   "clip": "c01_02",
+   "start": 113.02,
+   "end": 116.54,
+   "text": "그 다음에 가까우면 내가 스윙을 돌리게 돼요",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    112.9,
+    116.79
+   ]
+  },
+  {
+   "scene_id": "sc04",
+   "clip": "c01_02",
+   "start": 116.54,
+   "end": 119.32,
+   "text": "그러니까 임팩트를 받기 때문에 이건 돌아가는 거고",
+   "verdict": "keep",
+   "rule": "R4",
+   "why": "문장 머리 군더더기만 떼어냄",
+   "trimmed_head": "그러니까",
+   "kept_span": [
+    116.98,
+    119.57
+   ]
+  },
+  {
+   "scene_id": "sc04",
+   "clip": "c01_02",
+   "start": 119.32,
+   "end": 123.02,
+   "text": "그래서 거리 잡는 데는 무조건 유니턴 1번",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    119.2,
+    123.27
+   ]
+  },
+  {
+   "scene_id": "sc04",
+   "clip": "c01_02",
+   "start": 123.02,
+   "end": 127.92,
+   "text": "그 다음에 저희가 유니턴 한 후에 공을 째려보기",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    122.9,
+    128.17
+   ]
+  },
+  {
+   "scene_id": "sc04",
+   "clip": "c01_02",
+   "start": 127.92,
+   "end": 132.14,
+   "text": "그 다음에 임팩트 하는 순간까지 바라보기",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    127.8,
+    132.39
+   ]
+  },
+  {
+   "scene_id": "sc04",
+   "clip": "c01_02",
+   "start": 132.14,
+   "end": 135.68,
+   "text": "이렇게 되면 스윙이 자연스럽게 나오게 됩니다",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    132.02,
+    135.93
+   ]
+  },
+  {
+   "scene_id": "sc04",
+   "clip": "c01_02",
+   "start": 135.68,
+   "end": 138.96,
+   "text": "일단은 첫 번째는 이게 해결했고요",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    135.56,
+    138.96
+   ]
+  },
+  {
+   "scene_id": "sc07",
+   "clip": "c01_03",
+   "start": 10.26,
+   "end": 16.0,
+   "text": "자, 두 번째는 이제 거리를 잡았으니까 골반 사용입니다. 회전.",
+   "verdict": "keep",
+   "rule": "R4",
+   "why": "문장 머리 군더더기만 떼어냄",
+   "trimmed_head": "자,",
+   "kept_span": [
+    11.1,
+    16.25
+   ]
+  },
+  {
+   "scene_id": "sc07",
+   "clip": "c01_03",
+   "start": 16.1,
+   "end": 21.76,
+   "text": "회전은 뭐가 중요하냐면 회원분들이 볼 때 골반을 사용하지 못하기 때문에",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    15.98,
+    22.01
+   ]
+  },
+  {
+   "scene_id": "sc07",
+   "clip": "c01_03",
+   "start": 21.76,
+   "end": 26.02,
+   "text": "파워가 제일 안 실려요. 그 이유는 오른발을 잘 보시면",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    21.64,
+    26.27
+   ]
+  },
+  {
+   "scene_id": "sc07",
+   "clip": "c01_03",
+   "start": 26.02,
+   "end": 30.34,
+   "text": "오른발이 축이 뒤로 가 있게 되면 자꾸 뒤로 무너집니다.",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    25.9,
+    30.59
+   ]
+  },
+  {
+   "scene_id": "sc07",
+   "clip": "c01_03",
+   "start": 31.02,
+   "end": 34.7,
+   "text": "그래서 지금 저희가 스탠스를 왼발을 잡아서 누르고",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    30.72,
+    34.95
+   ]
+  },
+  {
+   "scene_id": "sc07",
+   "clip": "c01_03",
+   "start": 34.7,
+   "end": 38.74,
+   "text": "제일 중요한 건 여기서 오른발을 먼저 사용해 줌으로써",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    34.58,
+    38.99
+   ]
+  },
+  {
+   "scene_id": "sc07",
+   "clip": "c01_03",
+   "start": 38.74,
+   "end": 40.42,
+   "text": "골반 회전을 만드는 거예요.",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    38.62,
+    40.67
+   ]
+  },
+  {
+   "scene_id": "sc07",
+   "clip": "c01_03",
+   "start": 40.52,
+   "end": 42.76,
+   "text": "여기서 골반 회전이 만들어져야",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    40.4,
+    43.01
+   ]
+  },
+  {
+   "scene_id": "sc07",
+   "clip": "c01_03",
+   "start": 42.76,
+   "end": 47.52,
+   "text": "뒷달려 나오면서 채찍처럼 파워를 땅 내게 되는데",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    42.64,
+    47.77
+   ]
+  },
+  {
+   "scene_id": "sc07",
+   "clip": "c01_03",
+   "start": 47.52,
+   "end": 51.1,
+   "text": "오른발을 고정시키고 뒤로 빠지게 되면",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    47.4,
+    51.35
+   ]
+  },
+  {
+   "scene_id": "sc07",
+   "clip": "c01_03",
+   "start": 52.02,
+   "end": 54.2,
+   "text": "당기게 되니까 파워를 낼 수가 없어요.",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    51.9,
+    54.45
+   ]
+  },
+  {
+   "scene_id": "sc07",
+   "clip": "c01_03",
+   "start": 54.2,
+   "end": 57.42,
+   "text": "그래서 제일 중요한 것은 디딤발도 디딤바르지만",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    54.08,
+    57.67
+   ]
+  },
+  {
+   "scene_id": "sc07",
+   "clip": "c01_03",
+   "start": 57.42,
+   "end": 62.6,
+   "text": "내가 오른발에 회전을 함으로써 라켓보다 먼저 골반을 회전해주는 것",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    57.3,
+    62.85
+   ]
+  },
+  {
+   "scene_id": "sc07",
+   "clip": "c01_03",
+   "start": 62.6,
+   "end": 66.7,
+   "text": "이 회전하는 순간이 가장 파워를 낼 수 있는 중요한 순간입니다",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    62.48,
+    66.95
+   ]
+  },
+  {
+   "scene_id": "sc07",
+   "clip": "c01_03",
+   "start": 66.7,
+   "end": 69.66,
+   "text": "그런데 여기서 한 가지 더 중요한 것은",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    66.58,
+    69.91
+   ]
+  },
+  {
+   "scene_id": "sc07",
+   "clip": "c01_03",
+   "start": 69.66,
+   "end": 73.5,
+   "text": "이 골반을 사용한다고 해서 오른발을 여기서 딱 버티는 게 아니라",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    69.54,
+    73.75
+   ]
+  },
+  {
+   "scene_id": "sc07",
+   "clip": "c01_03",
+   "start": 73.5,
+   "end": 76.64,
+   "text": "자연스럽게 내가 끌려나가는 것",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    73.38,
+    76.89
+   ]
+  },
+  {
+   "scene_id": "sc07",
+   "clip": "c01_03",
+   "start": 76.64,
+   "end": 81.02,
+   "text": "이 공의 스윙 스피드에 따라 발을 버티면 안 되고",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    76.52,
+    81.27
+   ]
+  },
+  {
+   "scene_id": "sc07",
+   "clip": "c01_03",
+   "start": 81.02,
+   "end": 84.58,
+   "text": "오히려 그냥 가듯이 끌려 나가야 돼요.",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    80.9,
+    84.83
+   ]
+  },
+  {
+   "scene_id": "sc07",
+   "clip": "c01_03",
+   "start": 84.64,
+   "end": 88.66,
+   "text": "이게 끌려 나가줌으로써 회전이 자연스럽게 완성됩니다.",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    84.52,
+    88.91
+   ]
+  },
+  {
+   "scene_id": "sc07",
+   "clip": "c01_03",
+   "start": 96.64,
+   "end": 104.22,
+   "text": "다시 한번 보여드리면 골반 회전이 오른발을 돌리면서 몸이 먼저 따라가고",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    96.52,
+    104.47
+   ]
+  },
+  {
+   "scene_id": "sc07",
+   "clip": "c01_03",
+   "start": 104.22,
+   "end": 108.14,
+   "text": "그 다음에 라켓을 치는 동작이 나옵니다.",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    104.1,
+    108.1
+   ]
+  },
+  {
+   "scene_id": "sc10",
+   "clip": "c01_04",
+   "start": 4.04,
+   "end": 6.88,
+   "text": "자, 세 번째는 피니시입니다.",
+   "verdict": "drop",
+   "rule": "R3",
+   "why": "챕터 카드가 이미 말한 도입",
+   "trimmed_head": ""
+  },
+  {
+   "scene_id": "sc10",
+   "clip": "c01_04",
+   "start": 7.94,
+   "end": 12.88,
+   "text": "여기서 첫 번째, 두 번째를 저희가 시선, 골반을 잘했는데",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    7.48,
+    13.13
+   ]
+  },
+  {
+   "scene_id": "sc10",
+   "clip": "c01_04",
+   "start": 12.88,
+   "end": 15.64,
+   "text": "잘하고도 스윙이 안 나오시는 분들이 꼭 있어요.",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    12.76,
+    15.89
+   ]
+  },
+  {
+   "scene_id": "sc10",
+   "clip": "c01_04",
+   "start": 15.8,
+   "end": 20.3,
+   "text": "그 이유는 마지막 피니시를 겨드랑이와 팔을 붙어서",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    15.68,
+    20.55
+   ]
+  },
+  {
+   "scene_id": "sc10",
+   "clip": "c01_04",
+   "start": 20.3,
+   "end": 22.34,
+   "text": "당기는 스윙을 나올 때",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    20.18,
+    22.59
+   ]
+  },
+  {
+   "scene_id": "sc10",
+   "clip": "c01_04",
+   "start": 22.34,
+   "end": 25.48,
+   "text": "그럴 때는 뒤에 테이크백을 잘 만들어 놓고도",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    22.22,
+    25.73
+   ]
+  },
+  {
+   "scene_id": "sc10",
+   "clip": "c01_04",
+   "start": 25.48,
+   "end": 27.88,
+   "text": "안 나오는 스윙이 완성이 되기 때문에",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    25.36,
+    28.13
+   ]
+  },
+  {
+   "scene_id": "sc10",
+   "clip": "c01_04",
+   "start": 27.88,
+   "end": 29.72,
+   "text": "제가 회원들한테 뭘 시키냐면",
+   "verdict": "drop",
+   "rule": "R2",
+   "why": "자문자답 도입. 뒤 문장이 답을 바로 말한다",
+   "trimmed_head": ""
+  },
+  {
+   "scene_id": "sc10",
+   "clip": "c01_04",
+   "start": 29.72,
+   "end": 36.18,
+   "text": "이 공간에, 이 공의 큰 공이 가슴이랑 팔 사이에 있다고 생각하고",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    29.6,
+    36.43
+   ]
+  },
+  {
+   "scene_id": "sc10",
+   "clip": "c01_04",
+   "start": 36.18,
+   "end": 38.8,
+   "text": "피니쉬 공간을 크게 만들라고 합니다.",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    36.06,
+    39.05
+   ]
+  },
+  {
+   "scene_id": "sc10",
+   "clip": "c01_04",
+   "start": 38.96,
+   "end": 41.28,
+   "text": "그러면 이 피니쉬가 자연스럽게 나오면서",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    38.84,
+    41.53
+   ]
+  },
+  {
+   "scene_id": "sc10",
+   "clip": "c01_04",
+   "start": 41.28,
+   "end": 43.74,
+   "text": "선수들이 하는 피니쉬를 만들 수 있는데",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    41.16,
+    43.99
+   ]
+  },
+  {
+   "scene_id": "sc10",
+   "clip": "c01_04",
+   "start": 43.74,
+   "end": 46.66,
+   "text": "그럴 때는 제가 항상 회원들한테 시키는 게",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    43.62,
+    46.91
+   ]
+  },
+  {
+   "scene_id": "sc10",
+   "clip": "c01_04",
+   "start": 46.66,
+   "end": 48.58,
+   "text": "골반 임팩트 해결하고",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    46.54,
+    48.83
+   ]
+  },
+  {
+   "scene_id": "sc10",
+   "clip": "c01_04",
+   "start": 48.58,
+   "end": 52.74,
+   "text": "그 다음에 이 오른손 팔꿈치를 왼손바닥으로 밀어주고",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    48.46,
+    52.99
+   ]
+  },
+  {
+   "scene_id": "sc10",
+   "clip": "c01_04",
+   "start": 52.74,
+   "end": 56.18,
+   "text": "그대로 올라가면서 피니쉬를 만들면",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    52.62,
+    56.43
+   ]
+  },
+  {
+   "scene_id": "sc10",
+   "clip": "c01_04",
+   "start": 56.18,
+   "end": 59.54,
+   "text": "제가 원하는 피니쉬의 거리가 만들어집니다.",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    56.06,
+    59.79
+   ]
+  },
+  {
+   "scene_id": "sc10",
+   "clip": "c01_04",
+   "start": 59.72,
+   "end": 61.32,
+   "text": "근데 이것도 어렵다 그러면",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    59.6,
+    61.57
+   ]
+  },
+  {
+   "scene_id": "sc10",
+   "clip": "c01_04",
+   "start": 62.88,
+   "end": 65.2,
+   "text": "농구공 다이소에 다 있을 거예요",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    62.76,
+    65.45
+   ]
+  },
+  {
+   "scene_id": "sc10",
+   "clip": "c01_04",
+   "start": 65.2,
+   "end": 68.34,
+   "text": "이 농구공 크기만큼만 거리가 잡아도 예쁘게 나오는 게",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    65.08,
+    68.59
+   ]
+  },
+  {
+   "scene_id": "sc10",
+   "clip": "c01_04",
+   "start": 68.34,
+   "end": 71.86,
+   "text": "왼손으로 이 겨드랑이와 가슴 사이에",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    68.22,
+    72.11
+   ]
+  },
+  {
+   "scene_id": "sc10",
+   "clip": "c01_04",
+   "start": 71.86,
+   "end": 73.6,
+   "text": "왼손으로 눌러주고",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    71.74,
+    73.85
+   ]
+  },
+  {
+   "scene_id": "sc10",
+   "clip": "c01_04",
+   "start": 73.6,
+   "end": 75.1,
+   "text": "임팩트 나왔을 때",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    73.48,
+    75.35
+   ]
+  },
+  {
+   "scene_id": "sc10",
+   "clip": "c01_04",
+   "start": 75.1,
+   "end": 78.02,
+   "text": "이 농구공 크기만큼만 라켓이 감싸주면",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    74.98,
+    78.27
+   ]
+  },
+  {
+   "scene_id": "sc10",
+   "clip": "c01_04",
+   "start": 78.02,
+   "end": 81.54,
+   "text": "이렇게 피니시가 예쁜 스윙이 만들어집니다",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    77.9,
+    81.54
+   ]
+  },
+  {
+   "scene_id": "sc11",
+   "clip": "c01_04",
+   "start": 112.02,
+   "end": 115.14,
+   "text": "그래서 오늘 배운 거 세 가지",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    112.02,
+    115.39
+   ]
+  },
+  {
+   "scene_id": "sc11",
+   "clip": "c01_04",
+   "start": 115.14,
+   "end": 118.12,
+   "text": "첫번째는 시선, 유니턴하고 시선 보기",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    115.02,
+    118.37
+   ]
+  },
+  {
+   "scene_id": "sc11",
+   "clip": "c01_04",
+   "start": 118.12,
+   "end": 125.66,
+   "text": "두번째는 골반 사용, 오른발 회전하면서 타점을 앞에서 밀어주고 회전을 도와주는 것",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    118.0,
+    125.91
+   ]
+  },
+  {
+   "scene_id": "sc11",
+   "clip": "c01_04",
+   "start": 126.22,
+   "end": 133.6,
+   "text": "그 다음에 세번째는 이제 저희가 마무리 피니쉬, 공간 만들어주면서 마무리를 예쁘게 만들기",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    125.64,
+    133.85
+   ]
+  },
+  {
+   "scene_id": "sc11",
+   "clip": "c01_04",
+   "start": 133.6,
+   "end": 137.38,
+   "text": "이렇게만 해주시면 정확도와 파워는 전혀 문제 없을 것 같아요",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    133.48,
+    137.63
+   ]
+  },
+  {
+   "scene_id": "sc11",
+   "clip": "c01_04",
+   "start": 137.38,
+   "end": 142.04,
+   "text": "거리 잡는 것도 시선만 해결되면 우리가 어디에 있든지 맞출 수 있으니까",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    137.26,
+    142.29
+   ]
+  },
+  {
+   "scene_id": "sc11",
+   "clip": "c01_04",
+   "start": 142.04,
+   "end": 147.24,
+   "text": "또 한가지 제일 중요한건 저희 회원들이 보면 공을 진짜 끝까지 안봐요",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    141.92,
+    147.49
+   ]
+  },
+  {
+   "scene_id": "sc11",
+   "clip": "c01_04",
+   "start": 147.24,
+   "end": 150.42,
+   "text": "근데 저희도 선수들도 공을 항상 끝까지 보기 때문에",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    147.12,
+    150.67
+   ]
+  },
+  {
+   "scene_id": "sc11",
+   "clip": "c01_04",
+   "start": 150.42,
+   "end": 157.36,
+   "text": "항상 임팩트 후까지 좀 더 보고 따라간다는 느낌을 받아주시면 좋을 것 같습니다",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    150.3,
+    157.61
+   ]
+  },
+  {
+   "scene_id": "sc11",
+   "clip": "c01_04",
+   "start": 157.36,
+   "end": 162.26,
+   "text": "그리고 이제 다른거는 제가 나중에 포핸들을 좀 더 다듬어지겠지만",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    157.24,
+    162.51
+   ]
+  },
+  {
+   "scene_id": "sc11",
+   "clip": "c01_04",
+   "start": 162.26,
+   "end": 166.08,
+   "text": "지금 갑자기 생각난 중요한 세가지이기 때문에 혼자 찍어봤고",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    162.14,
+    166.33
+   ]
+  },
+  {
+   "scene_id": "sc11",
+   "clip": "c01_04",
+   "start": 166.08,
+   "end": 168.6,
+   "text": "앞으로도 좋은 티칭 영상 만들도록 해보겠습니다",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    165.96,
+    168.85
+   ]
+  },
+  {
+   "scene_id": "sc11",
+   "clip": "c01_04",
+   "start": 168.6,
+   "end": 169.36,
+   "text": "감사합니다",
+   "verdict": "keep",
+   "rule": "",
+   "why": "",
+   "trimmed_head": "",
+   "kept_span": [
+    168.48,
+    169.0
+   ]
+  }
+ ]
+}

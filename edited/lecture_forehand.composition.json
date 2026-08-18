@@ -1,0 +1,329 @@
+{
+  "scenes": [
+    {
+      "scene_id": "s01",
+      "span": { "start": "00:00.0", "end": "00:13.5" },
+      "composition": {
+        "subject_position": {
+          "horizontal_zone": "중앙 (50%) 및 좌측 1/3 (38%)",
+          "horizontal_pct": 45,
+          "description": "세로 숏 인트로에서는 중앙(50%), 이후 가로 와이드 풀샷 타구 시 스윙 반경 확보를 위해 좌측 38~45% 지점에 배치"
+        },
+        "subject_size": {
+          "height_ratio_pct": 75,
+          "headroom_pct": 12,
+          "shot_scale": "풀샷"
+        },
+        "lead_room": {
+          "direction": "우측 (타구 방향)",
+          "swing_coverage": "백스윙부터 팔로스루 및 공 궤적 전체가 화면 우측 여백에 온전히 담김"
+        },
+        "negative_space": {
+          "zone": "화면 하단 및 우측 상단",
+          "occupied_by": "하단 발화 자막 및 화염 로고 그래픽"
+        },
+        "reframe_trace": {
+          "type": "static_crop",
+          "note": "00:00.0~00:01.0 구간은 9:16 모바일 쇼츠 비율로 좌우를 크롭한 고정 컷"
+        },
+        "internal_shifts": [
+          {
+            "at": "00:01.2",
+            "from_pct": 50,
+            "to_pct": 40,
+            "trigger": "와이드 풀샷 전환 및 백스윙 준비 동작"
+          }
+        ]
+      }
+    },
+    {
+      "scene_id": "s02",
+      "span": { "start": "00:13.5", "end": "00:41.5" },
+      "composition": {
+        "subject_position": {
+          "horizontal_zone": "중앙",
+          "horizontal_pct": 50,
+          "description": "카메라 렌즈 정면 기준 완전 중앙 배치"
+        },
+        "subject_size": {
+          "height_ratio_pct": 65,
+          "headroom_pct": 18,
+          "shot_scale": "미디엄 롱샷 (무릎 위)"
+        },
+        "lead_room": {
+          "direction": "대칭 (정면 응시)",
+          "swing_coverage": "라켓을 든 상체 제스처가 좌우 프레임 내 안정적으로 유지"
+        },
+        "negative_space": {
+          "zone": "상단 25% 및 코치 머리 위 배경",
+          "occupied_by": "목차 1, 2, 3번 대형 타이틀 자막 (00:21.0~00:30.0)"
+        },
+        "reframe_trace": {
+          "type": "static_crop",
+          "note": "00:31.0에서 컷 전환 없이 소프트 줌인 크롭 적용 (중앙 축 유지)"
+        },
+        "internal_shifts": []
+      }
+    },
+    {
+      "scene_id": "s03",
+      "span": { "start": "00:41.5", "end": "00:43.5" },
+      "composition": {
+        "subject_position": { "horizontal_zone": "중앙", "horizontal_pct": 50, "description": "인물 없음 (타이틀 텍스트 중앙)" },
+        "subject_size": { "height_ratio_pct": 0, "headroom_pct": 0, "shot_scale": "그래픽 카드" },
+        "lead_room": { "direction": "해당없음", "swing_coverage": "해당없음" },
+        "negative_space": { "zone": "전체", "occupied_by": "검은 배경" },
+        "reframe_trace": { "type": "none", "note": "" },
+        "internal_shifts": []
+      }
+    },
+    {
+      "scene_id": "s04",
+      "span": { "start": "00:43.5", "end": "02:35.5" },
+      "composition": {
+        "subject_position": {
+          "horizontal_zone": "중앙~우측 1/3 (50~58%)",
+          "horizontal_pct": 53,
+          "description": "시선과 유닛턴 설명 시 좌측(화면 기준 공이 오는 방향)을 째려보기 위해 몸을 우측 53~58%로 이동"
+        },
+        "subject_size": {
+          "height_ratio_pct": 70,
+          "headroom_pct": 14,
+          "shot_scale": "풀샷 / 미디엄샷 혼용"
+        },
+        "lead_room": {
+          "direction": "좌측 (시선 및 공이 진입하는 방향)",
+          "swing_coverage": "코치가 좌측을 향해 시선을 고정하고 라켓을 뻗는 간격이 좌측 화면 40% 영역에 확보됨"
+        },
+        "negative_space": {
+          "zone": "화면 좌측 상단 및 상단 중앙",
+          "occupied_by": "시선 방향 녹색 화살표 그래픽(01:02.0), 상단 질문 자막(00:44.0), 좌측 3단계 요약 리스트(02:23.5)"
+        },
+        "reframe_trace": {
+          "type": "static_crop",
+          "note": "01:01.5 코치가 옆면을 보며 설명할 때 상체 중심으로 크롭 줌인"
+        },
+        "internal_shifts": [
+          {
+            "at": "01:00.0",
+            "from_pct": 50,
+            "to_pct": 58,
+            "trigger": "유닛턴 자세를 취하며 몸을 비틀고 시선을 좌측으로 던지는 순간"
+          },
+          {
+            "at": "02:20.0",
+            "from_pct": 58,
+            "to_pct": 50,
+            "trigger": "카메라 정면을 보며 요약 멘트 전달"
+          }
+        ]
+      }
+    },
+    {
+      "scene_id": "s05",
+      "span": { "start": "02:35.5", "end": "02:42.0" },
+      "composition": {
+        "subject_position": {
+          "horizontal_zone": "중앙 (50%)",
+          "horizontal_pct": 50,
+          "description": "베이스라인 중앙에 위치"
+        },
+        "subject_size": {
+          "height_ratio_pct": 78,
+          "headroom_pct": 10,
+          "shot_scale": "풀샷"
+        },
+        "lead_room": {
+          "direction": "전방 및 우측",
+          "swing_coverage": "임팩트 타구부터 피니쉬까지의 라켓 궤적이 좌우 프레임 안에 완벽히 수용"
+        },
+        "negative_space": {
+          "zone": "상단 배경",
+          "occupied_by": "배경 펜스 및 코트 벽면 (자막/그래픽 미사용)"
+        },
+        "reframe_trace": { "type": "none", "note": "고정 화각 시연 샷" },
+        "internal_shifts": []
+      }
+    },
+    {
+      "scene_id": "s06",
+      "span": { "start": "02:42.0", "end": "02:45.0" },
+      "composition": {
+        "subject_position": { "horizontal_zone": "중앙", "horizontal_pct": 50, "description": "인물 없음" },
+        "subject_size": { "height_ratio_pct": 0, "headroom_pct": 0, "shot_scale": "그래픽 카드" },
+        "lead_room": { "direction": "해당없음", "swing_coverage": "해당없음" },
+        "negative_space": { "zone": "전체", "occupied_by": "검은 배경" },
+        "reframe_trace": { "type": "none", "note": "" },
+        "internal_shifts": []
+      }
+    },
+    {
+      "scene_id": "s07",
+      "span": { "start": "02:45.0", "end": "04:12.5" },
+      "composition": {
+        "subject_position": {
+          "horizontal_zone": "중앙~좌측 1/3 (46~50%)",
+          "horizontal_pct": 48,
+          "description": "오른발 회전과 팔로스루가 우측으로 돌아나갈 공간을 위해 중심을 48%에 위치"
+        },
+        "subject_size": {
+          "height_ratio_pct": 72,
+          "headroom_pct": 15,
+          "shot_scale": "풀샷 및 하체/골반 크롭 숏"
+        },
+        "lead_room": {
+          "direction": "우측 (스윙 회전 방향)",
+          "swing_coverage": "오른발이 축이 되어 몸 전체통이 전방으로 빠져나가는 궤적 공간 확보"
+        },
+        "negative_space": {
+          "zone": "화면 우측 상단",
+          "occupied_by": "04:02.5에 등장하는 3단계 골반 회전 요약 자막"
+        },
+        "reframe_trace": {
+          "type": "static_crop",
+          "note": "03:03.0에서 하체 스탠스와 오른발 회전 디테일을 보여주기 위해 하체 중심 디지털 크롭 줌인"
+        },
+        "internal_shifts": [
+          {
+            "at": "03:03.0",
+            "from_pct": 50,
+            "to_pct": 47,
+            "trigger": "하체 회전 시범을 위해 왼발을 딛고 오른발을 돌리는 동작"
+          }
+        ]
+      }
+    },
+    {
+      "scene_id": "s08",
+      "span": { "start": "04:12.5", "end": "04:36.0" },
+      "composition": {
+        "subject_position": {
+          "horizontal_zone": "중앙 (50%)",
+          "horizontal_pct": 50,
+          "description": "바닥 매트 중심에 무릎을 꿇고 정중앙 배치"
+        },
+        "subject_size": {
+          "height_ratio_pct": 55,
+          "headroom_pct": 25,
+          "shot_scale": "미디엄 풀샷 (런지 자세로 인해 상단 여백 증가)"
+        },
+        "lead_room": {
+          "direction": "우측 및 전방",
+          "swing_coverage": "런지 상태에서 골반 회전하며 라켓이 넘어가는 회전 반경 수용"
+        },
+        "negative_space": {
+          "zone": "상단 배경 및 하단 매트 영역",
+          "occupied_by": "하단 자막 텍스트"
+        },
+        "reframe_trace": { "type": "none", "note": "고정 앵글 삼각대 촬영" },
+        "internal_shifts": []
+      }
+    },
+    {
+      "scene_id": "s09",
+      "span": { "start": "04:36.0", "end": "04:38.5" },
+      "composition": {
+        "subject_position": { "horizontal_zone": "중앙", "horizontal_pct": 50, "description": "인물 없음" },
+        "subject_size": { "height_ratio_pct": 0, "headroom_pct": 0, "shot_scale": "그래픽 카드" },
+        "lead_room": { "direction": "해당없음", "swing_coverage": "해당없음" },
+        "negative_space": { "zone": "전체", "occupied_by": "검은 배경" },
+        "reframe_trace": { "type": "none", "note": "" },
+        "internal_shifts": []
+      }
+    },
+    {
+      "scene_id": "s10",
+      "span": { "start": "04:38.5", "end": "05:57.5" },
+      "composition": {
+        "subject_position": {
+          "horizontal_zone": "중앙 (50%)",
+          "horizontal_pct": 50,
+          "description": "농구공 소도구를 품에 안고 정면 중앙에 서서 설명"
+        },
+        "subject_size": {
+          "height_ratio_pct": 70,
+          "headroom_pct": 14,
+          "shot_scale": "무릎 위 미디엄 롱샷"
+        },
+        "lead_room": {
+          "direction": "상체 좌우 대칭",
+          "swing_coverage": "라켓 헤드가 가슴 앞 농구공 크기 공간을 감싸고 도는 궤적이 상체 주변에 온전히 담김"
+        },
+        "negative_space": {
+          "zone": "코치 가슴 부위 및 하단 중앙",
+          "occupied_by": "가슴 부위 농구공 가상 그래픽(04:58.5) 및 하단 강조 텍스트(05:36.0, 05:44.0)"
+        },
+        "reframe_trace": {
+          "type": "static_crop",
+          "note": "05:22.5에서 실제 농구공을 들고 시연하는 순간 인물 중심 디지털 줌인 크롭"
+        },
+        "internal_shifts": []
+      }
+    },
+    {
+      "scene_id": "s11",
+      "span": { "start": "05:57.5", "end": "06:44.5" },
+      "composition": {
+        "subject_position": {
+          "horizontal_zone": "중앙~약간 우측 (52%)",
+          "horizontal_pct": 52,
+          "description": "좌측 상단에 3가지 요약 텍스트가 표시될 공간을 배려하여 미세하게 우측에 자리잡음"
+        },
+        "subject_size": {
+          "height_ratio_pct": 68,
+          "headroom_pct": 16,
+          "shot_scale": "미디엄 롱샷"
+        },
+        "lead_room": {
+          "direction": "정면",
+          "swing_coverage": "라켓으로 1, 2, 3 단계 핵심 포인트를 짧게 모션 시연"
+        },
+        "negative_space": {
+          "zone": "화면 좌측 상단 (1/3 영역)",
+          "occupied_by": "06:02.5부터 차례로 노출되는 1. 유닛턴 / 2. 골반사용 / 3. 공간만들어주며 피니쉬 자막"
+        },
+        "reframe_trace": { "type": "none", "note": "고정 샷" },
+        "internal_shifts": []
+      }
+    },
+    {
+      "scene_id": "s12",
+      "span": { "start": "06:44.5", "end": "08:03.0" },
+      "composition": {
+        "subject_position": {
+          "horizontal_zone": "중앙 (50%)",
+          "horizontal_pct": 50,
+          "description": "측면 샷, 후면 샷, 정면 샷 모두 인물이 코트 중앙 50% 지점에 위치하여 전체 폼 균형을 보여줌"
+        },
+        "subject_size": {
+          "height_ratio_pct": 62,
+          "headroom_pct": 28,
+          "shot_scale": "와이드 풀샷 (상단 28%를 완전히 비워둠)"
+        },
+        "lead_room": {
+          "direction": "다각도 (전방/측면/후면 스윙 경로 전체)",
+          "swing_coverage": "공의 바운드, 테이크백, 힙턴, 피니쉬 완결 동작이 프레임 밖으로 나가지 않도록 여유로운 와이드 앵글"
+        },
+        "negative_space": {
+          "zone": "상단 25% 전 영역 (가로 전체)",
+          "occupied_by": "고정 안내 바 '오늘 배운 세가지를 집중해서 보세요! 1. 유닛턴 2. 골반 3. 피니쉬공간' 및 각 항목 강조 빨간 원 그래픽"
+        },
+        "reframe_trace": {
+          "type": "none",
+          "note": "다양한 카메라 위치에서 촬영된 원본 풀샷을 인위적 크롭 없이 그대로 배치"
+        },
+        "internal_shifts": []
+      }
+    }
+  ],
+  "composition_grammar": {
+    "default_rule": "기본적으로 정면 중앙(50%)에 인물을 배치하되, 스윙 궤적과 자막 정보가 들어가는 쪽에 10~15%의 여백을 양보하는 오프셋 규칙을 사용함",
+    "scene_type_variations": {
+      "concept": "코치가 라켓을 뻗거나 회전할 때 스윙 방향(우측) 및 시선 방향(좌측)에 여백을 주어 인물이 45~55% 사이를 유동적으로 이동함",
+      "demo": "인물을 정확히 중앙 50%에 두고 풀샷으로 머리부터 발끝, 라켓 헤드 끝까지 모두 프레임 안에 담음",
+      "montage": "상단 25~30%를 영구 네거티브 스페이스로 비워두고, 인물을 하단 70% 구역 중앙에 배치하여 고정 체크리스트 자막과의 간섭을 방지함"
+    },
+    "text_subject_coordination": "자막이 좌측 상단에 뜰 때는 인물이 화면 중앙~우측(52~55%)에 서고, 자막이 우측 상단에 뜰 때는 인물이 중앙~좌측(46~48%)에 위치하여 시각적 충돌을 완벽히 회피함",
+    "reframe_characteristics": "카메라를 직접 팬/틸트하기보다 4K 고화질 원본에서 설명 포인트(하체 스탠스, 소도구 착용 등) 발생 시 정적 크롭(static_crop) 줌인으로 시선을 유도함"
+  }
+}

@@ -7,7 +7,7 @@
 정지 프레임으로 안 되는 것 — 궤적, 순서 도식, 측면 도해 — 은 만들지 않고
 자리와 사양만 남긴다. 사람이 생성해서 끼워 넣는다.
 
-output: docs/unit_finish/  (index.html + video.mp4 + loop.mp4 + shot*.jpg)
+output: lecture-summary/output/unit_finish/  (index.html + video.mp4 + loop.mp4 + shot*.jpg)
 
 usage: python unit_page.py
 """
@@ -18,7 +18,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 SRC = ROOT / "edited/lecture_forehand.webm"
-OUT = ROOT / "docs/unit_finish"
+OUT = Path(__file__).resolve().parents[1] / "output/unit_finish"
 
 UNIT = {"span": (278.5, 357.5), "title": "피니시 공간", "meta": "1분 19초"}
 SHOTS = [(286.5, "겨드랑이와 팔이 붙으면 당기는 스윙이 된다"),

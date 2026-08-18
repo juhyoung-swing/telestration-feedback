@@ -7,7 +7,7 @@ merged.json 하나에서 뽑는다. 발화·자막·그래픽·줌·효과음이
 씬 안에서 항목을 종류별로 모으지 않고 시각순으로 섞는다.
 그래야 '이 순간 화면에 뭐가 있나'가 읽힌다.
 
-output: docs/edited_script.md · docs/edited_script.html
+output: video-directive/output/edited_script.md · edited_script.html
 
 usage: python edited_script.py
 """
@@ -15,7 +15,7 @@ import html
 import json
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[3]
 
 TYPE = {"intro": "인트로", "concept": "개념", "demo": "시범", "drill": "드릴",
         "chapter_open": "챕터카드", "prop": "소품", "summary": "요약",
@@ -123,8 +123,9 @@ def main() -> None:
         M.append("|---|---|---|")
         for t, k, v in s["ev"]:
             M.append(f"| `{tc(t)}` | {k} | {v.replace('|', '·')} |")
-    (ROOT / "docs").mkdir(exist_ok=True)
-    (ROOT / "docs/edited_script.md").write_text("\n".join(M) + "\n")
+    DOC = Path(__file__).resolve().parents[2] / "output"   # video-directive/output
+    DOC.mkdir(parents=True, exist_ok=True)
+    (DOC / "edited_script.md").write_text("\n".join(M) + "\n")
 
     # ── HTML ────────────────────────────────────────────────────────────
     H = ['<header><h1>포핸드 핵심 세 가지</h1>',
@@ -149,7 +150,7 @@ def main() -> None:
                      f"<span class='kk'>{k}</span><span class='vv'>{html.escape(v)}</span></li>")
         H.append("</ul></section>")
 
-    (ROOT / "docs/edited_script.html").write_text(
+    (DOC / "edited_script.html").write_text(
         '<!doctype html><html lang=ko><head><meta charset=utf-8>'
         '<meta name=viewport content="width=device-width,initial-scale=1">'
         "<title>포핸드 핵심 세 가지 — 편집본 대본</title><style>" + CSS +
@@ -157,8 +158,8 @@ def main() -> None:
 
     n = sum(len(s["ev"]) for s in scenes)
     print(f"씬 {len(scenes)}개 · 항목 {n}개 · {tc(total)}")
-    print(f"→ {ROOT / 'docs/edited_script.md'}")
-    print(f"→ {ROOT / 'docs/edited_script.html'}")
+    print(f"→ {DOC / 'edited_script.md'}")
+    print(f"→ {DOC / 'edited_script.html'}")
 
 
 CSS = """

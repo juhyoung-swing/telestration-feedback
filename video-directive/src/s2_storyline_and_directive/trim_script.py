@@ -21,7 +21,7 @@ import sys
 from difflib import SequenceMatcher
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[3]
 PAD_IN, PAD_OUT = 0.12, 0.25    # 컷 앞뒤 호흡
 JOIN_GAP = 0.40                 # 이보다 가까운 두 구간은 붙여서 한 컷으로 둔다
 GAP_MAX  = 0.80                 # 문장 안에서 이보다 길게 말이 끊기면 그 자리를 잘라낸다

@@ -1,0 +1,62 @@
+{
+ "source": "directive.json",
+ "width": 1920,
+ "height": 1080,
+ "fps": 30,
+ "total_sec": 31.567,
+ "scenes": [
+  {
+   "scene_id": "sc02",
+   "role": "opening",
+   "abs_start": 0.0,
+   "abs_end": 31.567,
+   "blocks": [
+    {
+     "block_id": "sc02_00",
+     "kind": "a_roll",
+     "file": "c01_01",
+     "src_start": 0.0,
+     "src_end": 15.3,
+     "abs_start": 0.0,
+     "abs_end": 15.3
+    },
+    {
+     "block_id": "sc02_01",
+     "kind": "a_roll",
+     "file": "c01_01",
+     "src_start": 16.15,
+     "src_end": 19.3,
+     "abs_start": 15.3,
+     "abs_end": 18.467
+    },
+    {
+     "block_id": "sc02_02",
+     "kind": "a_roll",
+     "file": "c01_01",
+     "src_start": 21.0,
+     "src_end": 32.7,
+     "abs_start": 18.467,
+     "abs_end": 30.167
+    },
+    {
+     "block_id": "sc02_03",
+     "kind": "a_roll",
+     "file": "c01_01",
+     "src_start": 32.7,
+     "src_end": 33.2,
+     "abs_start": 30.167,
+     "abs_end": 30.667
+    },
+    {
+     "block_id": "sc02_04",
+     "kind": "a_roll",
+     "file": "c01_01",
+     "src_start": 33.6,
+     "src_end": 34.5,
+     "abs_start": 30.667,
+     "abs_end": 31.567
+    }
+   ]
+  }
+ ]
+}

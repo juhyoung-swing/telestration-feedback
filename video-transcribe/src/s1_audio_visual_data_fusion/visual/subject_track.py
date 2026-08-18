@@ -23,7 +23,7 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 
-ROOT = Path(__file__).resolve().parents[3]
+ROOT = Path(__file__).resolve().parents[4]
 STEP_HZ = 2          # 초당 샘플 수
 SW, SH = 320, 180    # 분석 해상도. 인물 위치만 알면 되니 크게 볼 이유가 없다
 THRESH = 26          # 배경과의 밝기 차 (0~255)

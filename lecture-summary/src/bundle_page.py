@@ -7,7 +7,7 @@ student_pages.py 는 이미지·영상을 옆에 두고 상대경로로 참조�
 이미지와 영상을 전부 data URI 로 넣고, 탭은 링크 대신 JS 토글로 바꾼다.
 원본 두 장은 그대로 두고 이 파일만 따로 만든다.
 
-output: docs/lesson/포핸드_수강생자료.html  (약 4.5MB)
+output: lecture-summary/output/포핸드_수강생자료.html  (약 4.5MB)
 
 usage: python bundle_page.py [출력경로]
 """
@@ -17,7 +17,7 @@ import re
 import sys
 from pathlib import Path
 
-OUT = Path(__file__).resolve().parents[2] / "docs/lesson"
+OUT = Path(__file__).resolve().parents[1] / "output"   # lecture-summary/output
 
 
 def data_uri(name: str) -> str:

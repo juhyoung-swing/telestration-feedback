@@ -21,7 +21,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from eval_cuts import ORDER, edited_chars, raw_chars   # noqa: E402
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[3]
 PAD_IN, PAD_OUT = 0.12, 0.25
 JOIN_GAP = 0.45     # 이보다 가까우면 한 컷으로 둔다. 잦은 컷은 숨을 끊는다
 MIN_SPAN = 0.35     # 이보다 짧게 남은 조각은 버린다. 정렬 노이즈다

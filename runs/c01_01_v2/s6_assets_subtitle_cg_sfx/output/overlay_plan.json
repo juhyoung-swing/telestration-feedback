@@ -1,0 +1,109 @@
+{
+ "total_sec": 25.5,
+ "png_count": 31,
+ "speech_cues": 10,
+ "items": [
+  {
+   "kind": "speech",
+   "start": 0.0,
+   "end": 0.66,
+   "what": "안녕하세요."
+  },
+  {
+   "kind": "graphic",
+   "start": 0.4,
+   "end": 2.8,
+   "what": "김기준 코치"
+  },
+  {
+   "kind": "speech",
+   "start": 0.66,
+   "end": 1.4,
+   "what": "김준코치입니다."
+  },
+  {
+   "kind": "speech",
+   "start": 1.4,
+   "end": 4.52,
+   "what": "오늘 포핸드 제가 제일 중요하게 생각하는 세 가지를"
+  },
+  {
+   "kind": "speech",
+   "start": 4.52,
+   "end": 8.61,
+   "what": "혼자 티칭을 해볼까 하는데 첫째는 시선 거리 잡기,"
+  },
+  {
+   "kind": "title",
+   "start": 6.4,
+   "end": 9.0,
+   "what": "1. 시선 (거리잡기)"
+  },
+  {
+   "kind": "speech",
+   "start": 8.67,
+   "end": 11.87,
+   "what": "두 번째는 골반 회전 사용하는 법,"
+  },
+  {
+   "kind": "title",
+   "start": 8.67,
+   "end": 11.27,
+   "what": "2. 골반 회전 사용하는 법"
+  },
+  {
+   "kind": "speech",
+   "start": 12.01,
+   "end": 15.14,
+   "what": "세 마무리 피니시까지 한번 다뤄보려고 합니다."
+  },
+  {
+   "kind": "title",
+   "start": 12.01,
+   "end": 14.61,
+   "what": "3. 피니쉬 자세"
+  },
+  {
+   "kind": "speech",
+   "start": 15.52,
+   "end": 18.62,
+   "what": "이 세 가지가 완벽하게 돼야 파워도 실릴 수 있고 그"
+  },
+  {
+   "kind": "speech",
+   "start": 18.77,
+   "end": 21.68,
+   "what": "정확도도 올라가고 내가 원하는 코스에다 보낼 수 있기"
+  },
+  {
+   "kind": "speech",
+   "start": 21.68,
+   "end": 23.85,
+   "what": "때문에 제일 중요한 세 가지라고 생각합니다."
+  },
+  {
+   "kind": "speech",
+   "start": 23.95,
+   "end": 24.95,
+   "what": "그러면 한번 가보실게요."
+  }
+ ],
+ "not_created": [
+  {
+   "asset": "as_bgm",
+   "why": "배경음악은 우리가 만들 수 없다. 무음으로 간다"
+  },
+  {
+   "asset": "as_narration",
+   "why": "sc01 비활성 — 후녹음 필요"
+  },
+  {
+   "asset": "as_logo",
+   "why": "sc01 비활성 — 로고 애니메이션 필요"
+  },
+  {
+   "asset": "as_drill_footage",
+   "why": "sc08 비활성 — 추가 촬영 필요"
+  }
+ ]
+}

@@ -1,0 +1,89 @@
+{
+ "blocks": 5,
+ "failed": 0,
+ "rms_ratio_median": 0.995,
+ "frame_dist_median": 0.004,
+ "failures": [],
+ "all": [
+  {
+   "block_id": "sc02_00",
+   "clip": "c01_01",
+   "src": [
+    0.0,
+    15.3
+   ],
+   "abs": [
+    0.0,
+    15.3
+   ],
+   "rms_src": 0.0692,
+   "rms_out": 0.06906,
+   "rms_ratio": 0.998,
+   "frame_dist": 0.002
+  },
+  {
+   "block_id": "sc02_01",
+   "clip": "c01_01",
+   "src": [
+    16.15,
+    19.3
+   ],
+   "abs": [
+    15.3,
+    18.467
+   ],
+   "rms_src": 0.1025,
+   "rms_out": 0.10197,
+   "rms_ratio": 0.995,
+   "frame_dist": 0.007
+  },
+  {
+   "block_id": "sc02_02",
+   "clip": "c01_01",
+   "src": [
+    21.0,
+    32.7
+   ],
+   "abs": [
+    18.467,
+    30.167
+   ],
+   "rms_src": 0.07824,
+   "rms_out": 0.07788,
+   "rms_ratio": 0.995,
+   "frame_dist": 0.003
+  },
+  {
+   "block_id": "sc02_03",
+   "clip": "c01_01",
+   "src": [
+    32.7,
+    33.2
+   ],
+   "abs": [
+    30.167,
+    30.667
+   ],
+   "rms_src": 0.05949,
+   "rms_out": 0.05436,
+   "rms_ratio": 0.914,
+   "frame_dist": 0.004
+  },
+  {
+   "block_id": "sc02_04",
+   "clip": "c01_01",
+   "src": [
+    33.6,
+    34.5
+   ],
+   "abs": [
+    30.667,
+    31.567
+   ],
+   "rms_src": 0.05461,
+   "rms_out": 0.05036,
+   "rms_ratio": 0.922,
+   "frame_dist": 0.006
+  }
+ ]
+}

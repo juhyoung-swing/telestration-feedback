@@ -20,7 +20,7 @@ from pathlib import Path
 
 import numpy as np
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[3]
 ASR = 8000          # 검사용 샘플레이트
 TOL_QUIET = 0.35    # 원본 대비 이보다 조용하면 무음 사고로 본다
 TOL_FRAME = 0.14    # 밝기 히스토그램 거리. 이보다 멀면 다른 그림으로 본다

@@ -24,7 +24,7 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[3]
 W, H, FPS = 1920, 1080, 30
 FONTS = Path.home() / "Library/Fonts"
 F_BOLD = FONTS / "GmarketSansTTFBold.ttf"

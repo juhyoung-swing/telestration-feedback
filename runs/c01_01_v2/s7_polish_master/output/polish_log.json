@@ -1,0 +1,158 @@
+{
+ "zooms": [
+  {
+   "id": "zm01",
+   "a": 15.84,
+   "b": 23.84,
+   "scale": 1.2,
+   "cx": 0.5,
+   "cy": 0.45,
+   "hold": 8.0,
+   "purpose": "emphasis"
+  }
+ ],
+ "reframe": [
+  {
+   "a": 0.0,
+   "b": 25.5,
+   "samples": 56,
+   "box": {
+    "x0": 0.4531,
+    "x1": 0.6438,
+    "y0": 0.4389,
+    "y1": 1.0
+   }
+  }
+ ],
+ "gains": [
+  {
+   "block_id": "sc02_00",
+   "file": "c01_01",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc02_01",
+   "file": "c01_01",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc02_02",
+   "file": "c01_01",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc02_03",
+   "file": "c01_01",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc02_04",
+   "file": "c01_01",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc02_05",
+   "file": "c01_01",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc02_06",
+   "file": "c01_01",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc02_07",
+   "file": "c01_01",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc02_08",
+   "file": "c01_01",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc02_09",
+   "file": "c01_01",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc02_10",
+   "file": "c01_01",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc02_11",
+   "file": "c01_01",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc02_12",
+   "file": "c01_01",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc02_13",
+   "file": "c01_01",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc02_14",
+   "file": "c01_01",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc02_15",
+   "file": "c01_01",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc02_16",
+   "file": "c01_01",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  },
+  {
+   "block_id": "sc02_17",
+   "file": "c01_01",
+   "measured_lufs": -70.0,
+   "target_lufs": -14,
+   "gain_db": 18.0
+  }
+ ],
+ "sfx_count": 3,
+ "bgm": "없음 — as_bgm 미확보",
+ "note": "발화 -14 LUFS / 무발화 -20 LUFS 목표로 블록별 게인 후 -1.5dBTP 리미터"
+}

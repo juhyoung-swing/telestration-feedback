@@ -1,0 +1,55 @@
+{
+  "_meta": {
+    "source": "lecture_forehand.webm",
+    "duration_sec": 483.361,
+    "model": "gemini (사용자 직접 실행)",
+    "covered_until_sec": 388.0,
+    "note": "388~483 구간(95초, 20%) 미분석 — 재요청 필요"
+  },
+  "exclusions": [
+    {
+      "start": 35.0,
+      "end": 52.5,
+      "reason": "equipment",
+      "note": "강사가 스마트워치를 확인하고 카트에서 공을 챙기는 구간"
+    },
+    {
+      "start": 94.0,
+      "end": 101.5,
+      "reason": "equipment",
+      "note": "추가 공을 가져오기 위해 카트로 이동하는 구간"
+    },
+    {
+      "start": 140.0,
+      "end": 185.0,
+      "reason": "equipment",
+      "note": "카메라 앵글 이동 및 농구공을 가지러 화면 밖으로 나가는 구간"
+    },
+    {
+      "start": 290.0,
+      "end": 355.0,
+      "reason": "equipment",
+      "note": "카메라 위치 변경 및 코트 중앙으로 이동하여 타구 준비하는 구간"
+    }
+  ],
+  "protected": [
+    {
+      "start": 103.0,
+      "end": 117.0,
+      "reason": "key_motion",
+      "note": "시선 처리 및 임팩트 구간 타구 시범"
+    },
+    {
+      "start": 128.0,
+      "end": 136.5,
+      "reason": "key_motion",
+      "note": "골반 회전 및 팔로스루 연계 타구 시범"
+    },
+    {
+      "start": 355.0,
+      "end": 388.0,
+      "reason": "silent_demo",
+      "note": "설명 없이 연속으로 포핸드 스트로크를 구사하는 전체 코트 시범 구간"
+    }
+  ]
+}

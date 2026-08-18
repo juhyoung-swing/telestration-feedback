@@ -1,0 +1,328 @@
+{
+ "source": "directive_D",
+ "width": 1920,
+ "height": 1080,
+ "fps": 30,
+ "total_sec": 481.715,
+ "scenes": [
+  {
+   "scene_id": "sc02",
+   "role": "opening",
+   "abs_start": 0.0,
+   "abs_end": 34.0,
+   "blocks": [
+    {
+     "block_id": "sc02_00",
+     "kind": "a_roll",
+     "file": "c01_01",
+     "src_start": 0.0,
+     "src_end": 34.0,
+     "abs_start": 0.0,
+     "abs_end": 34.0
+    }
+   ]
+  },
+  {
+   "scene_id": "sc02_gap",
+   "role": "black_card",
+   "abs_start": 34.0,
+   "abs_end": 35.0,
+   "blocks": [
+    {
+     "block_id": "sc02_gap",
+     "kind": "black_card",
+     "asset_id": null,
+     "abs_start": 34.0,
+     "abs_end": 35.0
+    }
+   ]
+  },
+  {
+   "scene_id": "sc03",
+   "role": "chapter_open",
+   "abs_start": 35.0,
+   "abs_end": 37.5,
+   "blocks": [
+    {
+     "block_id": "sc03_cg",
+     "kind": "cg",
+     "asset_id": "as_card1",
+     "abs_start": 35.0,
+     "abs_end": 37.5
+    }
+   ]
+  },
+  {
+   "scene_id": "sc04",
+   "role": "concept",
+   "abs_start": 37.5,
+   "abs_end": 162.9,
+   "blocks": [
+    {
+     "block_id": "sc04_00",
+     "kind": "a_roll",
+     "file": "c01_02",
+     "src_start": 0.0,
+     "src_end": 44.18,
+     "abs_start": 37.5,
+     "abs_end": 81.68
+    },
+    {
+     "block_id": "sc04_01",
+     "kind": "a_roll",
+     "file": "c01_02",
+     "src_start": 53.16,
+     "src_end": 105.0,
+     "abs_start": 81.68,
+     "abs_end": 133.52
+    },
+    {
+     "block_id": "sc04_02",
+     "kind": "a_roll",
+     "file": "c01_02",
+     "src_start": 109.58,
+     "src_end": 138.96,
+     "abs_start": 133.52,
+     "abs_end": 162.9
+    }
+   ]
+  },
+  {
+   "scene_id": "sc05",
+   "role": "demo",
+   "abs_start": 162.9,
+   "abs_end": 169.4,
+   "blocks": [
+    {
+     "block_id": "sc05_00",
+     "kind": "a_roll",
+     "file": "c01_06",
+     "src_start": 0.0,
+     "src_end": 6.5,
+     "abs_start": 162.9,
+     "abs_end": 169.4
+    }
+   ]
+  },
+  {
+   "scene_id": "sc05_gap",
+   "role": "black_card",
+   "abs_start": 169.4,
+   "abs_end": 170.4,
+   "blocks": [
+    {
+     "block_id": "sc05_gap",
+     "kind": "black_card",
+     "asset_id": null,
+     "abs_start": 169.4,
+     "abs_end": 170.4
+    }
+   ]
+  },
+  {
+   "scene_id": "sc06",
+   "role": "chapter_open",
+   "abs_start": 170.4,
+   "abs_end": 172.9,
+   "blocks": [
+    {
+     "block_id": "sc06_cg",
+     "kind": "cg",
+     "asset_id": "as_card2",
+     "abs_start": 170.4,
+     "abs_end": 172.9
+    }
+   ]
+  },
+  {
+   "scene_id": "sc07",
+   "role": "concept",
+   "abs_start": 172.9,
+   "abs_end": 264.14,
+   "blocks": [
+    {
+     "block_id": "sc07_00",
+     "kind": "a_roll",
+     "file": "c01_03",
+     "src_start": 10.26,
+     "src_end": 90.0,
+     "abs_start": 172.9,
+     "abs_end": 252.64
+    },
+    {
+     "block_id": "sc07_01",
+     "kind": "a_roll",
+     "file": "c01_03",
+     "src_start": 96.6,
+     "src_end": 108.1,
+     "abs_start": 252.64,
+     "abs_end": 264.14
+    }
+   ]
+  },
+  {
+   "scene_id": "sc07b",
+   "role": "demo",
+   "abs_start": 264.14,
+   "abs_end": 272.14,
+   "blocks": [
+    {
+     "block_id": "sc07b_00",
+     "kind": "a_roll",
+     "file": "c01_07",
+     "src_start": 0.0,
+     "src_end": 8.0,
+     "abs_start": 264.14,
+     "abs_end": 272.14
+    }
+   ]
+  },
+  {
+   "scene_id": "sc07b_gap",
+   "role": "black_card",
+   "abs_start": 272.14,
+   "abs_end": 273.14,
+   "blocks": [
+    {
+     "block_id": "sc07b_gap",
+     "kind": "black_card",
+     "asset_id": null,
+     "abs_start": 272.14,
+     "abs_end": 273.14
+    }
+   ]
+  },
+  {
+   "scene_id": "sc09",
+   "role": "chapter_open",
+   "abs_start": 273.14,
+   "abs_end": 275.64,
+   "blocks": [
+    {
+     "block_id": "sc09_cg",
+     "kind": "cg",
+     "asset_id": "as_card3",
+     "abs_start": 273.14,
+     "abs_end": 275.64
+    }
+   ]
+  },
+  {
+   "scene_id": "sc10",
+   "role": "prop",
+   "abs_start": 275.64,
+   "abs_end": 349.613,
+   "blocks": [
+    {
+     "block_id": "sc10_00",
+     "kind": "a_roll",
+     "file": "c01_04",
+     "src_start": 4.04,
+     "src_end": 56.18,
+     "abs_start": 275.64,
+     "abs_end": 327.78
+    },
+    {
+     "block_id": "sc10_01",
+     "kind": "a_roll",
+     "file": "c01_04",
+     "src_start": 59.72,
+     "src_end": 81.54,
+     "abs_start": 327.78,
+     "abs_end": 349.613
+    }
+   ]
+  },
+  {
+   "scene_id": "sc10_gap",
+   "role": "black_card",
+   "abs_start": 349.613,
+   "abs_end": 350.613,
+   "blocks": [
+    {
+     "block_id": "sc10_gap",
+     "kind": "black_card",
+     "asset_id": "as_card_summary",
+     "abs_start": 349.613,
+     "abs_end": 350.613
+    }
+   ]
+  },
+  {
+   "scene_id": "sc11",
+   "role": "summary",
+   "abs_start": 350.613,
+   "abs_end": 402.693,
+   "blocks": [
+    {
+     "block_id": "sc11_00",
+     "kind": "a_roll",
+     "file": "c01_04",
+     "src_start": 112.02,
+     "src_end": 157.36,
+     "abs_start": 350.613,
+     "abs_end": 395.953
+    },
+    {
+     "block_id": "sc11_01",
+     "kind": "a_roll",
+     "file": "c01_04",
+     "src_start": 162.26,
+     "src_end": 169.0,
+     "abs_start": 395.953,
+     "abs_end": 402.693
+    }
+   ]
+  },
+  {
+   "scene_id": "sc11_gap",
+   "role": "black_card",
+   "abs_start": 402.693,
+   "abs_end": 403.693,
+   "blocks": [
+    {
+     "block_id": "sc11_gap",
+     "kind": "black_card",
+     "asset_id": "as_card_montage",
+     "abs_start": 402.693,
+     "abs_end": 403.693
+    }
+   ]
+  },
+  {
+   "scene_id": "sc12",
+   "role": "montage",
+   "abs_start": 403.693,
+   "abs_end": 481.693,
+   "blocks": [
+    {
+     "block_id": "sc12_00",
+     "kind": "a_roll",
+     "file": "c01_06",
+     "src_start": 6.5,
+     "src_end": 35.0,
+     "abs_start": 403.693,
+     "abs_end": 432.193
+    },
+    {
+     "block_id": "sc12_01",
+     "kind": "a_roll",
+     "file": "c01_07",
+     "src_start": 8.0,
+     "src_end": 29.1,
+     "abs_start": 432.193,
+     "abs_end": 453.293
+    },
+    {
+     "block_id": "sc12_02",
+     "kind": "a_roll",
+     "file": "c01_05",
+     "src_start": 0.0,
+     "src_end": 28.4,
+     "abs_start": 453.293,
+     "abs_end": 481.693
+    }
+   ]
+  }
+ ]
+}

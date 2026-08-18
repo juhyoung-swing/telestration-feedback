@@ -20,7 +20,7 @@ import sys
 from difflib import SequenceMatcher
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[3]
 ORDER = ["c01_01", "c01_02", "c01_03", "c01_04"]
 
 

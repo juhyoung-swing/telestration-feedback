@@ -1,0 +1,29 @@
+[
+ {
+  "start": 0.0,
+  "end": 15.84,
+  "zoom": null,
+  "reframe_scale": 1.176,
+  "total_scale": 1.176,
+  "subject_cx_pct": 54.8,
+  "vf": "crop=1632:918:236:162,scale=1920:1080,setsar=1"
+ },
+ {
+  "start": 15.84,
+  "end": 23.84,
+  "zoom": "zm01",
+  "reframe_scale": 1.176,
+  "total_scale": 1.412,
+  "subject_cx_pct": 54.8,
+  "vf": "crop=1360:764:372:316,scale=1920:1080,setsar=1"
+ },
+ {
+  "start": 23.84,
+  "end": 25.5,
+  "zoom": null,
+  "reframe_scale": 1.176,
+  "total_scale": 1.176,
+  "subject_cx_pct": 54.8,
+  "vf": "crop=1632:918:236:162,scale=1920:1080,setsar=1"
+ }
+]

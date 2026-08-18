@@ -1,0 +1,1032 @@
+{
+ "blocks": [
+  {
+   "block_id": "sc02_00",
+   "scene": "sc02",
+   "from": "c01_01 0.00–5.24",
+   "asked_sec": 5.24,
+   "got_sec": 5.233,
+   "drift_sec": -0.007
+  },
+  {
+   "block_id": "sc02_01",
+   "scene": "sc02",
+   "from": "c01_01 5.69–8.56",
+   "asked_sec": 2.87,
+   "got_sec": 2.867,
+   "drift_sec": -0.003
+  },
+  {
+   "block_id": "sc02_02",
+   "scene": "sc02",
+   "from": "c01_01 8.90–17.45",
+   "asked_sec": 8.55,
+   "got_sec": 8.567,
+   "drift_sec": 0.017
+  },
+  {
+   "block_id": "sc02_03",
+   "scene": "sc02",
+   "from": "c01_01 18.25–19.33",
+   "asked_sec": 1.08,
+   "got_sec": 1.067,
+   "drift_sec": -0.013
+  },
+  {
+   "block_id": "sc02_04",
+   "scene": "sc02",
+   "from": "c01_01 22.46–31.77",
+   "asked_sec": 9.31,
+   "got_sec": 9.3,
+   "drift_sec": -0.01
+  },
+  {
+   "block_id": "sc02_05",
+   "scene": "sc02",
+   "from": "c01_01 32.04–32.90",
+   "asked_sec": 0.86,
+   "got_sec": 0.867,
+   "drift_sec": 0.007
+  },
+  {
+   "block_id": "sc02_06",
+   "scene": "sc02",
+   "from": "c01_01 33.44–34.17",
+   "asked_sec": 0.73,
+   "got_sec": 0.733,
+   "drift_sec": 0.003
+  },
+  {
+   "block_id": "sc04_00",
+   "scene": "sc04",
+   "from": "c01_02 3.06–3.43",
+   "asked_sec": 0.37,
+   "got_sec": 0.367,
+   "drift_sec": -0.003
+  },
+  {
+   "block_id": "sc04_01",
+   "scene": "sc04",
+   "from": "c01_02 3.76–6.76",
+   "asked_sec": 3.0,
+   "got_sec": 3.0,
+   "drift_sec": 0.0
+  },
+  {
+   "block_id": "sc04_02",
+   "scene": "sc04",
+   "from": "c01_02 7.10–16.88",
+   "asked_sec": 9.78,
+   "got_sec": 9.767,
+   "drift_sec": -0.013
+  },
+  {
+   "block_id": "sc04_03",
+   "scene": "sc04",
+   "from": "c01_02 17.10–19.78",
+   "asked_sec": 2.68,
+   "got_sec": 2.667,
+   "drift_sec": -0.013
+  },
+  {
+   "block_id": "sc04_04",
+   "scene": "sc04",
+   "from": "c01_02 20.47–25.02",
+   "asked_sec": 4.55,
+   "got_sec": 4.567,
+   "drift_sec": 0.017
+  },
+  {
+   "block_id": "sc04_05",
+   "scene": "sc04",
+   "from": "c01_02 26.00–29.00",
+   "asked_sec": 3.0,
+   "got_sec": 3.0,
+   "drift_sec": 0.0
+  },
+  {
+   "block_id": "sc04_06",
+   "scene": "sc04",
+   "from": "c01_02 29.35–33.90",
+   "asked_sec": 4.55,
+   "got_sec": 4.567,
+   "drift_sec": 0.017
+  },
+  {
+   "block_id": "sc04_07",
+   "scene": "sc04",
+   "from": "c01_02 34.23–37.94",
+   "asked_sec": 3.71,
+   "got_sec": 3.7,
+   "drift_sec": -0.01
+  },
+  {
+   "block_id": "sc04_08",
+   "scene": "sc04",
+   "from": "c01_02 38.29–42.68",
+   "asked_sec": 4.39,
+   "got_sec": 4.4,
+   "drift_sec": 0.01
+  },
+  {
+   "block_id": "sc04_09",
+   "scene": "sc04",
+   "from": "c01_02 42.96–45.98",
+   "asked_sec": 3.02,
+   "got_sec": 3.033,
+   "drift_sec": 0.013
+  },
+  {
+   "block_id": "sc04_10",
+   "scene": "sc04",
+   "from": "c01_02 46.41–47.03",
+   "asked_sec": 0.62,
+   "got_sec": 0.633,
+   "drift_sec": 0.013
+  },
+  {
+   "block_id": "sc04_11",
+   "scene": "sc04",
+   "from": "c01_02 49.50–53.43",
+   "asked_sec": 3.93,
+   "got_sec": 3.933,
+   "drift_sec": 0.003
+  },
+  {
+   "block_id": "sc04_12",
+   "scene": "sc04",
+   "from": "c01_02 53.85–54.50",
+   "asked_sec": 0.65,
+   "got_sec": 0.667,
+   "drift_sec": 0.017
+  },
+  {
+   "block_id": "sc04_13",
+   "scene": "sc04",
+   "from": "c01_02 54.79–60.95",
+   "asked_sec": 6.16,
+   "got_sec": 6.167,
+   "drift_sec": 0.007
+  },
+  {
+   "block_id": "sc04_14",
+   "scene": "sc04",
+   "from": "c01_02 61.23–62.55",
+   "asked_sec": 1.32,
+   "got_sec": 1.333,
+   "drift_sec": 0.013
+  },
+  {
+   "block_id": "sc04_15",
+   "scene": "sc04",
+   "from": "c01_02 62.78–65.66",
+   "asked_sec": 2.88,
+   "got_sec": 2.867,
+   "drift_sec": -0.013
+  },
+  {
+   "block_id": "sc04_16",
+   "scene": "sc04",
+   "from": "c01_02 65.92–68.10",
+   "asked_sec": 2.18,
+   "got_sec": 2.167,
+   "drift_sec": -0.013
+  },
+  {
+   "block_id": "sc04_17",
+   "scene": "sc04",
+   "from": "c01_02 68.37–70.92",
+   "asked_sec": 2.55,
+   "got_sec": 2.567,
+   "drift_sec": 0.017
+  },
+  {
+   "block_id": "sc04_18",
+   "scene": "sc04",
+   "from": "c01_02 71.33–71.75",
+   "asked_sec": 0.42,
+   "got_sec": 0.433,
+   "drift_sec": 0.013
+  },
+  {
+   "block_id": "sc04_19",
+   "scene": "sc04",
+   "from": "c01_02 74.06–74.49",
+   "asked_sec": 0.43,
+   "got_sec": 0.433,
+   "drift_sec": 0.003
+  },
+  {
+   "block_id": "sc04_20",
+   "scene": "sc04",
+   "from": "c01_02 74.83–78.83",
+   "asked_sec": 4.0,
+   "got_sec": 4.0,
+   "drift_sec": 0.0
+  },
+  {
+   "block_id": "sc04_21",
+   "scene": "sc04",
+   "from": "c01_02 79.08–82.37",
+   "asked_sec": 3.29,
+   "got_sec": 3.3,
+   "drift_sec": 0.01
+  },
+  {
+   "block_id": "sc04_22",
+   "scene": "sc04",
+   "from": "c01_02 82.67–84.07",
+   "asked_sec": 1.4,
+   "got_sec": 1.4,
+   "drift_sec": 0.0
+  },
+  {
+   "block_id": "sc04_23",
+   "scene": "sc04",
+   "from": "c01_02 84.63–93.99",
+   "asked_sec": 9.36,
+   "got_sec": 9.367,
+   "drift_sec": 0.007
+  },
+  {
+   "block_id": "sc04_24",
+   "scene": "sc04",
+   "from": "c01_02 94.24–94.79",
+   "asked_sec": 0.55,
+   "got_sec": 0.567,
+   "drift_sec": 0.017
+  },
+  {
+   "block_id": "sc04_25",
+   "scene": "sc04",
+   "from": "c01_02 102.02–102.37",
+   "asked_sec": 0.35,
+   "got_sec": 0.367,
+   "drift_sec": 0.017
+  },
+  {
+   "block_id": "sc04_26",
+   "scene": "sc04",
+   "from": "c01_02 102.64–104.51",
+   "asked_sec": 1.87,
+   "got_sec": 1.867,
+   "drift_sec": -0.003
+  },
+  {
+   "block_id": "sc04_27",
+   "scene": "sc04",
+   "from": "c01_02 104.79–113.25",
+   "asked_sec": 8.46,
+   "got_sec": 8.467,
+   "drift_sec": 0.007
+  },
+  {
+   "block_id": "sc04_28",
+   "scene": "sc04",
+   "from": "c01_02 113.51–116.67",
+   "asked_sec": 3.16,
+   "got_sec": 3.167,
+   "drift_sec": 0.007
+  },
+  {
+   "block_id": "sc04_29",
+   "scene": "sc04",
+   "from": "c01_02 116.98–119.50",
+   "asked_sec": 2.52,
+   "got_sec": 2.533,
+   "drift_sec": 0.013
+  },
+  {
+   "block_id": "sc04_30",
+   "scene": "sc04",
+   "from": "c01_02 119.78–121.61",
+   "asked_sec": 1.83,
+   "got_sec": 1.833,
+   "drift_sec": 0.003
+  },
+  {
+   "block_id": "sc04_31",
+   "scene": "sc04",
+   "from": "c01_02 121.94–123.19",
+   "asked_sec": 1.25,
+   "got_sec": 1.267,
+   "drift_sec": 0.017
+  },
+  {
+   "block_id": "sc04_32",
+   "scene": "sc04",
+   "from": "c01_02 123.57–124.19",
+   "asked_sec": 0.62,
+   "got_sec": 0.633,
+   "drift_sec": 0.013
+  },
+  {
+   "block_id": "sc04_33",
+   "scene": "sc04",
+   "from": "c01_02 126.00–128.10",
+   "asked_sec": 2.1,
+   "got_sec": 2.1,
+   "drift_sec": 0.0
+  },
+  {
+   "block_id": "sc04_34",
+   "scene": "sc04",
+   "from": "c01_02 128.39–130.71",
+   "asked_sec": 2.32,
+   "got_sec": 2.333,
+   "drift_sec": 0.013
+  },
+  {
+   "block_id": "sc04_35",
+   "scene": "sc04",
+   "from": "c01_02 131.05–132.29",
+   "asked_sec": 1.24,
+   "got_sec": 1.233,
+   "drift_sec": -0.007
+  },
+  {
+   "block_id": "sc04_36",
+   "scene": "sc04",
+   "from": "c01_02 132.82–135.93",
+   "asked_sec": 3.11,
+   "got_sec": 3.1,
+   "drift_sec": -0.01
+  },
+  {
+   "block_id": "sc05_00",
+   "scene": "sc05",
+   "from": "c01_06 0.00–6.50",
+   "asked_sec": 6.5,
+   "got_sec": 6.5,
+   "drift_sec": 0.0
+  },
+  {
+   "block_id": "sc07_00",
+   "scene": "sc07",
+   "from": "c01_03 12.10–12.49",
+   "asked_sec": 0.39,
+   "got_sec": 0.4,
+   "drift_sec": 0.01
+  },
+  {
+   "block_id": "sc07_01",
+   "scene": "sc07",
+   "from": "c01_03 12.89–16.25",
+   "asked_sec": 3.36,
+   "got_sec": 3.367,
+   "drift_sec": 0.007
+  },
+  {
+   "block_id": "sc07_02",
+   "scene": "sc07",
+   "from": "c01_03 17.90–18.26",
+   "asked_sec": 0.36,
+   "got_sec": 0.367,
+   "drift_sec": 0.007
+  },
+  {
+   "block_id": "sc07_03",
+   "scene": "sc07",
+   "from": "c01_03 18.54–22.16",
+   "asked_sec": 3.62,
+   "got_sec": 3.633,
+   "drift_sec": 0.013
+  },
+  {
+   "block_id": "sc07_04",
+   "scene": "sc07",
+   "from": "c01_03 22.40–24.48",
+   "asked_sec": 2.08,
+   "got_sec": 2.067,
+   "drift_sec": -0.013
+  },
+  {
+   "block_id": "sc07_05",
+   "scene": "sc07",
+   "from": "c01_03 24.97–28.58",
+   "asked_sec": 3.61,
+   "got_sec": 3.6,
+   "drift_sec": -0.01
+  },
+  {
+   "block_id": "sc07_06",
+   "scene": "sc07",
+   "from": "c01_03 28.89–30.58",
+   "asked_sec": 1.69,
+   "got_sec": 1.7,
+   "drift_sec": 0.01
+  },
+  {
+   "block_id": "sc07_07",
+   "scene": "sc07",
+   "from": "c01_03 30.97–31.53",
+   "asked_sec": 0.56,
+   "got_sec": 0.567,
+   "drift_sec": 0.007
+  },
+  {
+   "block_id": "sc07_08",
+   "scene": "sc07",
+   "from": "c01_03 32.34–34.96",
+   "asked_sec": 2.62,
+   "got_sec": 2.633,
+   "drift_sec": 0.013
+  },
+  {
+   "block_id": "sc07_09",
+   "scene": "sc07",
+   "from": "c01_03 35.25–40.54",
+   "asked_sec": 5.29,
+   "got_sec": 5.3,
+   "drift_sec": 0.01
+  },
+  {
+   "block_id": "sc07_10",
+   "scene": "sc07",
+   "from": "c01_03 40.84–42.92",
+   "asked_sec": 2.08,
+   "got_sec": 2.067,
+   "drift_sec": -0.013
+  },
+  {
+   "block_id": "sc07_11",
+   "scene": "sc07",
+   "from": "c01_03 43.35–44.86",
+   "asked_sec": 1.51,
+   "got_sec": 1.5,
+   "drift_sec": -0.01
+  },
+  {
+   "block_id": "sc07_12",
+   "scene": "sc07",
+   "from": "c01_03 45.17–47.87",
+   "asked_sec": 2.7,
+   "got_sec": 2.7,
+   "drift_sec": 0.0
+  },
+  {
+   "block_id": "sc07_13",
+   "scene": "sc07",
+   "from": "c01_03 48.54–51.35",
+   "asked_sec": 2.81,
+   "got_sec": 2.8,
+   "drift_sec": -0.01
+  },
+  {
+   "block_id": "sc07_14",
+   "scene": "sc07",
+   "from": "c01_03 51.90–55.45",
+   "asked_sec": 3.55,
+   "got_sec": 3.567,
+   "drift_sec": 0.017
+  },
+  {
+   "block_id": "sc07_15",
+   "scene": "sc07",
+   "from": "c01_03 57.30–59.96",
+   "asked_sec": 2.66,
+   "got_sec": 2.667,
+   "drift_sec": 0.007
+  },
+  {
+   "block_id": "sc07_16",
+   "scene": "sc07",
+   "from": "c01_03 60.18–61.64",
+   "asked_sec": 1.46,
+   "got_sec": 1.467,
+   "drift_sec": 0.007
+  },
+  {
+   "block_id": "sc07_17",
+   "scene": "sc07",
+   "from": "c01_03 61.92–64.49",
+   "asked_sec": 2.57,
+   "got_sec": 2.567,
+   "drift_sec": -0.003
+  },
+  {
+   "block_id": "sc07_18",
+   "scene": "sc07",
+   "from": "c01_03 64.78–66.76",
+   "asked_sec": 1.98,
+   "got_sec": 1.967,
+   "drift_sec": -0.013
+  },
+  {
+   "block_id": "sc07_19",
+   "scene": "sc07",
+   "from": "c01_03 67.18–68.13",
+   "asked_sec": 0.95,
+   "got_sec": 0.967,
+   "drift_sec": 0.017
+  },
+  {
+   "block_id": "sc07_20",
+   "scene": "sc07",
+   "from": "c01_03 68.61–71.32",
+   "asked_sec": 2.71,
+   "got_sec": 2.7,
+   "drift_sec": -0.01
+  },
+  {
+   "block_id": "sc07_21",
+   "scene": "sc07",
+   "from": "c01_03 71.66–73.74",
+   "asked_sec": 2.08,
+   "got_sec": 2.067,
+   "drift_sec": -0.013
+  },
+  {
+   "block_id": "sc07_22",
+   "scene": "sc07",
+   "from": "c01_03 74.00–74.96",
+   "asked_sec": 0.96,
+   "got_sec": 0.967,
+   "drift_sec": 0.007
+  },
+  {
+   "block_id": "sc07_23",
+   "scene": "sc07",
+   "from": "c01_03 75.84–76.69",
+   "asked_sec": 0.85,
+   "got_sec": 0.867,
+   "drift_sec": 0.017
+  },
+  {
+   "block_id": "sc07_24",
+   "scene": "sc07",
+   "from": "c01_03 79.24–86.32",
+   "asked_sec": 7.08,
+   "got_sec": 7.067,
+   "drift_sec": -0.013
+  },
+  {
+   "block_id": "sc07_25",
+   "scene": "sc07",
+   "from": "c01_03 86.68–88.91",
+   "asked_sec": 2.23,
+   "got_sec": 2.233,
+   "drift_sec": 0.003
+  },
+  {
+   "block_id": "sc07_26",
+   "scene": "sc07",
+   "from": "c01_03 96.52–96.86",
+   "asked_sec": 0.34,
+   "got_sec": 0.333,
+   "drift_sec": -0.007
+  },
+  {
+   "block_id": "sc07_27",
+   "scene": "sc07",
+   "from": "c01_03 97.76–101.47",
+   "asked_sec": 3.71,
+   "got_sec": 3.7,
+   "drift_sec": -0.01
+  },
+  {
+   "block_id": "sc07_28",
+   "scene": "sc07",
+   "from": "c01_03 101.90–107.19",
+   "asked_sec": 5.29,
+   "got_sec": 5.3,
+   "drift_sec": 0.01
+  },
+  {
+   "block_id": "sc07_29",
+   "scene": "sc07",
+   "from": "c01_03 107.52–108.39",
+   "asked_sec": 0.87,
+   "got_sec": 0.867,
+   "drift_sec": -0.003
+  },
+  {
+   "block_id": "sc07_30",
+   "scene": "sc07",
+   "from": "c01_03 120.66–121.53",
+   "asked_sec": 0.87,
+   "got_sec": 0.867,
+   "drift_sec": -0.003
+  },
+  {
+   "block_id": "sc07_31",
+   "scene": "sc07",
+   "from": "c01_03 125.40–126.49",
+   "asked_sec": 1.09,
+   "got_sec": 1.1,
+   "drift_sec": 0.01
+  },
+  {
+   "block_id": "sc07_32",
+   "scene": "sc07",
+   "from": "c01_03 137.76–138.51",
+   "asked_sec": 0.75,
+   "got_sec": 0.767,
+   "drift_sec": 0.017
+  },
+  {
+   "block_id": "sc07b_00",
+   "scene": "sc07b",
+   "from": "c01_07 0.00–8.00",
+   "asked_sec": 8.0,
+   "got_sec": 8.0,
+   "drift_sec": 0.0
+  },
+  {
+   "block_id": "sc10_00",
+   "scene": "sc10",
+   "from": "c01_04 3.92–3.98",
+   "asked_sec": 0.06,
+   "got_sec": 0.067,
+   "drift_sec": 0.007
+  },
+  {
+   "block_id": "sc10_01",
+   "scene": "sc10",
+   "from": "c01_04 4.64–5.13",
+   "asked_sec": 0.49,
+   "got_sec": 0.5,
+   "drift_sec": 0.01
+  },
+  {
+   "block_id": "sc10_02",
+   "scene": "sc10",
+   "from": "c01_04 10.56–16.48",
+   "asked_sec": 5.92,
+   "got_sec": 5.933,
+   "drift_sec": 0.013
+  },
+  {
+   "block_id": "sc10_03",
+   "scene": "sc10",
+   "from": "c01_04 16.77–22.52",
+   "asked_sec": 5.75,
+   "got_sec": 5.767,
+   "drift_sec": 0.017
+  },
+  {
+   "block_id": "sc10_04",
+   "scene": "sc10",
+   "from": "c01_04 22.78–28.15",
+   "asked_sec": 5.37,
+   "got_sec": 5.367,
+   "drift_sec": -0.003
+  },
+  {
+   "block_id": "sc10_05",
+   "scene": "sc10",
+   "from": "c01_04 28.41–29.97",
+   "asked_sec": 1.56,
+   "got_sec": 1.567,
+   "drift_sec": 0.007
+  },
+  {
+   "block_id": "sc10_06",
+   "scene": "sc10",
+   "from": "c01_04 32.04–33.62",
+   "asked_sec": 1.58,
+   "got_sec": 1.567,
+   "drift_sec": -0.013
+  },
+  {
+   "block_id": "sc10_07",
+   "scene": "sc10",
+   "from": "c01_04 34.02–36.40",
+   "asked_sec": 2.38,
+   "got_sec": 2.367,
+   "drift_sec": -0.013
+  },
+  {
+   "block_id": "sc10_08",
+   "scene": "sc10",
+   "from": "c01_04 36.65–43.99",
+   "asked_sec": 7.34,
+   "got_sec": 7.333,
+   "drift_sec": -0.007
+  },
+  {
+   "block_id": "sc10_09",
+   "scene": "sc10",
+   "from": "c01_04 46.54–46.85",
+   "asked_sec": 0.31,
+   "got_sec": 0.3,
+   "drift_sec": -0.01
+  },
+  {
+   "block_id": "sc10_10",
+   "scene": "sc10",
+   "from": "c01_04 47.12–52.94",
+   "asked_sec": 5.82,
+   "got_sec": 5.833,
+   "drift_sec": 0.013
+  },
+  {
+   "block_id": "sc10_11",
+   "scene": "sc10",
+   "from": "c01_04 53.19–54.96",
+   "asked_sec": 1.77,
+   "got_sec": 1.767,
+   "drift_sec": -0.003
+  },
+  {
+   "block_id": "sc10_12",
+   "scene": "sc10",
+   "from": "c01_04 55.27–58.09",
+   "asked_sec": 2.82,
+   "got_sec": 2.833,
+   "drift_sec": 0.013
+  },
+  {
+   "block_id": "sc10_13",
+   "scene": "sc10",
+   "from": "c01_04 58.33–59.63",
+   "asked_sec": 1.3,
+   "got_sec": 1.3,
+   "drift_sec": -0.0
+  },
+  {
+   "block_id": "sc10_14",
+   "scene": "sc10",
+   "from": "c01_04 59.77–61.57",
+   "asked_sec": 1.8,
+   "got_sec": 1.8,
+   "drift_sec": 0.0
+  },
+  {
+   "block_id": "sc10_15",
+   "scene": "sc10",
+   "from": "c01_04 62.76–68.59",
+   "asked_sec": 5.83,
+   "got_sec": 5.833,
+   "drift_sec": 0.003
+  },
+  {
+   "block_id": "sc10_16",
+   "scene": "sc10",
+   "from": "c01_04 69.48–69.83",
+   "asked_sec": 0.35,
+   "got_sec": 0.367,
+   "drift_sec": 0.017
+  },
+  {
+   "block_id": "sc10_17",
+   "scene": "sc10",
+   "from": "c01_04 70.12–72.09",
+   "asked_sec": 1.97,
+   "got_sec": 1.967,
+   "drift_sec": -0.003
+  },
+  {
+   "block_id": "sc10_18",
+   "scene": "sc10",
+   "from": "c01_04 72.64–73.85",
+   "asked_sec": 1.21,
+   "got_sec": 1.2,
+   "drift_sec": -0.01
+  },
+  {
+   "block_id": "sc10_19",
+   "scene": "sc10",
+   "from": "c01_04 74.13–78.62",
+   "asked_sec": 4.49,
+   "got_sec": 4.5,
+   "drift_sec": 0.01
+  },
+  {
+   "block_id": "sc10_20",
+   "scene": "sc10",
+   "from": "c01_04 78.97–79.94",
+   "asked_sec": 0.97,
+   "got_sec": 0.967,
+   "drift_sec": -0.003
+  },
+  {
+   "block_id": "sc10_21",
+   "scene": "sc10",
+   "from": "c01_04 80.19–81.79",
+   "asked_sec": 1.6,
+   "got_sec": 1.6,
+   "drift_sec": -0.0
+  },
+  {
+   "block_id": "sc10_22",
+   "scene": "sc10",
+   "from": "c01_04 84.82–86.65",
+   "asked_sec": 1.83,
+   "got_sec": 1.833,
+   "drift_sec": 0.003
+  },
+  {
+   "block_id": "sc10_23",
+   "scene": "sc10",
+   "from": "c01_04 86.94–87.89",
+   "asked_sec": 0.95,
+   "got_sec": 0.967,
+   "drift_sec": 0.017
+  },
+  {
+   "block_id": "sc10_24",
+   "scene": "sc10",
+   "from": "c01_04 88.16–90.41",
+   "asked_sec": 2.25,
+   "got_sec": 2.267,
+   "drift_sec": 0.017
+  },
+  {
+   "block_id": "sc10_25",
+   "scene": "sc10",
+   "from": "c01_04 94.66–95.07",
+   "asked_sec": 0.41,
+   "got_sec": 0.4,
+   "drift_sec": -0.01
+  },
+  {
+   "block_id": "sc10_26",
+   "scene": "sc10",
+   "from": "c01_04 95.71–101.46",
+   "asked_sec": 5.75,
+   "got_sec": 5.767,
+   "drift_sec": 0.017
+  },
+  {
+   "block_id": "sc10_27",
+   "scene": "sc10",
+   "from": "c01_04 101.74–104.99",
+   "asked_sec": 3.25,
+   "got_sec": 3.267,
+   "drift_sec": 0.017
+  },
+  {
+   "block_id": "sc11_00",
+   "scene": "sc11",
+   "from": "c01_04 112.34–112.74",
+   "asked_sec": 0.4,
+   "got_sec": 0.4,
+   "drift_sec": 0.0
+  },
+  {
+   "block_id": "sc11_01",
+   "scene": "sc11",
+   "from": "c01_04 113.54–117.25",
+   "asked_sec": 3.71,
+   "got_sec": 3.7,
+   "drift_sec": -0.01
+  },
+  {
+   "block_id": "sc11_02",
+   "scene": "sc11",
+   "from": "c01_04 117.49–122.03",
+   "asked_sec": 4.54,
+   "got_sec": 4.533,
+   "drift_sec": -0.007
+  },
+  {
+   "block_id": "sc11_03",
+   "scene": "sc11",
+   "from": "c01_04 122.34–123.01",
+   "asked_sec": 0.67,
+   "got_sec": 0.667,
+   "drift_sec": -0.003
+  },
+  {
+   "block_id": "sc11_04",
+   "scene": "sc11",
+   "from": "c01_04 123.31–125.83",
+   "asked_sec": 2.52,
+   "got_sec": 2.533,
+   "drift_sec": 0.013
+  },
+  {
+   "block_id": "sc11_05",
+   "scene": "sc11",
+   "from": "c01_04 126.06–127.37",
+   "asked_sec": 1.31,
+   "got_sec": 1.3,
+   "drift_sec": -0.01
+  },
+  {
+   "block_id": "sc11_06",
+   "scene": "sc11",
+   "from": "c01_04 128.38–129.92",
+   "asked_sec": 1.54,
+   "got_sec": 1.533,
+   "drift_sec": -0.007
+  },
+  {
+   "block_id": "sc11_07",
+   "scene": "sc11",
+   "from": "c01_04 130.20–131.55",
+   "asked_sec": 1.35,
+   "got_sec": 1.367,
+   "drift_sec": 0.017
+  },
+  {
+   "block_id": "sc11_08",
+   "scene": "sc11",
+   "from": "c01_04 132.04–133.57",
+   "asked_sec": 1.53,
+   "got_sec": 1.533,
+   "drift_sec": 0.003
+  },
+  {
+   "block_id": "sc11_09",
+   "scene": "sc11",
+   "from": "c01_04 133.71–139.84",
+   "asked_sec": 6.13,
+   "got_sec": 6.133,
+   "drift_sec": 0.003
+  },
+  {
+   "block_id": "sc11_10",
+   "scene": "sc11",
+   "from": "c01_04 140.13–142.34",
+   "asked_sec": 2.21,
+   "got_sec": 2.2,
+   "drift_sec": -0.01
+  },
+  {
+   "block_id": "sc11_11",
+   "scene": "sc11",
+   "from": "c01_04 142.65–143.99",
+   "asked_sec": 1.34,
+   "got_sec": 1.333,
+   "drift_sec": -0.007
+  },
+  {
+   "block_id": "sc11_12",
+   "scene": "sc11",
+   "from": "c01_04 144.22–147.31",
+   "asked_sec": 3.09,
+   "got_sec": 3.1,
+   "drift_sec": 0.01
+  },
+  {
+   "block_id": "sc11_13",
+   "scene": "sc11",
+   "from": "c01_04 147.54–153.68",
+   "asked_sec": 6.14,
+   "got_sec": 6.133,
+   "drift_sec": -0.007
+  },
+  {
+   "block_id": "sc11_14",
+   "scene": "sc11",
+   "from": "c01_04 154.00–156.08",
+   "asked_sec": 2.08,
+   "got_sec": 2.067,
+   "drift_sec": -0.013
+  },
+  {
+   "block_id": "sc11_15",
+   "scene": "sc11",
+   "from": "c01_04 156.50–157.61",
+   "asked_sec": 1.11,
+   "got_sec": 1.1,
+   "drift_sec": -0.01
+  },
+  {
+   "block_id": "sc11_16",
+   "scene": "sc11",
+   "from": "c01_04 165.96–168.74",
+   "asked_sec": 2.78,
+   "got_sec": 2.767,
+   "drift_sec": -0.013
+  },
+  {
+   "block_id": "sc11_17",
+   "scene": "sc11",
+   "from": "c01_04 169.15–169.61",
+   "asked_sec": 0.46,
+   "got_sec": 0.467,
+   "drift_sec": 0.007
+  },
+  {
+   "block_id": "sc12_00",
+   "scene": "sc12",
+   "from": "c01_06 6.50–35.00",
+   "asked_sec": 28.5,
+   "got_sec": 28.5,
+   "drift_sec": 0.0
+  },
+  {
+   "block_id": "sc12_01",
+   "scene": "sc12",
+   "from": "c01_07 8.00–29.10",
+   "asked_sec": 21.1,
+   "got_sec": 21.1,
+   "drift_sec": 0.0
+  },
+  {
+   "block_id": "sc12_02",
+   "scene": "sc12",
+   "from": "c01_05 0.00–28.40",
+   "asked_sec": 28.4,
+   "got_sec": 28.4,
+   "drift_sec": 0.0
+  }
+ ],
+ "planned_sec": 421.767,
+ "actual_sec": 421.767,
+ "audio_sec": 421.767,
+ "max_drift_sec": 0.017
+}

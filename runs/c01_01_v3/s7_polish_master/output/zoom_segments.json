@@ -1,0 +1,11 @@
+[
+ {
+  "start": 0.0,
+  "end": 25.5,
+  "zoom": null,
+  "reframe_scale": 1.176,
+  "total_scale": 1.176,
+  "subject_cx_pct": 54.8,
+  "vf": "crop=1632:918:236:162,scale=1920:1080,setsar=1"
+ }
+]

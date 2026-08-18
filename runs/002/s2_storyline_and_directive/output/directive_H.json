@@ -1,0 +1,1500 @@
+{
+ "schema_version": "1.3-draft",
+ "meta": {
+  "project_id": "forehand_3points_001",
+  "directive_variant": "H",
+  "created_at": "2026-08-15T19:20:00+09:00",
+  "reference": {
+   "edited": "edited/lecture_forehand.webm",
+   "analysis": "edited/lecture_forehand.analysis.json",
+   "composition": "edited/lecture_forehand.composition.json",
+   "note": "편집본은 문법서로만 쓴다. 자막 문구는 우리 소재에서 새로 만든다"
+  },
+  "source": {
+   "type": "multi_file",
+   "dir": "raw/",
+   "resolution_note": "1080p 로 확정. static_crop 줌은 1080p 원본을 크롭 확대하므로 줌 구간에서 화질이 떨어진다 — 사용자가 감수하기로 결정(2026-08-15). 4K 복원 안 함.",
+   "fps": 30,
+   "files": [
+    {
+     "id": "c01_01",
+     "file": "c01_01.mp4",
+     "duration_sec": 37.17,
+     "use": "인트로·목차",
+     "angle": "정면 미디엄"
+    },
+    {
+     "id": "c01_02",
+     "file": "c01_02.mp4",
+     "duration_sec": 148.2,
+     "use": "① 시선·거리잡기",
+     "angle": "정면 와이드"
+    },
+    {
+     "id": "c01_03",
+     "file": "c01_03.mp4",
+     "duration_sec": 225.3,
+     "use": "② 골반 회전",
+     "angle": "측면/대각"
+    },
+    {
+     "id": "c01_04",
+     "file": "c01_04.mp4",
+     "duration_sec": 173.1,
+     "use": "③ 피니시·요약·아웃트로",
+     "angle": "정면 미디엄"
+    },
+    {
+     "id": "c01_05",
+     "file": "c01_05.mp4",
+     "duration_sec": 88.9,
+     "use": "피니시 공간 시범",
+     "angle": "정면",
+     "speech": false
+    },
+    {
+     "id": "c01_06",
+     "file": "c01_06.mp4",
+     "duration_sec": 58.97,
+     "use": "유닛턴 시범",
+     "angle": "측면/대각",
+     "speech": false
+    },
+    {
+     "id": "c01_07",
+     "file": "c01_07.mp4",
+     "duration_sec": 29.1,
+     "use": "골반 시범",
+     "angle": "후면 롱샷",
+     "speech": false
+    }
+   ],
+   "resolution": "1920x1080"
+  },
+  "output": {
+   "format": "lecture",
+   "aspect": "16:9",
+   "resolution": "1920x1080"
+  },
+  "language": "ko",
+  "glossary_ref": "glossary.md",
+  "derived_from": "사람 편집본 전사와의 글자 정렬. 컷 판단은 우리가 하지 않았다",
+  "not_generalizable": "정답지가 있는 이 영상에서만 만들 수 있다. 새 영상에는 쓸 수 없다 — 목표지 방법이 아니다",
+  "anchor_note": "source_anchor 가 있으면 그쪽이 우선이다. 원본 타임코드라 컷이 바뀌어도 따라온다. 없는 항목은 원본에 대응이 없는 것(챕터 카드 등)이라 씬 앵커를 쓴다"
+ },
+ "subtitle_policy": {
+  "speech": {
+   "enabled": true,
+   "source": "whisper 단어 타임스탬프에서 기계 생성",
+   "position": "bottom",
+   "style": "흰 글씨 + 검은 반투명 박스",
+   "max_chars_per_line": 24,
+   "max_lines": 2,
+   "min_duration_sec": 1.0,
+   "note": "지시서에 개별 항목을 나열하지 않는다. s6 이 전사에서 생성한다"
+  },
+  "speech_edited": {
+   "enabled": true,
+   "rule": "생략된 주어·목적어를 괄호로 보충한다. 어순이 꼬인 문장은 읽기 쉽게 고친다. 의미는 바꾸지 않는다",
+   "example": "포핸드라고 결정이 지어졌을 때는 → (내가 칠 공이) 포핸드라고 결정이 지어졌을 때는"
+  },
+  "created": {
+   "enabled": true,
+   "rule": "시청자의 속마음이나 상황 부연을 괄호 초록 자막으로 넣는다. 씬당 최대 1개",
+   "note": "편집본 s04 의 '(어 포핸드쪽으로 공이오네?)' 가 이 유형"
+  }
+ },
+ "composition_grammar": {
+  "default_horizontal_pct": 50,
+  "offset_rule": "스윙 궤적과 자막이 들어가는 쪽에 10~15% 여백을 양보한다",
+  "text_subject_coordination": "자막 top_left → 인물 52~55% / 자막 top_right → 인물 46~48%",
+  "reframe": "팬·틸트 대신 static_crop 만 쓴다",
+  "by_type": {
+   "concept": "45~55% 유동",
+   "demo": "정확히 50%, 머리끝~라켓끝 전부 프레임 안",
+   "montage": "상단 25~30% 영구 비움, 인물은 하단 70% 구역 중앙"
+  }
+ },
+ "scenes": [
+  {
+   "scene_id": "sc01",
+   "role": "intro",
+   "enabled": false,
+   "duration_sec": 13.5,
+   "a_roll": [],
+   "generated": {
+    "asset_id": "as_intro"
+   },
+   "blocked_by": [
+    "as_narration",
+    "as_logo"
+   ],
+   "note": "후녹음 내레이션 + 타구 B-roll + 화염 로고. 원본에 발화가 없어 지금은 만들 수 없다. enabled=false 로 두면 s4 가 건너뛴다",
+   "transition_out": {
+    "type": "graphic_wipe",
+    "duration_sec": 1.2
+   }
+  },
+  {
+   "scene_id": "sc02",
+   "role": "opening",
+   "enabled": true,
+   "a_roll": [
+    {
+     "file": "c01_01",
+     "start": 0.0,
+     "end": 19.33
+    },
+    {
+     "file": "c01_01",
+     "start": 22.46,
+     "end": 34.17
+    }
+   ],
+   "narration_ref": "안녕하세요. 김준코치입니다",
+   "composition": {
+    "horizontal_pct": 50,
+    "height_ratio_pct": 65,
+    "headroom_pct": 18,
+    "shot_scale": "미디엄 롱샷"
+   },
+   "density": "medium",
+   "transition_in": {
+    "type": "hard_cut",
+    "duration_sec": 0
+   },
+   "transition_out": {
+    "type": "black_card",
+    "duration_sec": 1.0
+   }
+  },
+  {
+   "scene_id": "sc03",
+   "role": "chapter_open",
+   "enabled": true,
+   "duration_sec": 2.5,
+   "a_roll": [],
+   "generated": {
+    "asset_id": "as_card1"
+   },
+   "composition": {
+    "shot_scale": "그래픽 카드"
+   },
+   "density": "light",
+   "transition_in": {
+    "type": "hard_cut",
+    "duration_sec": 0
+   },
+   "transition_out": {
+    "type": "hard_cut",
+    "duration_sec": 0
+   }
+  },
+  {
+   "scene_id": "sc04",
+   "role": "concept",
+   "enabled": true,
+   "a_roll": [
+    {
+     "file": "c01_02",
+     "start": 3.06,
+     "end": 71.75
+    },
+    {
+     "file": "c01_02",
+     "start": 74.06,
+     "end": 94.79
+    },
+    {
+     "file": "c01_02",
+     "start": 102.02,
+     "end": 124.19
+    },
+    {
+     "file": "c01_02",
+     "start": 126.0,
+     "end": 135.93
+    }
+   ],
+   "narration_ref": "처음에는 시선, 거리잡기인데",
+   "composition": {
+    "horizontal_pct": 53,
+    "height_ratio_pct": 70,
+    "headroom_pct": 14,
+    "lead_room": "좌측 (시선·공이 오는 방향)",
+    "negative_space": "좌측 상단 — 질문 자막·화살표·3단계 리스트"
+   },
+   "density": "heavy",
+   "transition_in": {
+    "type": "hard_cut",
+    "duration_sec": 0
+   },
+   "transition_out": {
+    "type": "hard_cut",
+    "duration_sec": 0
+   }
+  },
+  {
+   "scene_id": "sc05",
+   "role": "demo",
+   "enabled": true,
+   "a_roll": [
+    {
+     "file": "c01_06",
+     "start": 0.0,
+     "end": 6.5
+    }
+   ],
+   "narration_ref": "(무발화 — 유닛턴 시범)",
+   "composition": {
+    "horizontal_pct": 50,
+    "height_ratio_pct": 78,
+    "headroom_pct": 10,
+    "shot_scale": "풀샷"
+   },
+   "density": "light",
+   "note": "자막·그래픽 없음. 동작만 보여준다",
+   "transition_in": {
+    "type": "hard_cut",
+    "duration_sec": 0
+   },
+   "transition_out": {
+    "type": "black_card",
+    "duration_sec": 1.0
+   }
+  },
+  {
+   "scene_id": "sc06",
+   "role": "chapter_open",
+   "enabled": true,
+   "duration_sec": 2.5,
+   "a_roll": [],
+   "generated": {
+    "asset_id": "as_card2"
+   },
+   "density": "light",
+   "transition_out": {
+    "type": "hard_cut",
+    "duration_sec": 0
+   }
+  },
+  {
+   "scene_id": "sc07",
+   "role": "concept",
+   "enabled": true,
+   "a_roll": [
+    {
+     "file": "c01_03",
+     "start": 12.1,
+     "end": 16.25
+    },
+    {
+     "file": "c01_03",
+     "start": 17.9,
+     "end": 31.53
+    },
+    {
+     "file": "c01_03",
+     "start": 32.34,
+     "end": 51.35
+    },
+    {
+     "file": "c01_03",
+     "start": 51.9,
+     "end": 55.45
+    },
+    {
+     "file": "c01_03",
+     "start": 57.3,
+     "end": 76.69
+    },
+    {
+     "file": "c01_03",
+     "start": 79.24,
+     "end": 88.91
+    },
+    {
+     "file": "c01_03",
+     "start": 96.52,
+     "end": 108.39
+    },
+    {
+     "file": "c01_03",
+     "start": 120.66,
+     "end": 121.53
+    },
+    {
+     "file": "c01_03",
+     "start": 125.4,
+     "end": 126.49
+    },
+    {
+     "file": "c01_03",
+     "start": 137.76,
+     "end": 138.51
+    }
+   ],
+   "narration_ref": "두 번째는 이제 거리를 잡았으니까 골반 사용입니다",
+   "composition": {
+    "horizontal_pct": 48,
+    "height_ratio_pct": 72,
+    "headroom_pct": 15,
+    "lead_room": "우측 (스윙 회전 방향)",
+    "negative_space": "우측 상단 — 3단계 골반 자막"
+   },
+   "density": "heavy",
+   "transition_out": {
+    "type": "hard_cut",
+    "duration_sec": 0
+   }
+  },
+  {
+   "scene_id": "sc07b",
+   "role": "demo",
+   "enabled": true,
+   "a_roll": [
+    {
+     "file": "c01_07",
+     "start": 0.0,
+     "end": 8.0
+    }
+   ],
+   "narration_ref": "(무발화 — 골반 시범)",
+   "composition": {
+    "horizontal_pct": 50,
+    "height_ratio_pct": 78,
+    "headroom_pct": 10
+   },
+   "density": "light",
+   "note": "편집본은 여기에 드릴 24초를 넣었다. 소재가 없어 8초 시범으로 대신한다 — 개념 91초 뒤에 곧바로 개념 74초가 오는 걸 막는다",
+   "transition_out": {
+    "type": "black_card",
+    "duration_sec": 1.0
+   }
+  },
+  {
+   "scene_id": "sc08",
+   "role": "drill",
+   "enabled": false,
+   "duration_sec": 23.5,
+   "a_roll": [],
+   "blocked_by": [
+    "as_drill_footage"
+   ],
+   "note": "매트 위 런지 드릴. 의상이 다른 별도 촬영분이라 원본에 없다"
+  },
+  {
+   "scene_id": "sc09",
+   "role": "chapter_open",
+   "enabled": true,
+   "duration_sec": 2.5,
+   "a_roll": [],
+   "generated": {
+    "asset_id": "as_card3"
+   },
+   "density": "light",
+   "transition_out": {
+    "type": "hard_cut",
+    "duration_sec": 0
+   }
+  },
+  {
+   "scene_id": "sc10",
+   "role": "prop",
+   "enabled": true,
+   "a_roll": [
+    {
+     "file": "c01_04",
+     "start": 3.92,
+     "end": 5.13
+    },
+    {
+     "file": "c01_04",
+     "start": 10.56,
+     "end": 29.97
+    },
+    {
+     "file": "c01_04",
+     "start": 32.04,
+     "end": 43.99
+    },
+    {
+     "file": "c01_04",
+     "start": 46.54,
+     "end": 61.57
+    },
+    {
+     "file": "c01_04",
+     "start": 62.76,
+     "end": 68.59
+    },
+    {
+     "file": "c01_04",
+     "start": 69.48,
+     "end": 81.79
+    },
+    {
+     "file": "c01_04",
+     "start": 84.82,
+     "end": 90.41
+    },
+    {
+     "file": "c01_04",
+     "start": 94.66,
+     "end": 104.99
+    }
+   ],
+   "narration_ref": "자, 세 번째는 피니시입니다",
+   "composition": {
+    "horizontal_pct": 50,
+    "height_ratio_pct": 70,
+    "headroom_pct": 14,
+    "negative_space": "가슴 부위 — 농구공 가상 그래픽 / 하단 중앙 — 강조 텍스트"
+   },
+   "density": "heavy",
+   "transition_out": {
+    "type": "black_card",
+    "duration_sec": 1.0
+   }
+  },
+  {
+   "scene_id": "sc11",
+   "role": "summary",
+   "enabled": true,
+   "a_roll": [
+    {
+     "file": "c01_04",
+     "start": 112.34,
+     "end": 127.37
+    },
+    {
+     "file": "c01_04",
+     "start": 128.38,
+     "end": 157.61
+    },
+    {
+     "file": "c01_04",
+     "start": 165.96,
+     "end": 169.61
+    }
+   ],
+   "narration_ref": "그래서 오늘 배운 거 세 가지",
+   "composition": {
+    "horizontal_pct": 52,
+    "height_ratio_pct": 68,
+    "headroom_pct": 16,
+    "negative_space": "좌측 상단 1/3 — 3단계 요약 자막"
+   },
+   "density": "medium",
+   "transition_in": {
+    "type": "black_card",
+    "duration_sec": 1.0,
+    "card": "as_card_summary"
+   },
+   "transition_out": {
+    "type": "black_card",
+    "duration_sec": 1.0,
+    "card": "as_card_montage"
+   }
+  },
+  {
+   "scene_id": "sc12",
+   "role": "montage",
+   "enabled": true,
+   "a_roll": [
+    {
+     "file": "c01_06",
+     "start": 6.5,
+     "end": 35.0
+    },
+    {
+     "file": "c01_07",
+     "start": 8.0,
+     "end": 29.1
+    },
+    {
+     "file": "c01_05",
+     "start": 0.0,
+     "end": 28.4
+    }
+   ],
+   "narration_ref": "(무발화)",
+   "composition": {
+    "horizontal_pct": 50,
+    "height_ratio_pct": 62,
+    "headroom_pct": 28,
+    "negative_space": "상단 25% 가로 전체 — 고정 체크리스트 바",
+    "reframe": "none — 원본 풀샷 그대로. 크롭 금지"
+   },
+   "density": "medium",
+   "note": "소스 순서가 유닛턴 → 골반 → 피니시. 상단 체크리스트 하이라이트 ①②③ 이동과 일치한다",
+   "transition_out": {
+    "type": "fade",
+    "duration_sec": 1.0
+   }
+  }
+ ],
+ "subtitles": [
+  {
+   "id": "st01",
+   "anchor": {
+    "scene_id": "sc02",
+    "offset_sec": 7.5
+   },
+   "duration_sec": 2.5,
+   "text": "1. 시선 (거리잡기)",
+   "kind": "title",
+   "position": "top_center",
+   "size": "large",
+   "animation": "pop",
+   "color": "green",
+   "source_anchor": {
+    "clip": "c01_01",
+    "at": 7.5
+   }
+  },
+  {
+   "id": "st02",
+   "anchor": {
+    "scene_id": "sc02",
+    "offset_sec": 10.5
+   },
+   "duration_sec": 2.5,
+   "text": "2. 골반 회전",
+   "kind": "title",
+   "position": "top_center",
+   "size": "large",
+   "animation": "pop",
+   "color": "green",
+   "source_anchor": {
+    "clip": "c01_01",
+    "at": 10.5
+   }
+  },
+  {
+   "id": "st03",
+   "anchor": {
+    "scene_id": "sc02",
+    "offset_sec": 13.5
+   },
+   "duration_sec": 2.5,
+   "text": "3. 마무리 피니시",
+   "kind": "title",
+   "position": "top_center",
+   "size": "large",
+   "animation": "pop",
+   "color": "green",
+   "source_anchor": {
+    "clip": "c01_01",
+    "at": 13.5
+   }
+  },
+  {
+   "id": "st04",
+   "anchor": {
+    "scene_id": "sc03",
+    "offset_sec": 0.0
+   },
+   "duration_sec": 2.5,
+   "text": "시선 (거리잡기)",
+   "kind": "title",
+   "position": "center",
+   "size": "large",
+   "animation": "none",
+   "color": "white"
+  },
+  {
+   "id": "st05",
+   "anchor": {
+    "scene_id": "sc04",
+    "offset_sec": 0.5
+   },
+   "duration_sec": 3.0,
+   "text": "거리잡기를 어려워하는 이유?",
+   "kind": "title",
+   "position": "top_center",
+   "size": "large",
+   "animation": "pop",
+   "color": "yellow",
+   "source_anchor": {
+    "clip": "c01_02",
+    "at": 0.5
+   }
+  },
+  {
+   "id": "st06",
+   "anchor": {
+    "scene_id": "sc04",
+    "offset_sec": 47.5
+   },
+   "duration_sec": 3.0,
+   "text": "(어 포핸드쪽으로 공이 오네?)",
+   "kind": "created",
+   "position": "top_center",
+   "size": "medium",
+   "animation": "none",
+   "color": "green",
+   "source_anchor": {
+    "clip": "c01_02",
+    "at": 56.48
+   }
+  },
+  {
+   "id": "st07",
+   "anchor": {
+    "scene_id": "sc04",
+    "offset_sec": 106.0
+   },
+   "duration_sec": 2.5,
+   "text": "1. 유닛턴",
+   "kind": "title",
+   "position": "top_left",
+   "size": "medium",
+   "animation": "pop",
+   "color": "green",
+   "source_anchor": {
+    "clip": "c01_02",
+    "at": 119.56
+   }
+  },
+  {
+   "id": "st08",
+   "anchor": {
+    "scene_id": "sc04",
+    "offset_sec": 109.0
+   },
+   "duration_sec": 2.5,
+   "text": "2. 공 째려보기",
+   "kind": "title",
+   "position": "top_left",
+   "size": "medium",
+   "animation": "pop",
+   "color": "green",
+   "source_anchor": {
+    "clip": "c01_02",
+    "at": 122.56
+   }
+  },
+  {
+   "id": "st09",
+   "anchor": {
+    "scene_id": "sc04",
+    "offset_sec": 112.0
+   },
+   "duration_sec": 3.0,
+   "text": "3. 임팩트까지 바라보기",
+   "kind": "title",
+   "position": "top_left",
+   "size": "medium",
+   "animation": "pop",
+   "color": "green",
+   "source_anchor": {
+    "clip": "c01_02",
+    "at": 125.56
+   }
+  },
+  {
+   "id": "st10",
+   "anchor": {
+    "scene_id": "sc06",
+    "offset_sec": 0.0
+   },
+   "duration_sec": 2.5,
+   "text": "골반 사용 (회전)",
+   "kind": "title",
+   "position": "center",
+   "size": "large",
+   "animation": "none",
+   "color": "white"
+  },
+  {
+   "id": "st11",
+   "anchor": {
+    "scene_id": "sc07",
+    "offset_sec": 79.7
+   },
+   "duration_sec": 2.5,
+   "text": "1. 오른발 돌리며 골반 회전",
+   "kind": "title",
+   "position": "top_right",
+   "size": "medium",
+   "animation": "pop",
+   "color": "green",
+   "source_anchor": {
+    "clip": "c01_03",
+    "at": 89.96
+   }
+  },
+  {
+   "id": "st12",
+   "anchor": {
+    "scene_id": "sc07",
+    "offset_sec": 82.7
+   },
+   "duration_sec": 2.5,
+   "text": "2. 몸이 먼저 따라감",
+   "kind": "title",
+   "position": "top_right",
+   "size": "medium",
+   "animation": "pop",
+   "color": "green",
+   "source_anchor": {
+    "clip": "c01_03",
+    "at": 99.56
+   }
+  },
+  {
+   "id": "st13",
+   "anchor": {
+    "scene_id": "sc07",
+    "offset_sec": 85.7
+   },
+   "duration_sec": 2.5,
+   "text": "3. 라켓을 채찍처럼",
+   "kind": "title",
+   "position": "top_right",
+   "size": "medium",
+   "animation": "pop",
+   "color": "green",
+   "source_anchor": {
+    "clip": "c01_03",
+    "at": 102.56
+   }
+  },
+  {
+   "id": "st14",
+   "anchor": {
+    "scene_id": "sc09",
+    "offset_sec": 0.0
+   },
+   "duration_sec": 2.5,
+   "text": "피니시 자세",
+   "kind": "title",
+   "position": "center",
+   "size": "large",
+   "animation": "none",
+   "color": "white"
+  },
+  {
+   "id": "st15",
+   "anchor": {
+    "scene_id": "sc10",
+    "offset_sec": 66.0
+   },
+   "duration_sec": 2.5,
+   "text": "선수 같은 피니시 완성!",
+   "kind": "title",
+   "position": "bottom",
+   "size": "large",
+   "animation": "pop",
+   "color": "blue",
+   "source_anchor": {
+    "clip": "c01_04",
+    "at": 73.58
+   }
+  },
+  {
+   "id": "st16",
+   "anchor": {
+    "scene_id": "sc10",
+    "offset_sec": 30.0
+   },
+   "duration_sec": 2.5,
+   "text": "이렇게 스윙을 만드는 이유는?",
+   "kind": "title",
+   "position": "bottom",
+   "size": "large",
+   "animation": "pop",
+   "color": "yellow",
+   "source_anchor": {
+    "clip": "c01_04",
+    "at": 34.04
+   }
+  },
+  {
+   "id": "st17",
+   "anchor": {
+    "scene_id": "sc11",
+    "offset_sec": -1.0
+   },
+   "duration_sec": 1.5,
+   "text": "핵심요약!",
+   "kind": "title",
+   "position": "center",
+   "size": "large",
+   "animation": "none",
+   "color": "white"
+  },
+  {
+   "id": "st18",
+   "anchor": {
+    "scene_id": "sc11",
+    "offset_sec": 3.0
+   },
+   "duration_sec": 2.5,
+   "text": "1. 유닛턴하고 시선 보기",
+   "kind": "title",
+   "position": "top_left",
+   "size": "medium",
+   "animation": "pop",
+   "color": "green",
+   "source_anchor": {
+    "clip": "c01_04",
+    "at": 115.02
+   }
+  },
+  {
+   "id": "st19",
+   "anchor": {
+    "scene_id": "sc11",
+    "offset_sec": 6.0
+   },
+   "duration_sec": 3.0,
+   "text": "2. 골반 사용 (오른발 회전)",
+   "kind": "title",
+   "position": "top_left",
+   "size": "medium",
+   "animation": "pop",
+   "color": "green",
+   "source_anchor": {
+    "clip": "c01_04",
+    "at": 118.02
+   }
+  },
+  {
+   "id": "st20",
+   "anchor": {
+    "scene_id": "sc11",
+    "offset_sec": 10.0
+   },
+   "duration_sec": 3.5,
+   "text": "3. 공간 만들며 피니시",
+   "kind": "title",
+   "position": "top_left",
+   "size": "medium",
+   "animation": "pop",
+   "color": "green",
+   "source_anchor": {
+    "clip": "c01_04",
+    "at": 122.02
+   }
+  },
+  {
+   "id": "st21",
+   "anchor": {
+    "scene_id": "sc12",
+    "offset_sec": -1.0
+   },
+   "duration_sec": 1.5,
+   "text": "이미지 트레이닝",
+   "kind": "title",
+   "position": "center",
+   "size": "large",
+   "animation": "none",
+   "color": "white"
+  },
+  {
+   "id": "st22",
+   "anchor": {
+    "scene_id": "sc12",
+    "offset_sec": 0.0
+   },
+   "duration_sec": 78.0,
+   "text": "오늘 배운 세 가지를 집중해서 보세요\n1. 유닛턴   2. 골반   3. 피니시 공간",
+   "kind": "label",
+   "position": "top_center",
+   "size": "medium",
+   "animation": "none",
+   "color": "white",
+   "source_anchor": {
+    "clip": "c01_06",
+    "at": 6.5
+   }
+  }
+ ],
+ "graphics": [
+  {
+   "id": "gr01",
+   "anchor": {
+    "scene_id": "sc02",
+    "offset_sec": 0.5
+   },
+   "duration_sec": 2.0,
+   "shape": "label",
+   "target": "코치 이름",
+   "color": "yellow",
+   "position": "nameplate",
+   "animation": false,
+   "source_anchor": {
+    "clip": "c01_01",
+    "at": 0.5
+   }
+  },
+  {
+   "id": "gr02",
+   "anchor": {
+    "scene_id": "sc04",
+    "offset_sec": 48.0
+   },
+   "duration_sec": 5.5,
+   "shape": "arrow",
+   "target": "시선 방향",
+   "color": "green",
+   "position": "상체 좌측",
+   "animation": true,
+   "source_anchor": {
+    "clip": "c01_02",
+    "at": 56.98
+   }
+  },
+  {
+   "id": "gr03",
+   "anchor": {
+    "scene_id": "sc07",
+    "offset_sec": 20.8
+   },
+   "duration_sec": 3.0,
+   "shape": "circle",
+   "target": "오른발 축",
+   "color": "yellow",
+   "position": "하체 오른발",
+   "animation": false,
+   "source_anchor": {
+    "clip": "c01_03",
+    "at": 31.06
+   }
+  },
+  {
+   "id": "gr04",
+   "anchor": {
+    "scene_id": "sc07",
+    "offset_sec": 28.5
+   },
+   "duration_sec": 2.0,
+   "shape": "arc_arrow",
+   "target": "골반 회전 방향",
+   "color": "red",
+   "position": "골반",
+   "animation": true,
+   "source_anchor": {
+    "clip": "c01_03",
+    "at": 38.76
+   }
+  },
+  {
+   "id": "gr05",
+   "anchor": {
+    "scene_id": "sc10",
+    "offset_sec": 11.8
+   },
+   "duration_sec": 3.0,
+   "shape": "circle",
+   "target": "겨드랑이–팔 사이 공간",
+   "color": "red",
+   "position": "상체 가슴",
+   "animation": false,
+   "source_anchor": {
+    "clip": "c01_04",
+    "at": 15.84
+   }
+  },
+  {
+   "id": "gr06",
+   "anchor": {
+    "scene_id": "sc10",
+    "offset_sec": 55.0
+   },
+   "duration_sec": 2.5,
+   "shape": "object_basketball",
+   "target": "가슴–팔 사이 공간",
+   "color": "orange",
+   "position": "상체 중앙",
+   "animation": true,
+   "source_anchor": {
+    "clip": "c01_04",
+    "at": 62.58
+   }
+  },
+  {
+   "id": "gr07",
+   "anchor": {
+    "scene_id": "sc12",
+    "offset_sec": 0.0
+   },
+   "duration_sec": 28.5,
+   "shape": "circle",
+   "target": "체크리스트 1. 유닛턴",
+   "color": "red",
+   "position": "상단 바 1번",
+   "animation": false,
+   "source_anchor": {
+    "clip": "c01_06",
+    "at": 6.5
+   }
+  },
+  {
+   "id": "gr08",
+   "anchor": {
+    "scene_id": "sc12",
+    "offset_sec": 28.5
+   },
+   "duration_sec": 21.1,
+   "shape": "circle",
+   "target": "체크리스트 2. 골반",
+   "color": "red",
+   "position": "상단 바 2번",
+   "animation": false,
+   "source_anchor": {
+    "clip": "c01_07",
+    "at": 8.0
+   }
+  },
+  {
+   "id": "gr09",
+   "anchor": {
+    "scene_id": "sc12",
+    "offset_sec": 49.6
+   },
+   "duration_sec": 28.4,
+   "shape": "circle",
+   "target": "체크리스트 3. 피니시 공간",
+   "color": "red",
+   "position": "상단 바 3번",
+   "animation": false,
+   "source_anchor": {
+    "clip": "c01_05",
+    "at": 0.0
+   }
+  }
+ ],
+ "zoom": [
+  {
+   "id": "zm01",
+   "anchor": {
+    "scene_id": "sc02",
+    "offset_sec": 21.8
+   },
+   "style": "cut",
+   "intensity": "slight",
+   "scale": 1.2,
+   "center_pct": {
+    "x": 50,
+    "y": 45
+   },
+   "purpose": "emphasis",
+   "context": "이 세 가지가 완벽하게 돼야 파워도 실릴 수 있고",
+   "duration_sec": 8.0,
+   "hold_note": "강조 구간만 물고 원래 화각으로 돌아온다",
+   "source_anchor": {
+    "clip": "c01_01",
+    "at": 21.8
+   }
+  },
+  {
+   "id": "zm02",
+   "anchor": {
+    "scene_id": "sc04",
+    "offset_sec": 44.2
+   },
+   "style": "cut",
+   "intensity": "slight",
+   "scale": 1.25,
+   "center_pct": {
+    "x": 53,
+    "y": 45
+   },
+   "purpose": "emphasis+conceal_cut",
+   "context": "해법 도입 — 44.18→53.16 점프",
+   "duration_sec": 10.0,
+   "hold_note": "conceal_cut 은 컷을 걸쳐야 하므로 블록 경계에서 끊지 않는다",
+   "source_anchor": {
+    "clip": "c01_02",
+    "at": 53.18
+   }
+  },
+  {
+   "id": "zm03",
+   "anchor": {
+    "scene_id": "sc07",
+    "offset_sec": 20.8
+   },
+   "style": "cut",
+   "intensity": "strong",
+   "scale": 1.6,
+   "center_pct": {
+    "x": 48,
+    "y": 72
+   },
+   "purpose": "emphasis",
+   "context": "하체 스탠스·오른발 회전. 하체 중심 크롭",
+   "duration_sec": 12.0,
+   "hold_note": "강조 구간만 물고 원래 화각으로 돌아온다",
+   "source_anchor": {
+    "clip": "c01_03",
+    "at": 31.06
+   }
+  },
+  {
+   "id": "zm04",
+   "anchor": {
+    "scene_id": "sc07",
+    "offset_sec": 79.7
+   },
+   "style": "cut",
+   "intensity": "slight",
+   "scale": 1.2,
+   "center_pct": {
+    "x": 48,
+    "y": 45
+   },
+   "purpose": "conceal_cut",
+   "context": "90.00→96.60 점프 · '다시 한번 보여드리면'",
+   "duration_sec": 6.0,
+   "hold_note": "conceal_cut 은 컷을 걸쳐야 하므로 블록 경계에서 끊지 않는다",
+   "source_anchor": {
+    "clip": "c01_03",
+    "at": 89.96
+   }
+  },
+  {
+   "id": "zm05",
+   "anchor": {
+    "scene_id": "sc10",
+    "offset_sec": 52.1
+   },
+   "style": "cut",
+   "intensity": "slight",
+   "scale": 1.3,
+   "center_pct": {
+    "x": 50,
+    "y": 42
+   },
+   "purpose": "emphasis+conceal_cut",
+   "context": "56.18→59.72 점프 · 농구공 등장",
+   "duration_sec": 8.0,
+   "hold_note": "conceal_cut 은 컷을 걸쳐야 하므로 블록 경계에서 끊지 않는다",
+   "source_anchor": {
+    "clip": "c01_04",
+    "at": 56.14
+   }
+  }
+ ],
+ "sfx": [
+  {
+   "id": "sx01",
+   "anchor": {
+    "scene_id": "sc02",
+    "offset_sec": 7.7
+   },
+   "kind": "pop",
+   "gain_db": -8,
+   "source_anchor": {
+    "clip": "c01_01",
+    "at": 7.7
+   }
+  },
+  {
+   "id": "sx02",
+   "anchor": {
+    "scene_id": "sc02",
+    "offset_sec": 10.7
+   },
+   "kind": "pop",
+   "gain_db": -8,
+   "source_anchor": {
+    "clip": "c01_01",
+    "at": 10.7
+   }
+  },
+  {
+   "id": "sx03",
+   "anchor": {
+    "scene_id": "sc02",
+    "offset_sec": 13.7
+   },
+   "kind": "pop",
+   "gain_db": -8,
+   "source_anchor": {
+    "clip": "c01_01",
+    "at": 13.7
+   }
+  },
+  {
+   "id": "sx04",
+   "anchor": {
+    "scene_id": "sc04",
+    "offset_sec": 106.2
+   },
+   "kind": "beep",
+   "gain_db": -10,
+   "source_anchor": {
+    "clip": "c01_02",
+    "at": 119.76
+   }
+  },
+  {
+   "id": "sx05",
+   "anchor": {
+    "scene_id": "sc04",
+    "offset_sec": 109.2
+   },
+   "kind": "beep",
+   "gain_db": -10,
+   "source_anchor": {
+    "clip": "c01_02",
+    "at": 122.76
+   }
+  },
+  {
+   "id": "sx06",
+   "anchor": {
+    "scene_id": "sc04",
+    "offset_sec": 112.2
+   },
+   "kind": "beep",
+   "gain_db": -10,
+   "source_anchor": {
+    "clip": "c01_02",
+    "at": 125.76
+   }
+  },
+  {
+   "id": "sx07",
+   "anchor": {
+    "scene_id": "sc07",
+    "offset_sec": 79.9
+   },
+   "kind": "beep",
+   "gain_db": -10,
+   "source_anchor": {
+    "clip": "c01_03",
+    "at": 96.76
+   }
+  },
+  {
+   "id": "sx08",
+   "anchor": {
+    "scene_id": "sc07",
+    "offset_sec": 82.9
+   },
+   "kind": "beep",
+   "gain_db": -10,
+   "source_anchor": {
+    "clip": "c01_03",
+    "at": 99.76
+   }
+  },
+  {
+   "id": "sx09",
+   "anchor": {
+    "scene_id": "sc07",
+    "offset_sec": 85.9
+   },
+   "kind": "beep",
+   "gain_db": -10,
+   "source_anchor": {
+    "clip": "c01_03",
+    "at": 102.76
+   }
+  },
+  {
+   "id": "sx10",
+   "anchor": {
+    "scene_id": "sc10",
+    "offset_sec": 55.2
+   },
+   "kind": "pop",
+   "gain_db": -8,
+   "source_anchor": {
+    "clip": "c01_04",
+    "at": 62.78
+   }
+  },
+  {
+   "id": "sx11",
+   "anchor": {
+    "scene_id": "sc10",
+    "offset_sec": 66.2
+   },
+   "kind": "ding",
+   "gain_db": -8,
+   "source_anchor": {
+    "clip": "c01_04",
+    "at": 73.78
+   }
+  },
+  {
+   "id": "sx12",
+   "anchor": {
+    "scene_id": "sc11",
+    "offset_sec": 3.2
+   },
+   "kind": "beep",
+   "gain_db": -10,
+   "source_anchor": {
+    "clip": "c01_04",
+    "at": 115.22
+   }
+  },
+  {
+   "id": "sx13",
+   "anchor": {
+    "scene_id": "sc11",
+    "offset_sec": 6.2
+   },
+   "kind": "beep",
+   "gain_db": -10,
+   "source_anchor": {
+    "clip": "c01_04",
+    "at": 118.22
+   }
+  },
+  {
+   "id": "sx14",
+   "anchor": {
+    "scene_id": "sc11",
+    "offset_sec": 10.2
+   },
+   "kind": "beep",
+   "gain_db": -10,
+   "source_anchor": {
+    "clip": "c01_04",
+    "at": 122.22
+   }
+  }
+ ],
+ "bgm": [
+  {
+   "from_scene": "sc02",
+   "to_scene": "sc04",
+   "character": "차분하고 경쾌한 로우파이 비트",
+   "gain_db": -24
+  },
+  {
+   "from_scene": "sc05",
+   "to_scene": "sc07b",
+   "character": "경쾌한 인스트루멘탈",
+   "gain_db": -24
+  },
+  {
+   "from_scene": "sc09",
+   "to_scene": "sc10",
+   "character": "경쾌한 비트 유지",
+   "gain_db": -24
+  },
+  {
+   "from_scene": "sc11",
+   "to_scene": "sc11",
+   "character": "마무리 분위기",
+   "gain_db": -24
+  },
+  {
+   "from_scene": "sc12",
+   "to_scene": "sc12",
+   "character": "리드미컬한 엔딩 비트",
+   "gain_db": -20
+  }
+ ],
+ "assets": [
+  {
+   "id": "as_card1",
+   "type": "cg",
+   "status": "need_create",
+   "description": "챕터 카드 — 검은 배경, 흰 볼드 '시선 (거리잡기)'"
+  },
+  {
+   "id": "as_card2",
+   "type": "cg",
+   "status": "need_create",
+   "description": "챕터 카드 — '골반 사용 (회전)'"
+  },
+  {
+   "id": "as_card3",
+   "type": "cg",
+   "status": "need_create",
+   "description": "챕터 카드 — '피니시 자세'"
+  },
+  {
+   "id": "as_card_summary",
+   "type": "cg",
+   "status": "need_create",
+   "description": "전환 카드 — '핵심요약!'"
+  },
+  {
+   "id": "as_card_montage",
+   "type": "cg",
+   "status": "need_create",
+   "description": "전환 카드 — '이미지 트레이닝'"
+  },
+  {
+   "id": "as_sfx_pop",
+   "type": "sfx",
+   "status": "need_create",
+   "description": "자막 등장음 pop"
+  },
+  {
+   "id": "as_sfx_beep",
+   "type": "sfx",
+   "status": "need_create",
+   "description": "번호 리스트 등장음 beep"
+  },
+  {
+   "id": "as_sfx_ding",
+   "type": "sfx",
+   "status": "need_create",
+   "description": "완성 강조음 ding"
+  },
+  {
+   "id": "as_bgm",
+   "type": "bgm",
+   "status": "need_create",
+   "description": "로우파이 비트 4종"
+  },
+  {
+   "id": "as_narration",
+   "type": "voiceover",
+   "status": "need_record",
+   "description": "인트로 훅 내레이션 13.5초. sc01 을 막고 있다"
+  },
+  {
+   "id": "as_logo",
+   "type": "cg",
+   "status": "need_create",
+   "description": "화염 이펙트 + 로고 애니메이션. sc01 을 막고 있다"
+  },
+  {
+   "id": "as_drill_footage",
+   "type": "broll_footage",
+   "status": "need_shoot",
+   "description": "매트 위 런지 드릴 23.5초. sc08 을 막고 있다"
+  }
+ ],
+ "polish": {
+  "loudness_lufs": -14,
+  "loudness_lufs_silent": -20,
+  "per_block": true,
+  "denoise": false,
+  "deliverable": "webm"
+ },
+ "render": {
+  "text_engine": "png_overlay",
+  "note": "설치된 ffmpeg 9.0.1 빌드에 libass/freetype 이 없어 subtitles/ass/drawtext 필터를 못 쓴다. 자막과 그래픽을 모두 Pillow 로 투명 PNG 로 그린 뒤 overlay 필터로 얹는다. 이 경로 하나로 subtitles[] 와 graphics[] 를 함께 처리한다.",
+  "font_dir": "~/Library/Fonts",
+  "font_default": "GmarketSansTTFBold.ttf",
+  "available_filters": [
+   "overlay",
+   "zoompan",
+   "crop",
+   "xfade",
+   "lut3d",
+   "loudnorm",
+   "adelay",
+   "amix"
+  ],
+  "unavailable_filters": [
+   "subtitles",
+   "ass",
+   "drawtext"
+  ]
+ }
+}

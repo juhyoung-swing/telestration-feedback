@@ -133,7 +133,7 @@ def unit(no, uid, title, meta, video, blocks, shots):
 
 def main() -> None:
     run_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT / "runs/002"
-    out = Path(sys.argv[2]) if len(sys.argv) > 2 else ROOT / "docs/lecture_summary.html"
+    out = Path(sys.argv[2]) if len(sys.argv) > 2 else Path(__file__).resolve().parents[1] / "output/lecture_summary.html"
     out.parent.mkdir(parents=True, exist_ok=True)
     track = json.loads(
         (run_dir / "s1_audio_visual_data_fusion/output/subject_track.json").read_text())

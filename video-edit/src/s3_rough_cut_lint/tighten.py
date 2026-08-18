@@ -30,7 +30,7 @@ from pathlib import Path
 
 import numpy as np
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[3]
 NOISE_DB = -30          # 이보다 조용하면 무음
 MIN_SIL = 0.25          # 이보다 짧은 무음은 무시
 KILL_GAP = 0.40         # 이보다 긴 쉼만 손댄다. 짧은 쉼은 말의 리듬이다

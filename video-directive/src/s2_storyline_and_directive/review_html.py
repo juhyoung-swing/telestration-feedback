@@ -15,7 +15,7 @@ import json
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[3]
 TRANSCRIPT_DIR = ROOT / "runs/002/s1_audio_visual_data_fusion/output"
 
 ROLE_KO = {

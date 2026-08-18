@@ -15,7 +15,7 @@
 수업 전에 오답을 보이면 목표와 섞인다. 아직 자기 폼을 모르니까.
 수업 후엔 반대다 — 쳐봤으니 '내가 왼쪽인가 오른쪽인가' 를 판단할 수 있다.
 
-output: docs/lesson/before.html · after.html · 에셋
+output: lecture-summary/output/before.html · after.html · 에셋
 
 usage: python student_pages.py
 """
@@ -24,7 +24,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 EDIT = ROOT / "edited/lecture_forehand.webm"
-OUT = ROOT / "docs/lesson"
+OUT = Path(__file__).resolve().parents[1] / "output"   # lecture-summary/output
 
 LESSON = {
     # 제목은 지어내지 않는다. 인트로 후녹음이 곧 제목이다 —
@@ -94,7 +94,7 @@ UNITS = [
 ]
 
 # 도해가 들어오면 실사 대신 그걸 쓴다. 파일이 없으면 실사 + '도해 준비 중' 배지.
-# 저장 위치는 docs/lesson/dia_<key>.png — 그대로 두고 이 스크립트를 다시 돌리면 갈린다.
+# 저장 위치는 output/dia_<key>.png — 그대로 두고 이 스크립트를 다시 돌리면 갈린다.
 def diagram(key: str):
     for ext in ("png", "jpg", "jpeg", "webp"):
         f = OUT / f"dia_{key}.{ext}"

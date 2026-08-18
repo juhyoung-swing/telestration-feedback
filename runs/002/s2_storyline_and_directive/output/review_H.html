@@ -1,0 +1,552 @@
+<!doctype html><html lang=ko><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'><title>지시서 D 검토 — forehand_3points_001</title><style>
+:root{--bg:#0f1115;--pane:#171a21;--line:#262b36;--fg:#e6e9ef;--dim:#8b93a3;--acc:#3ddc84}
+*{box-sizing:border-box}
+body{margin:0;padding:32px 28px 80px;background:var(--bg);color:var(--fg);
+ font:14px/1.65 -apple-system,'Apple SD Gothic Neo',sans-serif;max-width:1180px;margin:0 auto}
+h1{font-size:26px;margin:0 0 6px}
+h2{font-size:19px;margin:44px 0 12px;padding-top:18px;border-top:1px solid var(--line)}
+h3{font-size:13px;margin:0 0 8px;color:var(--acc);letter-spacing:.04em}
+h4{font-size:12px;margin:14px 0 6px;color:var(--dim);letter-spacing:.06em;text-transform:uppercase}
+p.sub{color:var(--dim);margin:0 0 20px}
+code{background:#232833;padding:1px 6px;border-radius:4px;font-size:12px;font-family:ui-monospace,Menlo,monospace}
+.dim{color:var(--dim);font-size:12px}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+.stats div{background:var(--pane);border:1px solid var(--line);border-radius:9px;padding:9px 15px;text-align:center;min-width:78px}
+.stats b{display:block;font-size:19px}
+.stats span{font-size:11px;color:var(--dim)}
+.timeline{display:flex;height:34px;border-radius:7px;overflow:hidden;border:1px solid var(--line)}
+.bar{display:flex;align-items:center;justify-content:center;font-size:10px;color:#0b0d11;
+ text-decoration:none;border-right:1px solid #0f1115;overflow:hidden;white-space:nowrap;font-weight:700}
+.bar:hover{filter:brightness(1.25)}
+.r-opening{background:#5cc8ff}.r-chapter_open{background:#6b7280}.r-concept{background:#3ddc84}
+.r-demo{background:#ffd93d}.r-prop{background:#ff9f45}.r-summary{background:#c084fc}
+.r-montage{background:#ff5c5c}.r-intro{background:#444}.r-drill{background:#444}
+p.legend{color:var(--dim);font-size:11px;margin:6px 0 24px}
+.policy{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin-bottom:10px}
+.pcard{background:var(--pane);border:1px solid var(--line);border-radius:11px;padding:15px 17px}
+.pcard ul{margin:0;padding-left:17px}.pcard li{margin-bottom:6px;font-size:13px}
+.pcard p{margin:0 0 8px;font-size:13px}
+.scene{background:var(--pane);border:1px solid var(--line);border-radius:12px;margin:12px 0;overflow:hidden}
+.scene.off{opacity:.5;border-style:dashed}
+.shead{display:flex;align-items:center;gap:14px;padding:12px 18px;background:#1c202a;border-bottom:1px solid var(--line)}
+.sid{font:700 12px ui-monospace,Menlo,monospace;color:var(--acc)}
+.stitle{flex:1}
+.stime{font:12px ui-monospace,Menlo,monospace}
+.dens{font-size:10px;padding:2px 7px;border-radius:20px;margin-left:6px;vertical-align:2px}
+.d-heavy{background:#ff5c5c33;color:#ff8f8f}.d-medium{background:#ffd93d26;color:#ffd93d}
+.d-light{background:#3ddc8426;color:#3ddc84}
+.sbody{display:grid;grid-template-columns:1.05fr .95fr;gap:22px;padding:16px 18px}
+@media(max-width:820px){.sbody{grid-template-columns:1fr}}
+.clip{margin-top:8px;font-size:12px}
+.jump{color:#ff9f45;font-size:11px;margin-left:6px}
+.speech{background:#12151c;border-left:2px solid var(--line);padding:8px 12px;margin:5px 0 2px;
+ border-radius:0 6px 6px 0;font-size:13px;color:#c9cfdb}
+.note{background:#1e2432;border-left:2px solid #5cc8ff;padding:8px 12px;margin-top:12px;
+ border-radius:0 6px 6px 0;font-size:12px;color:#a9c8dd}
+.blocked{padding:14px 18px;background:#221a1a;border-left:2px solid #ff5c5c;margin:0;font-size:13px}
+.trans{margin-top:12px;font-size:12px;color:var(--dim)}
+.comp{display:flex;gap:13px;align-items:flex-start}
+.frame{position:relative;width:150px;flex:none;aspect-ratio:16/9;background:#0b0d11;
+ border:1px solid var(--line);border-radius:4px}
+.figure{position:absolute;width:9px;transform:translateX(-50%);background:var(--acc);
+ border-radius:5px;opacity:.85}
+.axis{position:absolute;top:0;bottom:0;width:1px;background:#ffffff1a}
+.tag{position:absolute;bottom:-17px;transform:translateX(-50%);font-size:9px;color:var(--acc)}
+.comp-meta{font-size:12px}
+.comp-none{font-size:12px;color:var(--dim)}
+.ns{color:var(--dim);font-size:11px;margin-top:3px}
+table.ov{width:100%;border-collapse:collapse;font-size:12px}
+table.ov td{padding:7px 6px;border-top:1px solid var(--line);vertical-align:top}
+td.off{width:62px;font:11px ui-monospace,Menlo,monospace;color:var(--dim)}
+td.kind{width:48px;color:var(--dim);font-size:11px}
+.chip{display:inline-block;padding:2px 8px;border-radius:5px;font-weight:600;
+ background:color-mix(in srgb,var(--c) 18%,transparent);color:var(--c);
+ border:1px solid color-mix(in srgb,var(--c) 40%,transparent)}
+.chip.zoom{--c:#c084fc;background:#c084fc1f;color:#c084fc;border-color:#c084fc55}
+.chip.sfx{--c:#8b93a3;background:#8b93a31f;color:#b6bdca;border-color:#8b93a355}
+table.flat{width:100%;border-collapse:collapse;font-size:13px}
+table.flat th{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);color:var(--dim);font-size:11px}
+table.flat td{padding:7px 8px;border-top:1px solid var(--line);vertical-align:top}
+.st-need_create{color:#ffd93d}.st-need_record{color:#ff9f45}.st-need_shoot{color:#ff5c5c}
+</style></head><body><h1>지시서 D — 검토</h1>
+<p class="sub">무편집 원본 <code>c01_01~07</code> → 강의 편집본 지시서 ·
+사람 편집본은 <b>문법 참조</b>로만 사용 · 총 <b>7:46.1</b> (사람 편집본 8:03.0)</p>
+
+<div class="stats">
+  <div><b>11</b><span>활성 씬</span></div>
+  <div><b>2</b><span>막힌 씬</span></div>
+  <div><b>22</b><span>강조 자막</span></div>
+  <div><b>9</b><span>그래픽</span></div>
+  <div><b>5</b><span>줌</span></div>
+  <div><b>14</b><span>SFX</span></div>
+  <div><b>12</b><span>미확보 에셋</span></div>
+</div>
+
+<div class="timeline"><a class="bar r-opening" style="width:6.659372251185341%" href="#sc02" title="sc02 오프닝 0:00.0→0:31.0"><span>sc02</span></a><a class="bar r-chapter_open" style="width:0.5363540795091287%" href="#sc03" title="sc03 챕터 카드 0:31.0→0:33.5"><span>sc03</span></a><a class="bar r-concept" style="width:26.071099096779726%" href="#sc04" title="sc04 개념 설명 0:33.5→2:35.1"><span>sc04</span></a><a class="bar r-demo" style="width:1.3945206067237346%" href="#sc05" title="sc05 시범 2:35.1→2:41.6"><span>sc05</span></a><a class="bar r-chapter_open" style="width:0.5363540795091287%" href="#sc06" title="sc06 챕터 카드 2:41.6→2:44.1"><span>sc06</span></a><a class="bar r-concept" style="width:18.01720623887065%" href="#sc07" title="sc07 개념 설명 2:44.1→4:08.0"><span>sc07</span></a><a class="bar r-demo" style="width:1.7163330544292115%" href="#sc07b" title="sc07b 시범 4:08.0→4:16.0"><span>sc07b</span></a><a class="bar r-chapter_open" style="width:0.5363540795091287%" href="#sc09" title="sc09 챕터 카드 4:16.0→4:18.5"><span>sc09</span></a><a class="bar r-prop" style="width:17.51946965308618%" href="#sc10" title="sc10 소품 비유 4:18.5→5:40.2"><span>sc10</span></a><a class="bar r-summary" style="width:10.278689579712948%" href="#sc11" title="sc11 요약 5:40.2→6:28.1"><span>sc11</span></a><a class="bar r-montage" style="width:16.734247280684812%" href="#sc12" title="sc12 몽타주 6:28.1→7:46.1"><span>sc12</span></a></div>
+<p class="legend">막대 폭 = 실제 길이 비율. 클릭하면 해당 씬으로.</p>
+<div class="policy">
+  <div class="pcard">
+    <h3>발화 자막 정책</h3>
+    <p>지시서에 문구를 나열하지 <b>않는다</b>. s6 이 우리 whisper 전사에서 생성한다.</p>
+    <ul>
+      <li><b>speech</b> — 흰 글씨 + 검은 반투명 박스 · 한 줄 24자 · 최대 2줄</li>
+      <li><b>speech_edited</b> — 생략된 주어·목적어를 괄호로 보충한다. 어순이 꼬인 문장은 읽기 쉽게 고친다. 의미는 바꾸지 않는다<br><span class="dim">예: 포핸드라고 결정이 지어졌을 때는 → (내가 칠 공이) 포핸드라고 결정이 지어졌을 때는</span></li>
+      <li><b>created</b> — 시청자의 속마음이나 상황 부연을 괄호 초록 자막으로 넣는다. 씬당 최대 1개</li>
+    </ul>
+  </div>
+  <div class="pcard">
+    <h3>구도 문법</h3>
+    <ul>
+      <li>기본 <b>50%</b></li>
+      <li>스윙 궤적과 자막이 들어가는 쪽에 10~15% 여백을 양보한다</li>
+      <li>자막 top_left → 인물 52~55% / 자막 top_right → 인물 46~48%</li>
+      <li>팬·틸트 대신 static_crop 만 쓴다</li>
+    </ul>
+  </div>
+  <div class="pcard">
+    <h3>렌더</h3>
+    <p>설치된 ffmpeg 9.0.1 빌드에 libass/freetype 이 없어 subtitles/ass/drawtext 필터를 못 쓴다. 자막과 그래픽을 모두 Pillow 로 투명 PNG 로 그린 뒤 overlay 필터로 얹는다. 이 경로 하나로 subtitles[] 와 graphics[] 를 함께 처리한다.</p>
+    <p class="dim">원본 1920x1080 · 1080p 로 확정. static_crop 줌은 1080p 원본을 크롭 확대하므로 줌 구간에서 화질이 떨어진다 — 사용자가 감수하기로 결정(2026-08-15). 4K 복원 안 함.</p>
+  </div>
+</div>
+<section class="scene off" id="sc01">
+<div class="shead">
+          <div class="sid">sc01</div>
+          <div class="stitle"><b>인트로</b></div>
+          <div class="stime">— <span class="dim">(13.5초)</span></div>
+        </div>
+<div class="blocked"><b>비활성</b> — 막고 있는 것: <code>as_narration, as_logo</code><div class="dim">후녹음 내레이션 + 타구 B-roll + 화염 로고. 원본에 발화가 없어 지금은 만들 수 없다. enabled=false 로 두면 s4 가 건너뛴다</div><div class="dim">원래 길이 13.5초. s4 는 이 씬을 건너뛴다.</div></div>
+</section>
+<section class="scene" id="sc02">
+<div class="shead">
+          <div class="sid">sc02</div>
+          <div class="stitle"><b>오프닝</b> <span class="dens d-medium">medium</span></div>
+          <div class="stime">0:00.0 → 0:31.0 <span class="dim">(31.0초)</span></div>
+        </div>
+<div class="sbody">
+<div class="left">
+<h4>원본 구간</h4>
+<div class="clip"><code>c01_01</code> <span class="dim">0.00s – 19.33s · 19.3초</span> </div>
+<div class="speech">안녕하세요. 김준코치입니다. 오늘 포핸드 제가 제일 중요하게 생각하는 세 가지를 혼자 티칭을 해볼까 하는데 첫째는 시선 거리 잡기, 두 번째는 골반 회전 사용하는 법, 세 번째는 마무리 피니시까지 한번 다뤄보려고 합니다.</div>
+<div class="clip"><code>c01_01</code> <span class="dim">22.46s – 34.17s · 11.7초</span> <span class="jump">↯ 19.33→22.46 잘라냄 (3.1초)</span></div>
+<div class="speech">어쨌든 이 세 가지가 완벽하게 돼야 파워도 실릴 수 있고 그 다음에 정확도도 올라가고 내가 원하는 코스에다 보낼 수 있기 때문에 제일 중요한 세 가지라고 생각합니다. 그러면 한번 가보실게요.</div>
+<div class="trans">전환 &nbsp; in <code>hard_cut</code> 0s &nbsp;·&nbsp; out <code>black_card</code> 1.0s</div>
+</div>
+<div class="right">
+<div class="comp">
+      <div class="frame">
+        <div class="figure" style="left:50%;top:18%;height:65%"></div>
+        <div class="axis" style="left:50%"></div>
+        <div class="tag" style="left:50%">50%</div>
+      </div>
+      <div class="comp-meta">
+        <div><b>50%</b> 좌우 · <b>65%</b> 키 · <b>18%</b> 헤드룸</div>
+        <div class="dim">미디엄 롱샷</div>
+        
+        
+        
+      </div>
+    </div>
+<h4>화면 위 요소</h4><table class="ov">
+<tr><td class="off">+0.5s<div class="dim">0:00.5</div></td><td class="kind">그래픽</td><td><span class="chip" style="--c:#ffd93d">label</span><span class="dim"> → 코치 이름 · nameplate · 2.0초</span></td></tr>
+<tr><td class="off">+7.5s<div class="dim">0:07.5</div></td><td class="kind">자막</td><td><span class="chip" style="--c:#3ddc84">1. 시선 (거리잡기)</span><span class="dim"> 강조 자막 · top_center · large · 2.5초</span></td></tr>
+<tr><td class="off">+7.7s<div class="dim">0:07.7</div></td><td class="kind">SFX</td><td><span class="chip sfx">pop</span><span class="dim"> -8dB</span></td></tr>
+<tr><td class="off">+10.5s<div class="dim">0:10.5</div></td><td class="kind">자막</td><td><span class="chip" style="--c:#3ddc84">2. 골반 회전</span><span class="dim"> 강조 자막 · top_center · large · 2.5초</span></td></tr>
+<tr><td class="off">+10.7s<div class="dim">0:10.7</div></td><td class="kind">SFX</td><td><span class="chip sfx">pop</span><span class="dim"> -8dB</span></td></tr>
+<tr><td class="off">+13.5s<div class="dim">0:13.5</div></td><td class="kind">자막</td><td><span class="chip" style="--c:#3ddc84">3. 마무리 피니시</span><span class="dim"> 강조 자막 · top_center · large · 2.5초</span></td></tr>
+<tr><td class="off">+13.7s<div class="dim">0:13.7</div></td><td class="kind">SFX</td><td><span class="chip sfx">pop</span><span class="dim"> -8dB</span></td></tr>
+<tr><td class="off">+21.8s<div class="dim">0:21.8</div></td><td class="kind">줌</td><td><span class="chip zoom">×1.2</span><span class="dim"> slight · 중심 (50%, 45%) · emphasis<br>이 세 가지가 완벽하게 돼야 파워도 실릴 수 있고</span></td></tr>
+</table>
+</div></div></section>
+<section class="scene" id="sc03">
+<div class="shead">
+          <div class="sid">sc03</div>
+          <div class="stitle"><b>챕터 카드</b> <span class="dens d-light">light</span></div>
+          <div class="stime">0:31.0 → 0:33.5 <span class="dim">(2.5초)</span></div>
+        </div>
+<div class="sbody">
+<div class="left">
+<h4>생성 화면</h4>
+<div class="clip"><code>as_card1</code> <span class="dim">A-roll 없음 · CG 2.5초</span></div>
+<div class="trans">전환 &nbsp; in <code>hard_cut</code> 0s &nbsp;·&nbsp; out <code>hard_cut</code> 0s</div>
+</div>
+<div class="right">
+<div class="comp-none">그래픽 카드</div>
+<h4>화면 위 요소</h4><table class="ov">
+<tr><td class="off">+0.0s<div class="dim">0:31.0</div></td><td class="kind">자막</td><td><span class="chip" style="--c:#ffffff">시선 (거리잡기)</span><span class="dim"> 강조 자막 · center · large · 2.5초</span></td></tr>
+</table>
+</div></div></section>
+<section class="scene" id="sc04">
+<div class="shead">
+          <div class="sid">sc04</div>
+          <div class="stitle"><b>개념 설명</b> <span class="dens d-heavy">heavy</span></div>
+          <div class="stime">0:33.5 → 2:35.1 <span class="dim">(121.5초)</span></div>
+        </div>
+<div class="sbody">
+<div class="left">
+<h4>원본 구간</h4>
+<div class="clip"><code>c01_02</code> <span class="dim">3.06s – 71.75s · 68.7초</span> </div>
+<div class="speech">처음에는 시선, 거리잡기인데 이제 대부분 거리가 다 안 잡히는 이유는 정면으로 보고 가다 보니까 땡기는 승이 많아져요 대부분은 멀어서 실수하는 것보다 가까워서 실수하는 경우가 많거든요 이 이유는 저희가 공을 볼 때 처음에 상대방을 보면 포핸드라고 결정이 지어졌을 때는 옆을 향해서 보고 가야 타점 자체를 옆에다 두고 거기에 멀리 두게 되는데 대부분의 가까운 분들을 보면 첫 스텝이 정면으로 빠지게 되다 보니까 마무리 공도 정면에서 자꾸 이렇게 눕거나 아니면 가까워서 당기고 자세가 무너지게 돼요. 근데 이제 제가 가장 중요하게 생각하는 한 가지는 첫째, 내가 포핸드로 결정을 했다 그러면 유니턴을 하면서 상대방을 째려보는 거예요 째려보게 되면 나도 모르게 공을 정면에 두면 옆이 정면이 되게 되죠 그래서 시선이 옆이 정면이 되게 되다 보니까 거리를 정확하게 멀리 두게 돼요 그리고 이 미세한 차이는 어디서 잡냐면</div>
+<div class="clip"><code>c01_02</code> <span class="dim">74.06s – 94.79s · 20.7초</span> <span class="jump">↯ 71.75→74.06 잘라냄 (2.3초)</span></div>
+<div class="speech">그리고 이 미세한 차이는 어디서 잡냐면 이 미세한 차이는 저희가 공을 끝까지 봄에 따라서 조금의 변화에 되는 공을 라켓을 따라갈 수가 있어요 대부분 이 상태에서 임팩트 전에 고개를 돌리시는 분들은 여기를 못 따라가게 되니까 예측해서 그냥 스윙을 휘둘러서 타점이 이렇게 정확하게 안 맞게 돼요. 근데 저희가 만약 시선을 계속 임팩트까지 가져간다면 공이 순간적으로 잘못되게 튀더라도 어떻게든 임팩트를 가져가게 됩니다.</div>
+<div class="clip"><code>c01_02</code> <span class="dim">102.02s – 124.19s · 22.2초</span> <span class="jump">↯ 94.79→102.02 잘라냄 (7.2초)</span></div>
+<div class="speech">근데 저희가 만약 시선을 계속 임팩트까지 가져간다면 공이 순간적으로 잘못되게 튀더라도 어떻게든 임팩트를 가져가게 됩니다. 그리고 멀어져도 발이 따라가게 되고 그 다음에 가까우면 내가 스윙을 돌리게 돼요 그러니까 임팩트를 받기 때문에 이건 돌아가는 거고 그래서 거리 잡는 데는 무조건 유니턴 1번 그 다음에 저희가 유니턴 한 후에 공을 째려보기</div>
+<div class="clip"><code>c01_02</code> <span class="dim">126.00s – 135.93s · 9.9초</span> <span class="jump">↯ 124.19→126.00 잘라냄 (1.8초)</span></div>
+<div class="speech">그 다음에 저희가 유니턴 한 후에 공을 째려보기 그 다음에 임팩트 하는 순간까지 바라보기 이렇게 되면 스윙이 자연스럽게 나오게 됩니다 일단은 첫 번째는 이게 해결했고요</div>
+<div class="trans">전환 &nbsp; in <code>hard_cut</code> 0s &nbsp;·&nbsp; out <code>hard_cut</code> 0s</div>
+</div>
+<div class="right">
+<div class="comp">
+      <div class="frame">
+        <div class="figure" style="left:53%;top:14%;height:70%"></div>
+        <div class="axis" style="left:50%"></div>
+        <div class="tag" style="left:53%">53%</div>
+      </div>
+      <div class="comp-meta">
+        <div><b>53%</b> 좌우 · <b>70%</b> 키 · <b>14%</b> 헤드룸</div>
+        <div class="dim"></div>
+        <div class="ns">여백 → 좌측 상단 — 질문 자막·화살표·3단계 리스트</div>
+        <div class="ns">리드룸 → 좌측 (시선·공이 오는 방향)</div>
+        
+      </div>
+    </div>
+<h4>화면 위 요소</h4><table class="ov">
+<tr><td class="off">+0.5s<div class="dim">0:34.0</div></td><td class="kind">자막</td><td><span class="chip" style="--c:#ffd93d">거리잡기를 어려워하는 이유?</span><span class="dim"> 강조 자막 · top_center · large · 3.0초</span></td></tr>
+<tr><td class="off">+44.2s<div class="dim">1:17.7</div></td><td class="kind">줌</td><td><span class="chip zoom">×1.25</span><span class="dim"> slight · 중심 (53%, 45%) · emphasis+conceal_cut<br>해법 도입 — 44.18→53.16 점프</span></td></tr>
+<tr><td class="off">+47.5s<div class="dim">1:21.0</div></td><td class="kind">자막</td><td><span class="chip" style="--c:#3ddc84">(어 포핸드쪽으로 공이 오네?)</span><span class="dim"> 창작 자막 · top_center · medium · 3.0초</span></td></tr>
+<tr><td class="off">+48.0s<div class="dim">1:21.5</div></td><td class="kind">그래픽</td><td><span class="chip" style="--c:#3ddc84">arrow</span><span class="dim"> → 시선 방향 · 상체 좌측 · 5.5초</span></td></tr>
+<tr><td class="off">+106.0s<div class="dim">2:19.5</div></td><td class="kind">자막</td><td><span class="chip" style="--c:#3ddc84">1. 유닛턴</span><span class="dim"> 강조 자막 · top_left · medium · 2.5초</span></td></tr>
+<tr><td class="off">+106.2s<div class="dim">2:19.7</div></td><td class="kind">SFX</td><td><span class="chip sfx">beep</span><span class="dim"> -10dB</span></td></tr>
+<tr><td class="off">+109.0s<div class="dim">2:22.5</div></td><td class="kind">자막</td><td><span class="chip" style="--c:#3ddc84">2. 공 째려보기</span><span class="dim"> 강조 자막 · top_left · medium · 2.5초</span></td></tr>
+<tr><td class="off">+109.2s<div class="dim">2:22.7</div></td><td class="kind">SFX</td><td><span class="chip sfx">beep</span><span class="dim"> -10dB</span></td></tr>
+<tr><td class="off">+112.0s<div class="dim">2:25.5</div></td><td class="kind">자막</td><td><span class="chip" style="--c:#3ddc84">3. 임팩트까지 바라보기</span><span class="dim"> 강조 자막 · top_left · medium · 3.0초</span></td></tr>
+<tr><td class="off">+112.2s<div class="dim">2:25.7</div></td><td class="kind">SFX</td><td><span class="chip sfx">beep</span><span class="dim"> -10dB</span></td></tr>
+</table>
+</div></div></section>
+<section class="scene" id="sc05">
+<div class="shead">
+          <div class="sid">sc05</div>
+          <div class="stitle"><b>시범</b> <span class="dens d-light">light</span></div>
+          <div class="stime">2:35.1 → 2:41.6 <span class="dim">(6.5초)</span></div>
+        </div>
+<div class="sbody">
+<div class="left">
+<h4>원본 구간</h4>
+<div class="clip"><code>c01_06</code> <span class="dim">0.00s – 6.50s · 6.5초</span> </div>
+<div class="speech"><span class="dim">(무발화)</span></div>
+<div class="note">자막·그래픽 없음. 동작만 보여준다</div>
+<div class="trans">전환 &nbsp; in <code>hard_cut</code> 0s &nbsp;·&nbsp; out <code>black_card</code> 1.0s</div>
+</div>
+<div class="right">
+<div class="comp">
+      <div class="frame">
+        <div class="figure" style="left:50%;top:10%;height:78%"></div>
+        <div class="axis" style="left:50%"></div>
+        <div class="tag" style="left:50%">50%</div>
+      </div>
+      <div class="comp-meta">
+        <div><b>50%</b> 좌우 · <b>78%</b> 키 · <b>10%</b> 헤드룸</div>
+        <div class="dim">풀샷</div>
+        
+        
+        
+      </div>
+    </div>
+<h4>화면 위 요소</h4><p class="dim">없음 — 동작만 보여준다.</p>
+</div></div></section>
+<section class="scene" id="sc06">
+<div class="shead">
+          <div class="sid">sc06</div>
+          <div class="stitle"><b>챕터 카드</b> <span class="dens d-light">light</span></div>
+          <div class="stime">2:41.6 → 2:44.1 <span class="dim">(2.5초)</span></div>
+        </div>
+<div class="sbody">
+<div class="left">
+<h4>생성 화면</h4>
+<div class="clip"><code>as_card2</code> <span class="dim">A-roll 없음 · CG 2.5초</span></div>
+<div class="trans">전환 &nbsp; out <code>hard_cut</code> 0s</div>
+</div>
+<div class="right">
+
+<h4>화면 위 요소</h4><table class="ov">
+<tr><td class="off">+0.0s<div class="dim">2:41.6</div></td><td class="kind">자막</td><td><span class="chip" style="--c:#ffffff">골반 사용 (회전)</span><span class="dim"> 강조 자막 · center · large · 2.5초</span></td></tr>
+</table>
+</div></div></section>
+<section class="scene" id="sc07">
+<div class="shead">
+          <div class="sid">sc07</div>
+          <div class="stitle"><b>개념 설명</b> <span class="dens d-heavy">heavy</span></div>
+          <div class="stime">2:44.1 → 4:08.0 <span class="dim">(84.0초)</span></div>
+        </div>
+<div class="sbody">
+<div class="left">
+<h4>원본 구간</h4>
+<div class="clip"><code>c01_03</code> <span class="dim">12.10s – 16.25s · 4.2초</span> </div>
+<div class="speech">자, 두 번째는 이제 거리를 잡았으니까 골반 사용입니다. 회전. 회전은 뭐가 중요하냐면 회원분들이 볼 때 골반을 사용하지 못하기 때문에</div>
+<div class="clip"><code>c01_03</code> <span class="dim">17.90s – 31.53s · 13.6초</span> <span class="jump">↯ 16.25→17.90 잘라냄 (1.6초)</span></div>
+<div class="speech">회전은 뭐가 중요하냐면 회원분들이 볼 때 골반을 사용하지 못하기 때문에 파워가 제일 안 실려요. 그 이유는 오른발을 잘 보시면 오른발이 축이 뒤로 가 있게 되면 자꾸 뒤로 무너집니다. 그래서 지금 저희가 스탠스를 왼발을 잡아서 누르고</div>
+<div class="clip"><code>c01_03</code> <span class="dim">32.34s – 51.35s · 19.0초</span> <span class="jump">↯ 31.53→32.34 잘라냄 (0.8초)</span></div>
+<div class="speech">그래서 지금 저희가 스탠스를 왼발을 잡아서 누르고 제일 중요한 건 여기서 오른발을 먼저 사용해 줌으로써 골반 회전을 만드는 거예요. 여기서 골반 회전이 만들어져야 뒷달려 나오면서 채찍처럼 파워를 땅 내게 되는데 오른발을 고정시키고 뒤로 빠지게 되면</div>
+<div class="clip"><code>c01_03</code> <span class="dim">51.90s – 55.45s · 3.6초</span> <span class="jump">↯ 51.35→51.90 잘라냄 (0.5초)</span></div>
+<div class="speech">당기게 되니까 파워를 낼 수가 없어요. 그래서 제일 중요한 것은 디딤발도 디딤바르지만</div>
+<div class="clip"><code>c01_03</code> <span class="dim">57.30s – 76.69s · 19.4초</span> <span class="jump">↯ 55.45→57.30 잘라냄 (1.8초)</span></div>
+<div class="speech">그래서 제일 중요한 것은 디딤발도 디딤바르지만 내가 오른발에 회전을 함으로써 라켓보다 먼저 골반을 회전해주는 것 이 회전하는 순간이 가장 파워를 낼 수 있는 중요한 순간입니다 그런데 여기서 한 가지 더 중요한 것은 이 골반을 사용한다고 해서 오른발을 여기서 딱 버티는 게 아니라 자연스럽게 내가 끌려나가는 것 이 공의 스윙 스피드에 따라 발을 버티면 안 되고</div>
+<div class="clip"><code>c01_03</code> <span class="dim">79.24s – 88.91s · 9.7초</span> <span class="jump">↯ 76.69→79.24 잘라냄 (2.5초)</span></div>
+<div class="speech">이 공의 스윙 스피드에 따라 발을 버티면 안 되고 오히려 그냥 가듯이 끌려 나가야 돼요. 이게 끌려 나가줌으로써 회전이 자연스럽게 완성됩니다.</div>
+<div class="clip"><code>c01_03</code> <span class="dim">96.52s – 108.39s · 11.9초</span> <span class="jump">↯ 88.91→96.52 잘라냄 (7.6초)</span></div>
+<div class="speech">다시 한번 보여드리면 골반 회전이 오른발을 돌리면서 몸이 먼저 따라가고 그 다음에 라켓을 치는 동작이 나옵니다. 그래서 지금 가장 중요한 포인트는 시선을 바라봤고 두 번째 이제 골반 사용인데 골반 사용을 하실 때 여기서 시선을 두 가지를 같이 1번이 저희가 시선이고 2번이 골반인데 두 가지를 같이 사용해야 되는 이유는</div>
+<div class="clip"><code>c01_03</code> <span class="dim">120.66s – 121.53s · 0.9초</span> <span class="jump">↯ 108.39→120.66 잘라냄 (12.3초)</span></div>
+<div class="speech">그래서 지금 가장 중요한 포인트는 시선을 바라봤고 두 번째 이제 골반 사용인데 골반 사용을 하실 때 여기서 시선을 두 가지를 같이 1번이 저희가 시선이고 2번이 골반인데 두 가지를 같이 사용해야 되는 이유는</div>
+<div class="clip"><code>c01_03</code> <span class="dim">125.40s – 126.49s · 1.1초</span> <span class="jump">↯ 121.53→125.40 잘라냄 (3.9초)</span></div>
+<div class="speech">첫 번째는 만약에 저희가 골반만 사용하게 되면</div>
+<div class="clip"><code>c01_03</code> <span class="dim">137.76s – 138.51s · 0.8초</span> <span class="jump">↯ 126.49→137.76 잘라냄 (11.3초)</span></div>
+<div class="speech">정확한 임팩트에서 파워를 낼 수 있는데</div>
+<div class="trans">전환 &nbsp; out <code>hard_cut</code> 0s</div>
+</div>
+<div class="right">
+<div class="comp">
+      <div class="frame">
+        <div class="figure" style="left:48%;top:15%;height:72%"></div>
+        <div class="axis" style="left:50%"></div>
+        <div class="tag" style="left:48%">48%</div>
+      </div>
+      <div class="comp-meta">
+        <div><b>48%</b> 좌우 · <b>72%</b> 키 · <b>15%</b> 헤드룸</div>
+        <div class="dim"></div>
+        <div class="ns">여백 → 우측 상단 — 3단계 골반 자막</div>
+        <div class="ns">리드룸 → 우측 (스윙 회전 방향)</div>
+        
+      </div>
+    </div>
+<h4>화면 위 요소</h4><table class="ov">
+<tr><td class="off">+20.8s<div class="dim">3:04.9</div></td><td class="kind">그래픽</td><td><span class="chip" style="--c:#ffd93d">circle</span><span class="dim"> → 오른발 축 · 하체 오른발 · 3.0초</span></td></tr>
+<tr><td class="off">+20.8s<div class="dim">3:04.9</div></td><td class="kind">줌</td><td><span class="chip zoom">×1.6</span><span class="dim"> strong · 중심 (48%, 72%) · emphasis<br>하체 스탠스·오른발 회전. 하체 중심 크롭</span></td></tr>
+<tr><td class="off">+28.5s<div class="dim">3:12.6</div></td><td class="kind">그래픽</td><td><span class="chip" style="--c:#ff5c5c">arc_arrow</span><span class="dim"> → 골반 회전 방향 · 골반 · 2.0초</span></td></tr>
+<tr><td class="off">+79.7s<div class="dim">4:03.8</div></td><td class="kind">자막</td><td><span class="chip" style="--c:#3ddc84">1. 오른발 돌리며 골반 회전</span><span class="dim"> 강조 자막 · top_right · medium · 2.5초</span></td></tr>
+<tr><td class="off">+79.7s<div class="dim">4:03.8</div></td><td class="kind">줌</td><td><span class="chip zoom">×1.2</span><span class="dim"> slight · 중심 (48%, 45%) · conceal_cut<br>90.00→96.60 점프 · &#x27;다시 한번 보여드리면&#x27;</span></td></tr>
+<tr><td class="off">+79.9s<div class="dim">4:04.0</div></td><td class="kind">SFX</td><td><span class="chip sfx">beep</span><span class="dim"> -10dB</span></td></tr>
+<tr><td class="off">+82.7s<div class="dim">4:06.8</div></td><td class="kind">자막</td><td><span class="chip" style="--c:#3ddc84">2. 몸이 먼저 따라감</span><span class="dim"> 강조 자막 · top_right · medium · 2.5초</span></td></tr>
+<tr><td class="off">+82.9s<div class="dim">4:07.0</div></td><td class="kind">SFX</td><td><span class="chip sfx">beep</span><span class="dim"> -10dB</span></td></tr>
+<tr><td class="off">+85.7s<div class="dim">4:09.8</div></td><td class="kind">자막</td><td><span class="chip" style="--c:#3ddc84">3. 라켓을 채찍처럼</span><span class="dim"> 강조 자막 · top_right · medium · 2.5초</span></td></tr>
+<tr><td class="off">+85.9s<div class="dim">4:10.0</div></td><td class="kind">SFX</td><td><span class="chip sfx">beep</span><span class="dim"> -10dB</span></td></tr>
+</table>
+</div></div></section>
+<section class="scene" id="sc07b">
+<div class="shead">
+          <div class="sid">sc07b</div>
+          <div class="stitle"><b>시범</b> <span class="dens d-light">light</span></div>
+          <div class="stime">4:08.0 → 4:16.0 <span class="dim">(8.0초)</span></div>
+        </div>
+<div class="sbody">
+<div class="left">
+<h4>원본 구간</h4>
+<div class="clip"><code>c01_07</code> <span class="dim">0.00s – 8.00s · 8.0초</span> </div>
+<div class="speech">한국국토정보공사</div>
+<div class="note">편집본은 여기에 드릴 24초를 넣었다. 소재가 없어 8초 시범으로 대신한다 — 개념 91초 뒤에 곧바로 개념 74초가 오는 걸 막는다</div>
+<div class="trans">전환 &nbsp; out <code>black_card</code> 1.0s</div>
+</div>
+<div class="right">
+<div class="comp">
+      <div class="frame">
+        <div class="figure" style="left:50%;top:10%;height:78%"></div>
+        <div class="axis" style="left:50%"></div>
+        <div class="tag" style="left:50%">50%</div>
+      </div>
+      <div class="comp-meta">
+        <div><b>50%</b> 좌우 · <b>78%</b> 키 · <b>10%</b> 헤드룸</div>
+        <div class="dim"></div>
+        
+        
+        
+      </div>
+    </div>
+<h4>화면 위 요소</h4><p class="dim">없음 — 동작만 보여준다.</p>
+</div></div></section>
+<section class="scene off" id="sc08">
+<div class="shead">
+          <div class="sid">sc08</div>
+          <div class="stitle"><b>드릴</b></div>
+          <div class="stime">— <span class="dim">(23.5초)</span></div>
+        </div>
+<div class="blocked"><b>비활성</b> — 막고 있는 것: <code>as_drill_footage</code><div class="dim">매트 위 런지 드릴. 의상이 다른 별도 촬영분이라 원본에 없다</div><div class="dim">원래 길이 23.5초. s4 는 이 씬을 건너뛴다.</div></div>
+</section>
+<section class="scene" id="sc09">
+<div class="shead">
+          <div class="sid">sc09</div>
+          <div class="stitle"><b>챕터 카드</b> <span class="dens d-light">light</span></div>
+          <div class="stime">4:16.0 → 4:18.5 <span class="dim">(2.5초)</span></div>
+        </div>
+<div class="sbody">
+<div class="left">
+<h4>생성 화면</h4>
+<div class="clip"><code>as_card3</code> <span class="dim">A-roll 없음 · CG 2.5초</span></div>
+<div class="trans">전환 &nbsp; out <code>hard_cut</code> 0s</div>
+</div>
+<div class="right">
+
+<h4>화면 위 요소</h4><table class="ov">
+<tr><td class="off">+0.0s<div class="dim">4:16.0</div></td><td class="kind">자막</td><td><span class="chip" style="--c:#ffffff">피니시 자세</span><span class="dim"> 강조 자막 · center · large · 2.5초</span></td></tr>
+</table>
+</div></div></section>
+<section class="scene" id="sc10">
+<div class="shead">
+          <div class="sid">sc10</div>
+          <div class="stitle"><b>소품 비유</b> <span class="dens d-heavy">heavy</span></div>
+          <div class="stime">4:18.5 → 5:40.2 <span class="dim">(81.7초)</span></div>
+        </div>
+<div class="sbody">
+<div class="left">
+<h4>원본 구간</h4>
+<div class="clip"><code>c01_04</code> <span class="dim">3.92s – 5.13s · 1.2초</span> </div>
+<div class="speech">자, 세 번째는 피니시입니다.</div>
+<div class="clip"><code>c01_04</code> <span class="dim">10.56s – 29.97s · 19.4초</span> <span class="jump">↯ 5.13→10.56 잘라냄 (5.4초)</span></div>
+<div class="speech">여기서 첫 번째, 두 번째를 저희가 시선, 골반을 잘했는데 잘하고도 스윙이 안 나오시는 분들이 꼭 있어요. 그 이유는 마지막 피니시를 겨드랑이와 팔을 붙어서 당기는 스윙을 나올 때 그럴 때는 뒤에 테이크백을 잘 만들어 놓고도 안 나오는 스윙이 완성이 되기 때문에 제가 회원들한테 뭘 시키냐면 이 공간에, 이 공의 큰 공이 가슴이랑 팔 사이에 있다고 생각하고</div>
+<div class="clip"><code>c01_04</code> <span class="dim">32.04s – 43.99s · 12.0초</span> <span class="jump">↯ 29.97→32.04 잘라냄 (2.1초)</span></div>
+<div class="speech">이 공간에, 이 공의 큰 공이 가슴이랑 팔 사이에 있다고 생각하고 피니쉬 공간을 크게 만들라고 합니다. 그러면 이 피니쉬가 자연스럽게 나오면서 선수들이 하는 피니쉬를 만들 수 있는데 그럴 때는 제가 항상 회원들한테 시키는 게</div>
+<div class="clip"><code>c01_04</code> <span class="dim">46.54s – 61.57s · 15.0초</span> <span class="jump">↯ 43.99→46.54 잘라냄 (2.5초)</span></div>
+<div class="speech">그럴 때는 제가 항상 회원들한테 시키는 게 골반 임팩트 해결하고 그 다음에 이 오른손 팔꿈치를 왼손바닥으로 밀어주고 그대로 올라가면서 피니쉬를 만들면 제가 원하는 피니쉬의 거리가 만들어집니다. 근데 이것도 어렵다 그러면</div>
+<div class="clip"><code>c01_04</code> <span class="dim">62.76s – 68.59s · 5.8초</span> <span class="jump">↯ 61.57→62.76 잘라냄 (1.2초)</span></div>
+<div class="speech">농구공 다이소에 다 있을 거예요 이 농구공 크기만큼만 거리가 잡아도 예쁘게 나오는 게 왼손으로 이 겨드랑이와 가슴 사이에</div>
+<div class="clip"><code>c01_04</code> <span class="dim">69.48s – 81.79s · 12.3초</span> <span class="jump">↯ 68.59→69.48 잘라냄 (0.9초)</span></div>
+<div class="speech">왼손으로 이 겨드랑이와 가슴 사이에 왼손으로 눌러주고 임팩트 나왔을 때 이 농구공 크기만큼만 라켓이 감싸주면 이렇게 피니시가 예쁜 스윙이 만들어집니다 그래서 이 스윙까지 만들어지면</div>
+<div class="clip"><code>c01_04</code> <span class="dim">84.82s – 90.41s · 5.6초</span> <span class="jump">↯ 81.79→84.82 잘라냄 (3.0초)</span></div>
+<div class="speech">충분히 이 스윙을 만드는 이유는 이 헤드가 저희가 던져지면서 힘을 내야 되는데 당겨지면 힘을 당겨게 주게 되면</div>
+<div class="clip"><code>c01_04</code> <span class="dim">94.66s – 104.99s · 10.3초</span> <span class="jump">↯ 90.41→94.66 잘라냄 (4.2초)</span></div>
+<div class="speech">당겨지면 힘을 당겨게 주게 되면 당기는 스윙이 나오면서 힘이 빠지고 오히려 원하는 코스나 공에 힘을 주지 못하기 때문에 얘를 던져주려고 피니쉬를 크게 잡는다고 보시면 돼요. 그래서 농구공 크기만큼 감싸주면</div>
+<div class="trans">전환 &nbsp; out <code>black_card</code> 1.0s</div>
+</div>
+<div class="right">
+<div class="comp">
+      <div class="frame">
+        <div class="figure" style="left:50%;top:14%;height:70%"></div>
+        <div class="axis" style="left:50%"></div>
+        <div class="tag" style="left:50%">50%</div>
+      </div>
+      <div class="comp-meta">
+        <div><b>50%</b> 좌우 · <b>70%</b> 키 · <b>14%</b> 헤드룸</div>
+        <div class="dim"></div>
+        <div class="ns">여백 → 가슴 부위 — 농구공 가상 그래픽 / 하단 중앙 — 강조 텍스트</div>
+        
+        
+      </div>
+    </div>
+<h4>화면 위 요소</h4><table class="ov">
+<tr><td class="off">+11.8s<div class="dim">4:30.3</div></td><td class="kind">그래픽</td><td><span class="chip" style="--c:#ff5c5c">circle</span><span class="dim"> → 겨드랑이–팔 사이 공간 · 상체 가슴 · 3.0초</span></td></tr>
+<tr><td class="off">+30.0s<div class="dim">4:48.5</div></td><td class="kind">자막</td><td><span class="chip" style="--c:#ffd93d">이렇게 스윙을 만드는 이유는?</span><span class="dim"> 강조 자막 · bottom · large · 2.5초</span></td></tr>
+<tr><td class="off">+52.1s<div class="dim">5:10.6</div></td><td class="kind">줌</td><td><span class="chip zoom">×1.3</span><span class="dim"> slight · 중심 (50%, 42%) · emphasis+conceal_cut<br>56.18→59.72 점프 · 농구공 등장</span></td></tr>
+<tr><td class="off">+55.0s<div class="dim">5:13.5</div></td><td class="kind">그래픽</td><td><span class="chip" style="--c:#ff9f45">object_basketball</span><span class="dim"> → 가슴–팔 사이 공간 · 상체 중앙 · 2.5초</span></td></tr>
+<tr><td class="off">+55.2s<div class="dim">5:13.7</div></td><td class="kind">SFX</td><td><span class="chip sfx">pop</span><span class="dim"> -8dB</span></td></tr>
+<tr><td class="off">+66.0s<div class="dim">5:24.5</div></td><td class="kind">자막</td><td><span class="chip" style="--c:#5cc8ff">선수 같은 피니시 완성!</span><span class="dim"> 강조 자막 · bottom · large · 2.5초</span></td></tr>
+<tr><td class="off">+66.2s<div class="dim">5:24.7</div></td><td class="kind">SFX</td><td><span class="chip sfx">ding</span><span class="dim"> -8dB</span></td></tr>
+</table>
+</div></div></section>
+<section class="scene" id="sc11">
+<div class="shead">
+          <div class="sid">sc11</div>
+          <div class="stitle"><b>요약</b> <span class="dens d-medium">medium</span></div>
+          <div class="stime">5:40.2 → 6:28.1 <span class="dim">(47.9초)</span></div>
+        </div>
+<div class="sbody">
+<div class="left">
+<h4>원본 구간</h4>
+<div class="clip"><code>c01_04</code> <span class="dim">112.34s – 127.37s · 15.0초</span> </div>
+<div class="speech">그래서 오늘 배운 거 세 가지 첫번째는 시선, 유니턴하고 시선 보기 두번째는 골반 사용, 오른발 회전하면서 타점을 앞에서 밀어주고 회전을 도와주는 것 그 다음에 세번째는 이제 저희가 마무리 피니쉬, 공간 만들어주면서 마무리를 예쁘게 만들기</div>
+<div class="clip"><code>c01_04</code> <span class="dim">128.38s – 157.61s · 29.2초</span> <span class="jump">↯ 127.37→128.38 잘라냄 (1.0초)</span></div>
+<div class="speech">그 다음에 세번째는 이제 저희가 마무리 피니쉬, 공간 만들어주면서 마무리를 예쁘게 만들기 이렇게만 해주시면 정확도와 파워는 전혀 문제 없을 것 같아요 거리 잡는 것도 시선만 해결되면 우리가 어디에 있든지 맞출 수 있으니까 또 한가지 제일 중요한건 저희 회원들이 보면 공을 진짜 끝까지 안봐요 근데 저희도 선수들도 공을 항상 끝까지 보기 때문에 항상 임팩트 후까지 좀 더 보고 따라간다는 느낌을 받아주시면 좋을 것 같습니다 그리고 이제 다른거는 제가 나중에 포핸들을 좀 더 다듬어지겠지만</div>
+<div class="clip"><code>c01_04</code> <span class="dim">165.96s – 169.61s · 3.7초</span> <span class="jump">↯ 157.61→165.96 잘라냄 (8.3초)</span></div>
+<div class="speech">지금 갑자기 생각난 중요한 세가지이기 때문에 혼자 찍어봤고 앞으로도 좋은 티칭 영상 만들도록 해보겠습니다 감사합니다</div>
+<div class="trans">전환 &nbsp; in <code>black_card</code> 1.0s &nbsp;·&nbsp; out <code>black_card</code> 1.0s · 카드 as_card_montage</div>
+</div>
+<div class="right">
+<div class="comp">
+      <div class="frame">
+        <div class="figure" style="left:52%;top:16%;height:68%"></div>
+        <div class="axis" style="left:50%"></div>
+        <div class="tag" style="left:52%">52%</div>
+      </div>
+      <div class="comp-meta">
+        <div><b>52%</b> 좌우 · <b>68%</b> 키 · <b>16%</b> 헤드룸</div>
+        <div class="dim"></div>
+        <div class="ns">여백 → 좌측 상단 1/3 — 3단계 요약 자막</div>
+        
+        
+      </div>
+    </div>
+<h4>화면 위 요소</h4><table class="ov">
+<tr><td class="off">+-1.0s<div class="dim">5:39.2</div></td><td class="kind">자막</td><td><span class="chip" style="--c:#ffffff">핵심요약!</span><span class="dim"> 강조 자막 · center · large · 1.5초</span></td></tr>
+<tr><td class="off">+3.0s<div class="dim">5:43.2</div></td><td class="kind">자막</td><td><span class="chip" style="--c:#3ddc84">1. 유닛턴하고 시선 보기</span><span class="dim"> 강조 자막 · top_left · medium · 2.5초</span></td></tr>
+<tr><td class="off">+3.2s<div class="dim">5:43.4</div></td><td class="kind">SFX</td><td><span class="chip sfx">beep</span><span class="dim"> -10dB</span></td></tr>
+<tr><td class="off">+6.0s<div class="dim">5:46.2</div></td><td class="kind">자막</td><td><span class="chip" style="--c:#3ddc84">2. 골반 사용 (오른발 회전)</span><span class="dim"> 강조 자막 · top_left · medium · 3.0초</span></td></tr>
+<tr><td class="off">+6.2s<div class="dim">5:46.4</div></td><td class="kind">SFX</td><td><span class="chip sfx">beep</span><span class="dim"> -10dB</span></td></tr>
+<tr><td class="off">+10.0s<div class="dim">5:50.2</div></td><td class="kind">자막</td><td><span class="chip" style="--c:#3ddc84">3. 공간 만들며 피니시</span><span class="dim"> 강조 자막 · top_left · medium · 3.5초</span></td></tr>
+<tr><td class="off">+10.2s<div class="dim">5:50.4</div></td><td class="kind">SFX</td><td><span class="chip sfx">beep</span><span class="dim"> -10dB</span></td></tr>
+</table>
+</div></div></section>
+<section class="scene" id="sc12">
+<div class="shead">
+          <div class="sid">sc12</div>
+          <div class="stitle"><b>몽타주</b> <span class="dens d-medium">medium</span></div>
+          <div class="stime">6:28.1 → 7:46.1 <span class="dim">(78.0초)</span></div>
+        </div>
+<div class="sbody">
+<div class="left">
+<h4>원본 구간</h4>
+<div class="clip"><code>c01_06</code> <span class="dim">6.50s – 35.00s · 28.5초</span> </div>
+<div class="speech">스탠스, 피니시, 골반 회전, 스탠스, 타점</div>
+<div class="clip"><code>c01_07</code> <span class="dim">8.00s – 29.10s · 21.1초</span> </div>
+<div class="speech"><span class="dim">(무발화)</span></div>
+<div class="clip"><code>c01_05</code> <span class="dim">0.00s – 28.40s · 28.4초</span> </div>
+<div class="speech"><span class="dim">(무발화)</span></div>
+<div class="note">소스 순서가 유닛턴 → 골반 → 피니시. 상단 체크리스트 하이라이트 ①②③ 이동과 일치한다</div>
+<div class="trans">전환 &nbsp; out <code>fade</code> 1.0s</div>
+</div>
+<div class="right">
+<div class="comp">
+      <div class="frame">
+        <div class="figure" style="left:50%;top:28%;height:62%"></div>
+        <div class="axis" style="left:50%"></div>
+        <div class="tag" style="left:50%">50%</div>
+      </div>
+      <div class="comp-meta">
+        <div><b>50%</b> 좌우 · <b>62%</b> 키 · <b>28%</b> 헤드룸</div>
+        <div class="dim"></div>
+        <div class="ns">여백 → 상단 25% 가로 전체 — 고정 체크리스트 바</div>
+        
+        <div class="ns">리프레임 → none — 원본 풀샷 그대로. 크롭 금지</div>
+      </div>
+    </div>
+<h4>화면 위 요소</h4><table class="ov">
+<tr><td class="off">+-1.0s<div class="dim">6:27.1</div></td><td class="kind">자막</td><td><span class="chip" style="--c:#ffffff">이미지 트레이닝</span><span class="dim"> 강조 자막 · center · large · 1.5초</span></td></tr>
+<tr><td class="off">+0.0s<div class="dim">6:28.1</div></td><td class="kind">자막</td><td><span class="chip" style="--c:#ffffff">오늘 배운 세 가지를 집중해서 보세요<br>1. 유닛턴   2. 골반   3. 피니시 공간</span><span class="dim"> 고정 라벨 · top_center · medium · 78.0초</span></td></tr>
+<tr><td class="off">+0.0s<div class="dim">6:28.1</div></td><td class="kind">그래픽</td><td><span class="chip" style="--c:#ff5c5c">circle</span><span class="dim"> → 체크리스트 1. 유닛턴 · 상단 바 1번 · 28.5초</span></td></tr>
+<tr><td class="off">+28.5s<div class="dim">6:56.6</div></td><td class="kind">그래픽</td><td><span class="chip" style="--c:#ff5c5c">circle</span><span class="dim"> → 체크리스트 2. 골반 · 상단 바 2번 · 21.1초</span></td></tr>
+<tr><td class="off">+49.6s<div class="dim">7:17.7</div></td><td class="kind">그래픽</td><td><span class="chip" style="--c:#ff5c5c">circle</span><span class="dim"> → 체크리스트 3. 피니시 공간 · 상단 바 3번 · 28.4초</span></td></tr>
+</table>
+</div></div></section>
+<h2>BGM</h2><table class="flat"><tr><th>구간</th><th>성격</th><th>레벨</th></tr>
+<tr><td><code>sc02 → sc04</code></td><td>차분하고 경쾌한 로우파이 비트</td><td>-24dB</td></tr>
+<tr><td><code>sc05 → sc07b</code></td><td>경쾌한 인스트루멘탈</td><td>-24dB</td></tr>
+<tr><td><code>sc09 → sc10</code></td><td>경쾌한 비트 유지</td><td>-24dB</td></tr>
+<tr><td><code>sc11</code></td><td>마무리 분위기</td><td>-24dB</td></tr>
+<tr><td><code>sc12</code></td><td>리드미컬한 엔딩 비트</td><td>-20dB</td></tr>
+</table>
+<h2>필요한 에셋</h2><table class="flat"><tr><th>ID</th><th>종류</th><th>상태</th><th>설명</th></tr>
+<tr><td><code>as_card1</code></td><td>cg</td><td><span class="st-need_create">need_create</span></td><td>챕터 카드 — 검은 배경, 흰 볼드 &#x27;시선 (거리잡기)&#x27;</td></tr>
+<tr><td><code>as_card2</code></td><td>cg</td><td><span class="st-need_create">need_create</span></td><td>챕터 카드 — &#x27;골반 사용 (회전)&#x27;</td></tr>
+<tr><td><code>as_card3</code></td><td>cg</td><td><span class="st-need_create">need_create</span></td><td>챕터 카드 — &#x27;피니시 자세&#x27;</td></tr>
+<tr><td><code>as_card_summary</code></td><td>cg</td><td><span class="st-need_create">need_create</span></td><td>전환 카드 — &#x27;핵심요약!&#x27;</td></tr>
+<tr><td><code>as_card_montage</code></td><td>cg</td><td><span class="st-need_create">need_create</span></td><td>전환 카드 — &#x27;이미지 트레이닝&#x27;</td></tr>
+<tr><td><code>as_sfx_pop</code></td><td>sfx</td><td><span class="st-need_create">need_create</span></td><td>자막 등장음 pop</td></tr>
+<tr><td><code>as_sfx_beep</code></td><td>sfx</td><td><span class="st-need_create">need_create</span></td><td>번호 리스트 등장음 beep</td></tr>
+<tr><td><code>as_sfx_ding</code></td><td>sfx</td><td><span class="st-need_create">need_create</span></td><td>완성 강조음 ding</td></tr>
+<tr><td><code>as_bgm</code></td><td>bgm</td><td><span class="st-need_create">need_create</span></td><td>로우파이 비트 4종</td></tr>
+<tr><td><code>as_narration</code></td><td>voiceover</td><td><span class="st-need_record">need_record</span></td><td>인트로 훅 내레이션 13.5초. sc01 을 막고 있다</td></tr>
+<tr><td><code>as_logo</code></td><td>cg</td><td><span class="st-need_create">need_create</span></td><td>화염 이펙트 + 로고 애니메이션. sc01 을 막고 있다</td></tr>
+<tr><td><code>as_drill_footage</code></td><td>broll_footage</td><td><span class="st-need_shoot">need_shoot</span></td><td>매트 위 런지 드릴 23.5초. sc08 을 막고 있다</td></tr>
+</table>
+<h2>마감</h2><p>발화 구간 <b>-14 LUFS</b> ·
+    무발화 구간 <b>-20 LUFS</b> ·
+    블록별 개별 정규화 <b>켬</b> ·
+    디노이즈 <b>끔</b> · 출력 <code>webm</code></p>
+    <p class="dim">원본 클립 라우드니스가 −16.1 ~ −23.8 LUFS 로 흩어져 있고 무발화 시범 클립이 7.7 LU 더 낮다.
+    단일 목표값으로는 못 맞춰서 발화/무발화를 나누고 블록별로 건다.</p></body></html>
