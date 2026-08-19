@@ -7,6 +7,7 @@
 docs/
   roadmap/     사업 단계 — Phase 와 검증 조건
   product/     제품 범위 — 전체 정의서 · 현재 MVP
+    screens/   지금 만들 화면 — 제품별 목업 명세
   research/    경쟁·사례 리서치
   team/         합류한 사람이 먼저 읽는 것
   _source/     원본 docx + 변환 스크립트
@@ -19,6 +20,7 @@ docs/
 | [사업 로드맵](roadmap/business-roadmap.md) | **Phase 와 매출·투자 목표** | 대표 합의가 바뀔 때 |
 | [제품정의서 v0.1](product/product-definition-v1.md) | 최종 제품의 전체 범위와 장기 방향 | 새 기능·사업모델·확장 방향이 생길 때 |
 | [MVP 기획서 v2.0](product/mvp-plan-v1.md) | **지금 만들 것**, 담당자, 산출물, 일정 | MVP 범위·우선순위가 바뀔 때 |
+| [화면 명세](product/screens/README.md) | **목업 대상 화면 11개**와 제품별 플랫폼·Journey | 화면이 추가·삭제될 때 |
 | [더블즈테니스 사례](research/doubles-tennis-benchmark.md) | 커리큘럼 설계의 벤치마크 | 새 경쟁 사례를 분석할 때 |
 | [팀 온보딩 가이드 v1](team/onboarding-guide-v1.md) | 프로젝트의 한 문장과 첫 4주 | 팀 구성·초기 범위가 바뀔 때 |
 
@@ -109,7 +111,7 @@ MVP 기획서의 4주 일정표(§7)는 그대로 남아 있다. 기획서의 �
 ## 변환에 대해
 
 `_source/` 의 docx 가 원본이다. `.md` 는 `_source/docx2md.py` 로 변환한 것이고,
-제목·bold·번호목록·표·강조박스만 옮긴다. **원본을 고친 뒤에는 다시 변환한다.**
+제목·bold·번호목록·표·강조박스·하이퍼링크만 옮긴다. **원본을 고친 뒤에는 다시 변환한다.**
 
 ```bash
 python3 docs/_source/docx2md.py docs/_source/<파일>.docx
