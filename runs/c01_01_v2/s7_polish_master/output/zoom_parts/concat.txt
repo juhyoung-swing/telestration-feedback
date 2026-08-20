@@ -1,3 +1,0 @@
-file '/Users/swing/Desktop/repositories/ace-project/runs/c01_01_v2/s7_polish_master/output/zoom_parts/z000.mp4'
-file '/Users/swing/Desktop/repositories/ace-project/runs/c01_01_v2/s7_polish_master/output/zoom_parts/z001.mp4'
-file '/Users/swing/Desktop/repositories/ace-project/runs/c01_01_v2/s7_polish_master/output/zoom_parts/z002.mp4'

@@ -1,9 +1,21 @@
 # 영상·실행 산출물 — 용량이 크거나 재생성 가능하다
-media/          원본 영상 (경기 7개 · 레슨 원본)
-raw/            파이프라인 입력 클립
-edited/         사람 편집본 참조
-runs/           단계별 실행 산출물
-_archive/       기존 실험 폴더
+# 줄 끝에 설명을 붙이면 그 설명까지 패턴이 되어 아무것도 안 걸린다. 설명은 위에 적는다.
+
+# 원본 영상 (경기 7개 · 레슨 원본)
+ace-poc/media/
+# 파이프라인 입력 클립
+ace-poc/raw/
+# 사람 편집본 참조
+ace-poc/edited/
+# 단계별 실행 산출물
+ace-poc/runs/
+# 기존 실험 폴더
+ace-poc/_archive/
+# 경기 쪽 작업 디렉터리 — 링크와 캐시
+ace-poc/cvwork/
+# 가중치
+ace-poc/models/
+ace-poc/assets/footage/
 
 *.mp4
 *.mov
@@ -20,7 +32,7 @@ __pycache__/
 .DS_Store
 !.gitkeep
 
-# 경기 쪽 작업 디렉터리 — 링크와 캐시
-cvwork/
-models/
-assets/footage/
+# 프론트
+node_modules/
+dist/
+.vite/
