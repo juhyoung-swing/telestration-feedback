@@ -15,14 +15,20 @@ import { COURT_CORNERS } from './geometry/court';
 import { courtLineDef, fitImageLine, homographyFromLines, familiesCovered } from './geometry/lineCalib';
 import { PLAYER_COLORS, playerColor, hitTestFragment, assignFragments } from './geometry/tracking';
 import type {
-  CircleParams, CourtCalibration, DrawnLine, FeatureId, FragmentData, Fragments, Mode, Overlay,
-  PlayerAnchor, Players, RailTab, TrackingData, ZoneParams,
+  CircleParams, CourtCalibration, CutoutData, DrawnLine, FeatureId, FragmentData, Fragments, Mode, Overlay,
+  PlayerAnchor, PlayerCutouts, Players, RailTab, TrackingData, ZoneParams, ZoomParams,
 } from './types';
 
 let idCounter = 0;
 const uid = (p: string) => `${p}-${++idCounter}`;
 
 const DEFAULT_SRC = '/court.mp4';
+const FEATURE_COLORS: Record<string, string> = { marker: '#FF3B3B', text: '#FFFFFF', path: '#FF3B3B', connector: '#00E5FF' };
+const FEATURE_MODE = {
+  circle: 'placing-halo', marker: 'placing-marker', text: 'placing-text',
+  zone: 'drawing-zone', path: 'drawing-path', connector: 'drawing-connector',
+  'zoom-in': 'placing-zoom',
+} as const;
 
 export default function App() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -51,6 +57,7 @@ export default function App() {
   const [selectedOverlayId, setSelectedOverlayId] = useState<string | null>(null);
   const [circleParams, setCircleParams] = useState<CircleParams>({ radiusMeters: 0.8, color: '#E4EF3D', opacity: 0.2 });
   const [zoneParams, setZoneParams] = useState<ZoneParams>({ color: '#17335F', opacity: 0.18 });
+  const [zoomParams, setZoomParams] = useState<ZoomParams>({ scale: 2.2 });
 
   // playback
   const [playing, setPlaying] = useState(false);
@@ -60,6 +67,7 @@ export default function App() {
   // tracking (players.json auto-4, and fragments.json for user-anchored re-ID)
   const [players, setPlayers] = useState<Players | null>(null);
   const [fragments, setFragments] = useState<Fragments | null>(null);
+  const [cutouts, setCutouts] = useState<PlayerCutouts | null>(null);
   const [trackFps, setTrackFps] = useState(30);
   const [playerAnchors, setPlayerAnchors] = useState<PlayerAnchor[]>([]);
   useEffect(() => {
@@ -69,6 +77,9 @@ export default function App() {
       .catch(() => {});
     fetch('/fragments.json').then((r) => (r.ok ? r.json() : null))
       .then((d: FragmentData | null) => { if (alive && d?.tracks) setFragments(d.tracks); })
+      .catch(() => {});
+    fetch('/cutouts.json').then((r) => (r.ok ? r.json() : null))
+      .then((d: CutoutData | null) => { if (alive && d?.players) setCutouts(d.players); })
       .catch(() => {});
     return () => { alive = false; };
   }, []);
@@ -182,32 +193,28 @@ export default function App() {
   }, [mode, draftCalib]);
 
   // ── overlay tools ──────────────────────────────────────────────────────
-  const createCircle = () => {
+  // Enter/exit a feature's placement or drawing mode.
+  const startFeature = (id: FeatureId) => {
     if (!calibration) return;
-    setMode((m) => (m === 'placing-halo' ? 'idle' : 'placing-halo'));
+    const target = FEATURE_MODE[id as keyof typeof FEATURE_MODE];
+    if (!target) return;
+    setMode((m) => (m === target ? 'idle' : target));
     setDraftZone([]);
   };
-  const createZone = () => {
-    if (!calibration) return;
-    setMode((m) => (m === 'drawing-zone' ? 'idle' : 'drawing-zone'));
-    setDraftZone([]);
-  };
-  const finishZone = () => {
-    if (draftZone.length >= 3) {
-      const pts = draftZone;
-      const end = dur > 0 ? dur : 9999;
-      setOverlays((o) => {
-        const name = `Zone ${o.filter((x) => x.type === 'coverage-zone').length + 1}`;
-        return [...o, { id: uid('zone'), type: 'coverage-zone', name, visible: true, startTime: 0, endTime: end, points: pts, color: zoneParams.color, opacity: zoneParams.opacity }];
-      });
+  const nextName = (o: Overlay[], t: Overlay['type'], label: string) => `${label} ${o.filter((x) => x.type === t).length + 1}`;
+  // Finish a multi-point drawing (Zone ≥3 closed / Path ≥2 arrow).
+  const finishDraft = () => {
+    const pts = draftZone;
+    const end = dur > 0 ? dur : 9999;
+    if (mode === 'drawing-zone' && pts.length >= 3) {
+      setOverlays((o) => [...o, { id: uid('zone'), type: 'coverage-zone', name: nextName(o, 'coverage-zone', 'Zone'), visible: true, startTime: 0, endTime: end, points: pts, color: zoneParams.color, opacity: zoneParams.opacity }]);
+    } else if (mode === 'drawing-path' && pts.length >= 2) {
+      setOverlays((o) => [...o, { id: uid('path'), type: 'path', name: nextName(o, 'path', 'Path'), visible: true, startTime: 0, endTime: end, points: pts, color: FEATURE_COLORS.path }]);
     }
     setDraftZone([]);
     setMode('idle');
   };
-  const cancelZone = () => {
-    setDraftZone([]);
-    setMode('idle');
-  };
+  const cancelDraft = () => { setDraftZone([]); setMode('idle'); };
 
   // Toggle a Circle bound to a tracked player. Its court position is derived
   // per-frame (foot → H⁻¹ → court); span = the player's tracked span; each player
@@ -230,6 +237,39 @@ export default function App() {
   };
   const followedIds = new Set(
     overlays.filter((o) => o.type === 'ground-halo' && o.trackId).map((o) => (o as { trackId?: string }).trackId!),
+  );
+
+  // Toggle a person cutout (silhouette outline) bound to a tracked player.
+  const toggleCutout = (playerId: string) => {
+    if (!players) return;
+    const existing = overlays.find((o) => o.type === 'cutout' && o.trackId === playerId);
+    if (existing) { removeOverlay(existing.id); return; }
+    const pts = players[playerId];
+    if (!pts || pts.length === 0) return;
+    const t0 = pts[0].t, t1 = pts[pts.length - 1].t;
+    setOverlays((o) => [...o, {
+      id: uid('cut'), type: 'cutout', name: `Cutout ${playerId}`, visible: true,
+      startTime: t0, endTime: t1, trackId: playerId, color: playerColor(playerId),
+    }]);
+    if (cur < t0 || cur > t1) seek(t0);
+  };
+  const cutoutIds = new Set(
+    overlays.filter((o) => o.type === 'cutout').map((o) => (o as { trackId: string }).trackId),
+  );
+
+  // Toggle a spotlight (dim frame + light up player) bound to a tracked player.
+  const toggleSpotlight = (playerId: string) => {
+    if (!players) return;
+    const existing = overlays.find((o) => o.type === 'spotlight' && o.trackId === playerId);
+    if (existing) { removeOverlay(existing.id); return; }
+    const pts = players[playerId];
+    if (!pts || pts.length === 0) return;
+    const t0 = pts[0].t, t1 = pts[pts.length - 1].t;
+    setOverlays((o) => [...o, { id: uid('spot'), type: 'spotlight', name: `Spotlight ${playerId}`, visible: true, startTime: t0, endTime: t1, trackId: playerId }]);
+    if (cur < t0 || cur > t1) seek(t0);
+  };
+  const spotlightIds = new Set(
+    overlays.filter((o) => o.type === 'spotlight').map((o) => (o as { trackId: string }).trackId),
   );
 
   // ── player calibration (user-anchored re-ID) ────────────────────────────
@@ -270,14 +310,28 @@ export default function App() {
     }
     if (!calibration) return;
     const court = unprojectToCourt(calibration.inverseHomography, videoPt.x, videoPt.y);
+    const cxy = { courtX: court.x, courtY: court.y };
+    const end = dur > 0 ? dur : 9999;
     if (mode === 'placing-halo') {
-      const end = dur > 0 ? dur : 9999;
-      setOverlays((o) => {
-        const name = `Circle ${o.filter((x) => x.type === 'ground-halo').length + 1}`;
-        return [...o, { id: uid('halo'), type: 'ground-halo', name, visible: true, startTime: 0, endTime: end, courtX: court.x, courtY: court.y, radiusMeters: circleParams.radiusMeters, color: circleParams.color, opacity: circleParams.opacity }];
-      });
-    } else if (mode === 'drawing-zone') {
-      setDraftZone((z) => [...z, { courtX: court.x, courtY: court.y }]);
+      setOverlays((o) => [...o, { id: uid('halo'), type: 'ground-halo', name: nextName(o, 'ground-halo', 'Circle'), visible: true, startTime: 0, endTime: end, courtX: court.x, courtY: court.y, radiusMeters: circleParams.radiusMeters, color: circleParams.color, opacity: circleParams.opacity }]);
+    } else if (mode === 'placing-marker') {
+      setOverlays((o) => [...o, { id: uid('marker'), type: 'marker', name: nextName(o, 'marker', 'Marker'), visible: true, startTime: 0, endTime: end, ...cxy, color: FEATURE_COLORS.marker }]);
+    } else if (mode === 'placing-text') {
+      const text = window.prompt('텍스트 입력', '텍스트');
+      if (text) setOverlays((o) => [...o, { id: uid('text'), type: 'text', name: nextName(o, 'text', 'Text'), visible: true, startTime: 0, endTime: end, ...cxy, text, color: FEATURE_COLORS.text }]);
+    } else if (mode === 'placing-zoom') {
+      setOverlays((o) => [...o, { id: uid('zoom'), type: 'zoom-in', name: nextName(o, 'zoom-in', 'Zoom'), visible: true, startTime: 0, endTime: end, ...cxy, scale: zoomParams.scale }]);
+    } else if (mode === 'drawing-zone' || mode === 'drawing-path') {
+      setDraftZone((z) => [...z, cxy]);
+    } else if (mode === 'drawing-connector') {
+      if (draftZone.length >= 1) {
+        const p0 = draftZone[0];
+        setOverlays((o) => [...o, { id: uid('conn'), type: 'connector', name: nextName(o, 'connector', 'Connector'), visible: true, startTime: 0, endTime: end, points: [p0, cxy], color: FEATURE_COLORS.connector }]);
+        setDraftZone([]);
+        setMode('idle');
+      } else {
+        setDraftZone([cxy]);
+      }
     }
   };
 
@@ -291,10 +345,12 @@ export default function App() {
     setOverlays((o) => {
       const src = o.find((x) => x.id === id);
       if (!src) return o;
-      if (src.type === 'ground-halo') {
-        return [...o, { ...src, id: uid('halo'), name: `${src.name} copy`, courtX: src.courtX + 0.6, courtY: src.courtY + 0.6 }];
+      const name = `${src.name} copy`, newId = uid('dup');
+      if (src.type === 'ground-halo' || src.type === 'marker' || src.type === 'text' || src.type === 'zoom-in') {
+        return [...o, { ...src, id: newId, name, courtX: src.courtX + 0.6, courtY: src.courtY + 0.6 }];
       }
-      return [...o, { ...src, id: uid('zone'), name: `${src.name} copy`, points: src.points.map((p) => ({ courtX: p.courtX + 0.6, courtY: p.courtY + 0.6 })) }];
+      if (src.type === 'cutout' || src.type === 'spotlight') return [...o, { ...src, id: newId, name }];
+      return [...o, { ...src, id: newId, name, points: src.points.map((p) => ({ courtX: p.courtX + 0.6, courtY: p.courtY + 0.6 })) }];
     });
   };
   const undo = () => setOverlays((o) => o.slice(0, -1));
@@ -342,7 +398,7 @@ export default function App() {
         setDrawnLines([]);
         setActiveLineId(null);
         setPlayerAnchors([]);
-      } else if (e.key === 'Enter' && mode === 'drawing-zone') finishZone();
+      } else if (e.key === 'Enter' && (mode === 'drawing-zone' || mode === 'drawing-path')) finishDraft();
       else if (e.key === 'Enter' && mode === 'line-calibrating') finishLineCalibration();
     };
     window.addEventListener('keydown', onKey);
@@ -391,6 +447,11 @@ export default function App() {
             players={players}
             onFollow={followPlayer}
             followedIds={followedIds}
+            onToggleCutout={toggleCutout}
+            cutoutIds={cutoutIds}
+            hasCutouts={!!cutouts}
+            onToggleSpotlight={toggleSpotlight}
+            spotlightIds={spotlightIds}
             colors={PLAYER_COLORS}
             mode={mode}
             hasFragments={!!fragments}
@@ -406,16 +467,16 @@ export default function App() {
             selected={selectedFeature}
             onSelect={setSelectedFeature}
             mode={mode}
-            draftZoneCount={draftZone.length}
+            draftCount={draftZone.length}
             circleParams={circleParams}
             setCircleParams={setCircleParams}
             zoneParams={zoneParams}
             setZoneParams={setZoneParams}
-            onCreateCircle={createCircle}
-            onCancelCircle={() => setMode('idle')}
-            onCreateZone={createZone}
-            onFinishZone={finishZone}
-            onCancelZone={cancelZone}
+            zoomParams={zoomParams}
+            setZoomParams={setZoomParams}
+            onCreate={startFeature}
+            onFinishDraft={finishDraft}
+            onCancelDraft={cancelDraft}
           />
         )}
         {activeTab === 'narrative' && <NarrativePanel />}
@@ -439,6 +500,7 @@ export default function App() {
           showGrid={showGrid}
           currentTime={cur}
           players={players}
+          cutouts={cutouts}
           fragments={fragments}
           playerAnchors={playerAnchors}
           fps={trackFps}

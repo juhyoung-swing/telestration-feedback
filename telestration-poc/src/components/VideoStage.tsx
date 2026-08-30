@@ -1,19 +1,25 @@
 import { useState } from 'react';
-import type { RefObject } from 'react';
-import { Stage, Layer } from 'react-konva';
+import type { CSSProperties, RefObject } from 'react';
+import { Stage, Layer, Circle } from 'react-konva';
 import { useElementSize } from '../hooks/useElementSize';
 import { projectCourtPoint, unprojectToCourt } from '../geometry/homography';
 import type { Pt } from '../geometry/homography';
 import { videoToDisplay, displayToVideo } from '../geometry/coords';
 import type { ViewTransform } from '../geometry/coords';
-import { footAt } from '../geometry/tracking';
+import { footAt, polyAt } from '../geometry/tracking';
 import { CourtGrid } from './overlays/CourtGrid';
 import { GroundHalo } from './overlays/GroundHalo';
 import { CoverageZone } from './overlays/CoverageZone';
+import { Marker } from './overlays/Marker';
+import { TextLabel } from './overlays/TextLabel';
+import { PathArrow } from './overlays/PathArrow';
+import { Connector } from './overlays/Connector';
+import { PersonCutout } from './overlays/PersonCutout';
+import { SpotlightDim } from './overlays/SpotlightDim';
 import { CalibrationPoints } from './overlays/CalibrationPoints';
 import { CalibLines } from './overlays/CalibLines';
 import { CalibBoxes } from './overlays/CalibBoxes';
-import type { CourtCalibration, Overlay, Mode, DrawnLine, Players, Fragments, PlayerAnchor } from '../types';
+import type { CourtCalibration, Overlay, Mode, DrawnLine, Players, Fragments, PlayerAnchor, PlayerCutouts, Spotlight, ZoomIn } from '../types';
 
 type Props = {
   src: string;
@@ -24,6 +30,7 @@ type Props = {
   showGrid: boolean;
   currentTime: number; // seconds — overlays render only within their [start,end]
   players: Players | null; // tracked player trajectories (foot points in video px)
+  cutouts: PlayerCutouts | null; // per-player silhouette polygons (video px)
   fragments: Fragments | null; // raw fragments (for player-calibration hit-testing)
   playerAnchors: PlayerAnchor[]; // clicked player anchors during player-calibration
   fps: number;
@@ -45,6 +52,7 @@ export function VideoStage({
   showGrid,
   currentTime,
   players,
+  cutouts,
   fragments,
   playerAnchors,
   fps,
@@ -80,13 +88,44 @@ export function VideoStage({
 
   const aspect = dims ? `${dims.w} / ${dims.h}` : '16 / 9';
 
+  // ── Zoom In ──────────────────────────────────────────────────────────────
+  // While an active zoom's window contains currentTime (and we're not mid-edit),
+  // punch-in the whole composited view (video + overlays together) about the zoom's
+  // court point — or a tracked player's foot. Suppressed during interactive modes so
+  // authoring stays full-frame and click→court mapping stays 1:1.
+  const activeZoom: ZoomIn | null =
+    mode === 'idle' && calibration && view
+      ? [...overlays].reverse().find(
+          (o): o is ZoomIn => o.type === 'zoom-in' && o.visible && currentTime >= o.startTime && currentTime <= o.endTime,
+        ) ?? null
+      : null;
+
+  let zoomStyle: CSSProperties = { position: 'absolute', inset: 0, transformOrigin: '0 0', transition: 'transform 0.35s ease' };
+  if (activeZoom && view && calibration) {
+    let zx = activeZoom.courtX, zy = activeZoom.courtY;
+    if (activeZoom.trackId && players) {
+      const foot = footAt(players[activeZoom.trackId] ?? [], currentTime);
+      if (foot) { const c = unprojectToCourt(calibration.inverseHomography, foot[0], foot[1]); zx = c.x; zy = c.y; }
+    }
+    const sc = project(zx, zy);
+    const cy = activeZoom.trackId ? sc.y - size.height * 0.12 : sc.y; // frame the torso, not the feet
+    const s = activeZoom.scale;
+    const W = size.width, H = size.height;
+    const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
+    const tx = clamp(W / 2 - s * sc.x, W - s * W, 0); // keep scaled content covering the viewport (no gaps)
+    const ty = clamp(H / 2 - s * cy, H - s * H, 0);
+    zoomStyle = { ...zoomStyle, transform: `translate(${tx}px, ${ty}px) scale(${s})` };
+  }
+  const zoomActive = !!activeZoom;
+
   return (
     <div className="video-stage" ref={boxRef} style={{ aspectRatio: aspect }}>
+      <div className="zoom-content" style={zoomStyle}>
       <video
         ref={videoRef}
         className="video-el"
         src={src}
-        controls
+        controls={!zoomActive}
         playsInline
         onLoadedMetadata={(e) => {
           const v = e.currentTarget;
@@ -106,31 +145,64 @@ export function VideoStage({
         >
           <Stage width={size.width} height={size.height}>
             <Layer listening={false}>
+              {/* spotlight: dim the frame + reveal players (must be first so it only dims the video) */}
+              {calibration && (() => {
+                const spots = overlays.filter((s): s is Spotlight => s.type === 'spotlight' && s.visible && currentTime >= s.startTime && currentTime <= s.endTime);
+                return spots.length > 0 ? (
+                  <SpotlightDim spotlights={spots} players={players} inverseH={calibration.inverseHomography} currentTime={currentTime} project={project} width={size.width} height={size.height} />
+                ) : null;
+              })()}
+
               {calibration && showGrid && <CourtGrid project={project} />}
 
               {calibration &&
                 overlays
                   .filter((o) => o.visible && currentTime >= o.startTime && currentTime <= o.endTime)
                   .map((o) => {
-                    if (o.type === 'coverage-zone') {
-                      return <CoverageZone key={o.id} points={o.points} project={project} color={o.color} opacity={o.opacity} />;
+                    switch (o.type) {
+                      case 'coverage-zone':
+                        return <CoverageZone key={o.id} points={o.points} project={project} color={o.color} opacity={o.opacity} />;
+                      case 'marker':
+                        return <Marker key={o.id} courtX={o.courtX} courtY={o.courtY} project={project} color={o.color} />;
+                      case 'text':
+                        return <TextLabel key={o.id} courtX={o.courtX} courtY={o.courtY} text={o.text} project={project} color={o.color} />;
+                      case 'path':
+                        return <PathArrow key={o.id} points={o.points} project={project} color={o.color} />;
+                      case 'connector':
+                        return <Connector key={o.id} points={o.points} project={project} color={o.color} />;
+                      case 'spotlight':
+                        return null; // rendered by SpotlightDim above
+                      case 'zoom-in':
+                        return null; // applied as a CSS transform on the whole stage
+                      case 'cutout': {
+                        if (!cutouts) return null;
+                        const poly = polyAt(cutouts[o.trackId] ?? [], Math.round(currentTime * fps));
+                        if (!poly) return null;
+                        return <PersonCutout key={o.id} poly={poly} toDisplay={vToD} color={o.color} />;
+                      }
+                      case 'ground-halo': {
+                        // a tracked halo derives its court position from the player's
+                        // foot at the current time (foot → H⁻¹ → court meters).
+                        let cx = o.courtX, cy = o.courtY;
+                        if (o.trackId && players) {
+                          const foot = footAt(players[o.trackId] ?? [], currentTime);
+                          if (!foot) return null;
+                          const c = unprojectToCourt(calibration.inverseHomography, foot[0], foot[1]);
+                          cx = c.x; cy = c.y;
+                        }
+                        return <GroundHalo key={o.id} courtX={cx} courtY={cy} radiusMeters={o.radiusMeters} project={project} color={o.color} opacity={o.opacity} />;
+                      }
                     }
-                    // ground-halo: a tracked halo derives its court position from the
-                    // player's foot at the current time (foot → H⁻¹ → court meters).
-                    let cx = o.courtX, cy = o.courtY;
-                    if (o.trackId && players) {
-                      const foot = footAt(players[o.trackId] ?? [], currentTime);
-                      if (!foot) return null; // player not present at this instant
-                      const c = unprojectToCourt(calibration.inverseHomography, foot[0], foot[1]);
-                      cx = c.x; cy = c.y;
-                    }
-                    return (
-                      <GroundHalo key={o.id} courtX={cx} courtY={cy} radiusMeters={o.radiusMeters} project={project} color={o.color} opacity={o.opacity} />
-                    );
                   })}
 
-              {calibration && mode === 'drawing-zone' && draftZone.length > 0 && (
-                <CoverageZone points={draftZone} project={project} closed={draftZone.length >= 3} />
+              {/* draft preview for zone / path / connector */}
+              {calibration && (mode === 'drawing-zone' || mode === 'drawing-path' || mode === 'drawing-connector') && draftZone.length > 0 && (
+                <>
+                  {mode === 'drawing-zone' && <CoverageZone points={draftZone} project={project} closed={draftZone.length >= 3} />}
+                  {mode === 'drawing-path' && <PathArrow points={draftZone} project={project} arrow={false} color="#FF3B3B" />}
+                  {mode === 'drawing-connector' && <Connector points={draftZone} project={project} />}
+                  {draftZone.map((p, i) => { const d = project(p.courtX, p.courtY); return <Circle key={i} x={d.x} y={d.y} radius={4} fill="#fff" stroke="#000" strokeWidth={1} listening={false} />; })}
+                </>
               )}
 
               {/* player-calibration: detected boxes to click + anchored labels */}
@@ -160,6 +232,7 @@ export function VideoStage({
           </Stage>
         </div>
       )}
+      </div>
     </div>
   );
 }

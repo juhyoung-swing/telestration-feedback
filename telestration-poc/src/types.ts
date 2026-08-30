@@ -2,7 +2,11 @@ import type { Pt, Mat3 } from './geometry/homography';
 
 export type { Pt };
 
-export type Mode = 'idle' | 'calibrating' | 'line-calibrating' | 'placing-halo' | 'drawing-zone' | 'player-calibrating';
+export type Mode =
+  | 'idle' | 'calibrating' | 'line-calibrating' | 'player-calibrating'
+  | 'placing-halo' | 'drawing-zone'
+  | 'placing-marker' | 'placing-text' | 'drawing-path' | 'drawing-connector'
+  | 'placing-zoom';
 
 /** One court line drawn during line-calibration: which line + the clicked points (video px). */
 export type DrawnLine = { id: string; points: Pt[] };
@@ -59,14 +63,57 @@ export type CoverageZone = TimeSpan & {
   opacity?: number;
 };
 
-export type Overlay = GroundHalo | CoverageZone;
+// A point on the court (Marker) / a labeled point (Text).
+export type Marker = TimeSpan & {
+  id: string; type: 'marker'; name: string; visible: boolean;
+  courtX: number; courtY: number; color?: string;
+};
+export type TextLabel = TimeSpan & {
+  id: string; type: 'text'; name: string; visible: boolean;
+  courtX: number; courtY: number; text: string; color?: string;
+};
+// A polyline on the court: Path (arrow at the end) / Connector (line between points).
+export type PathArrow = TimeSpan & {
+  id: string; type: 'path'; name: string; visible: boolean;
+  points: { courtX: number; courtY: number }[]; color?: string;
+};
+export type Connector = TimeSpan & {
+  id: string; type: 'connector'; name: string; visible: boolean;
+  points: { courtX: number; courtY: number }[]; color?: string;
+};
+
+// A person cutout: the outline follows a tracked player's per-frame silhouette.
+export type Cutout = TimeSpan & {
+  id: string; type: 'cutout'; name: string; visible: boolean;
+  trackId: string; color?: string;
+};
+// Spotlight: dim the whole frame, reveal (light up) the tracked player.
+export type Spotlight = TimeSpan & {
+  id: string; type: 'spotlight'; name: string; visible: boolean;
+  trackId: string;
+};
+// Zoom In: while active, punch-in (magnify) the whole composited view about a court
+// point (or a tracked player's foot). The video + overlays scale together, so the
+// telestration stays glued to the court. `scale` = magnification factor (>1).
+export type ZoomIn = TimeSpan & {
+  id: string; type: 'zoom-in'; name: string; visible: boolean;
+  courtX: number; courtY: number; scale: number; trackId?: string;
+};
+
+export type Overlay = GroundHalo | CoverageZone | Marker | TextLabel | PathArrow | Connector | Cutout | Spotlight | ZoomIn;
+
+// Per-player silhouette polygons (video px), from scripts/seg_players.py.
+export type CutoutSample = { f: number; poly: [number, number][] };
+export type PlayerCutouts = Record<string, CutoutSample[]>;
+export type CutoutData = { video: string; fps: number; width: number; height: number; step: number; players: PlayerCutouts };
 
 // ── UI (SportsBuddy-style shell) ────────────────────────────────────────────
 export type RailTab = 'media' | 'court' | 'player' | 'highlight' | 'narrative';
 
 // SportsBuddy feature set. `circle` and `zone` are wired to our real geometry;
 // the rest are UI-present but placement is not implemented yet (v1 shell).
-export type FeatureId = 'circle' | 'spotlight' | 'connector' | 'path' | 'zone' | 'marker' | 'zoom-in';
+export type FeatureId = 'circle' | 'spotlight' | 'connector' | 'path' | 'zone' | 'marker' | 'text' | 'zoom-in';
 
 export type CircleParams = { radiusMeters: number; color: string; opacity: number };
 export type ZoneParams = { color: string; opacity: number };
+export type ZoomParams = { scale: number };

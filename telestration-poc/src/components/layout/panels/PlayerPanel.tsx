@@ -7,6 +7,11 @@ export function PlayerPanel({
   players,
   onFollow,
   followedIds,
+  onToggleCutout,
+  cutoutIds,
+  hasCutouts,
+  onToggleSpotlight,
+  spotlightIds,
   colors,
   mode,
   hasFragments,
@@ -19,6 +24,11 @@ export function PlayerPanel({
   players: Players | null;
   onFollow: (id: string) => void;
   followedIds: Set<string>;
+  onToggleCutout: (id: string) => void;
+  cutoutIds: Set<string>;
+  hasCutouts: boolean;
+  onToggleSpotlight: (id: string) => void;
+  spotlightIds: Set<string>;
   colors: string[];
   mode: Mode;
   hasFragments: boolean;
@@ -59,19 +69,21 @@ export function PlayerPanel({
       {!players && <div className="soon-note">트래킹 데이터(players.json)를 불러오지 못했습니다.</div>}
       {players && (
         <>
-          <div className="status-pill ok">선수 {list.length}명 · Circle 켜기/끄기</div>
+          <div className="status-pill ok">선수 {list.length}명 · 원 / 컷 / 스팟 토글</div>
           <div className="player-list">
             {list.map((p) => {
               const on = followedIds.has(p.id);
+              const cutOn = cutoutIds.has(p.id);
+              const spotOn = spotlightIds.has(p.id);
               const color = colors[(Number(p.id) - 1) % colors.length];
               return (
-                <div key={p.id} className={`player-row ${on ? 'on' : ''}`}>
+                <div key={p.id} className={`player-row ${on || cutOn || spotOn ? 'on' : ''}`}>
                   <span className="player-dot" style={{ background: color }} />
                   <span className="player-tag">P{p.id}</span>
                   <span className="player-span">{posLabel(p.medY)} <span className="muted">· {p.t0.toFixed(0)}–{p.t1.toFixed(0)}s</span></span>
-                  <button className={on ? 'btn sm' : 'btn primary sm'} onClick={() => onFollow(p.id)} disabled={!hasCalibration}>
-                    {on ? '해제' : '＋ Circle'}
-                  </button>
+                  <button className={on ? 'btn sm active' : 'btn sm'} onClick={() => onFollow(p.id)} disabled={!hasCalibration} title="바닥 원(Circle)">원</button>
+                  <button className={cutOn ? 'btn sm active' : 'btn sm'} onClick={() => onToggleCutout(p.id)} disabled={!hasCutouts} title="사람 컷아웃">컷</button>
+                  <button className={spotOn ? 'btn sm active' : 'btn sm'} onClick={() => onToggleSpotlight(p.id)} disabled={!hasCalibration} title="스팟라이트(배경 어둡게)">스팟</button>
                 </div>
               );
             })}

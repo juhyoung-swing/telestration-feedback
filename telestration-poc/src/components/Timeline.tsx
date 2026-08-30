@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Overlay } from '../types';
 
-const ICON: Record<Overlay['type'], string> = { 'ground-halo': '◎', 'coverage-zone': '▰' };
+const ICON: Record<Overlay['type'], string> = {
+  'ground-halo': '◎', 'coverage-zone': '▰', marker: '📍', text: '🅣', path: '↝', connector: '🔗', cutout: '🧍', spotlight: '🔦', 'zoom-in': '🔍',
+};
 const MIN_LEN = 0.2; // seconds
 
 const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));

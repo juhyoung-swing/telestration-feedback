@@ -1,4 +1,17 @@
-import type { FootSample, Fragments, Players } from '../types';
+import type { CutoutSample, FootSample, Fragments, Players } from '../types';
+
+/** Nearest silhouette polygon to a video frame (no interpolation). */
+export function polyAt(samples: CutoutSample[], frame: number, maxGap = 5): [number, number][] | null {
+  if (!samples || samples.length === 0) return null;
+  const hi = samples.length - 1;
+  if (frame <= samples[0].f) return Math.abs(samples[0].f - frame) <= maxGap ? samples[0].poly : null;
+  if (frame >= samples[hi].f) return Math.abs(samples[hi].f - frame) <= maxGap ? samples[hi].poly : null;
+  let lo = 0, h = hi;
+  while (h - lo > 1) { const m = (lo + h) >> 1; if (samples[m].f <= frame) lo = m; else h = m; }
+  const a = samples[lo], b = samples[h];
+  const near = Math.abs(a.f - frame) <= Math.abs(b.f - frame) ? a : b;
+  return Math.abs(near.f - frame) <= maxGap ? near.poly : null;
+}
 
 /** Distinct per-player colors (P1..P4 and cycling beyond). */
 export const PLAYER_COLORS = ['#E4EF3D', '#00E5FF', '#FF5FA2', '#7CFF6B'];
