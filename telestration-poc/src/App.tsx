@@ -640,6 +640,7 @@ export default function App() {
           currentTime={cur}
           hint={stageHint}
           selectedId={selectedOverlayId}
+          onSelectOverlay={setSelectedOverlayId}
           players={players}
           cutouts={cutouts}
           fragments={fragments}

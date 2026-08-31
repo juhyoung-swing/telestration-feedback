@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { CSSProperties, RefObject } from 'react';
 import { Stage, Layer, Circle } from 'react-konva';
 import { useElementSize } from '../hooks/useElementSize';
-import { projectCourtPoint, unprojectToCourt } from '../geometry/homography';
+import { projectCourtPoint, unprojectToCourt, circleInCourt } from '../geometry/homography';
 import type { Pt } from '../geometry/homography';
 import { videoToDisplay, displayToVideo } from '../geometry/coords';
 import type { ViewTransform } from '../geometry/coords';
@@ -21,6 +21,22 @@ import { CalibLines } from './overlays/CalibLines';
 import { CalibBoxes } from './overlays/CalibBoxes';
 import type { CourtCalibration, Overlay, Mode, DrawnLine, Players, Fragments, PlayerAnchor, PlayerCutouts, Spotlight, ZoomIn } from '../types';
 
+// hit-test helpers (display px)
+const pointInPoly = (px: number, py: number, poly: number[]): boolean => {
+  let inside = false;
+  for (let i = 0, j = poly.length - 2; i < poly.length; j = i, i += 2) {
+    const xi = poly[i], yi = poly[i + 1], xj = poly[j], yj = poly[j + 1];
+    if ((yi > py) !== (yj > py) && px < ((xj - xi) * (py - yi)) / (yj - yi) + xi) inside = !inside;
+  }
+  return inside;
+};
+const distToSeg = (px: number, py: number, ax: number, ay: number, bx: number, by: number): number => {
+  const dx = bx - ax, dy = by - ay, l2 = dx * dx + dy * dy;
+  let t = l2 ? ((px - ax) * dx + (py - ay) * dy) / l2 : 0;
+  t = Math.max(0, Math.min(1, t));
+  return Math.hypot(px - (ax + t * dx), py - (ay + t * dy));
+};
+
 type Props = {
   src: string;
   videoRef: RefObject<HTMLVideoElement>;
@@ -31,6 +47,7 @@ type Props = {
   currentTime: number; // seconds — overlays render only within their [start,end]
   hint: string | null; // on-canvas guidance for the active placement/drawing mode
   selectedId: string | null; // timeline-selected overlay → highlighted on the canvas
+  onSelectOverlay: (id: string | null) => void; // click an overlay on the canvas → select it
   players: Players | null; // tracked player trajectories (foot points in video px)
   cutouts: PlayerCutouts | null; // per-player silhouette polygons (video px)
   fragments: Fragments | null; // raw fragments (for player-calibration hit-testing)
@@ -57,6 +74,7 @@ export function VideoStage({
   currentTime,
   hint,
   selectedId,
+  onSelectOverlay,
   players,
   cutouts,
   fragments,
@@ -74,6 +92,8 @@ export function VideoStage({
 }: Props) {
   const { ref: boxRef, size } = useElementSize<HTMLDivElement>();
   const [dims, setDims] = useState<{ w: number; h: number } | null>(null);
+  const overlayRef = useRef<HTMLDivElement>(null); // konva-overlay div (stage container)
+  const clickRef = useRef<{ fn: (pos: Pt) => string | null; mode: Mode; onSelect: (id: string | null) => void; w: number; h: number } | null>(null);
 
   const interactive = mode !== 'idle';
 
@@ -150,6 +170,84 @@ export function VideoStage({
     }
   })();
 
+  // ── click an overlay on the canvas → select it (idle only) ────────────────
+  // Geometric hit-test in display px (topmost overlay wins). Spotlight/Zoom have no
+  // discrete shape → not selectable.
+  const hitTest = (pos: Pt): string | null => {
+    if (!calibration || !view) return null;
+    const near = (a: Pt, r: number) => Math.hypot(pos.x - a.x, pos.y - a.y) < r;
+    const visible = overlays.filter((o) => o.visible && currentTime >= o.startTime && currentTime <= o.endTime);
+    for (let k = visible.length - 1; k >= 0; k--) {
+      const o = visible[k];
+      switch (o.type) {
+        case 'marker': case 'text': if (near(project(o.courtX, o.courtY), 22)) return o.id; break;
+        case 'ground-halo': {
+          let cx = o.courtX, cy = o.courtY;
+          if (o.trackId && players) {
+            const foot = footAt(players[o.trackId] ?? [], currentTime);
+            if (!foot) break;
+            const c = unprojectToCourt(calibration.inverseHomography, foot[0], foot[1]);
+            cx = c.x; cy = c.y;
+          }
+          const poly = circleInCourt(cx, cy, o.radiusMeters, 24).flatMap((p) => { const d = project(p.x, p.y); return [d.x, d.y]; });
+          if (pointInPoly(pos.x, pos.y, poly) || near(project(cx, cy), 22)) return o.id;
+          break;
+        }
+        case 'coverage-zone': {
+          const poly = o.points.flatMap((p) => { const d = project(p.courtX, p.courtY); return [d.x, d.y]; });
+          if (pointInPoly(pos.x, pos.y, poly)) return o.id;
+          break;
+        }
+        case 'connector': {
+          const a = project(o.points[0].courtX, o.points[0].courtY), b = project(o.points[1].courtX, o.points[1].courtY);
+          if (distToSeg(pos.x, pos.y, a.x, a.y, b.x, b.y) < 12) return o.id;
+          break;
+        }
+        case 'path': {
+          const a = toDisplaySpace(o.space, o.points[0].x, o.points[0].y);
+          const b = toDisplaySpace(o.space, o.points[1].x, o.points[1].y);
+          let pts: Pt[] = [a, b];
+          if (o.shape === 'arc' && Math.abs(o.height) > 0.001) {
+            const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2, chord = Math.hypot(b.x - a.x, b.y - a.y), cy = my - chord * o.height;
+            pts = []; for (let i = 0; i <= 16; i++) { const t = i / 16, u = 1 - t; pts.push({ x: u * u * a.x + 2 * u * t * mx + t * t * b.x, y: u * u * a.y + 2 * u * t * cy + t * t * b.y }); }
+          }
+          for (let i = 0; i < pts.length - 1; i++) if (distToSeg(pos.x, pos.y, pts[i].x, pts[i].y, pts[i + 1].x, pts[i + 1].y) < 12) return o.id;
+          break;
+        }
+        case 'cutout': {
+          if (!cutouts) break;
+          const poly = polyAt(cutouts[o.trackId] ?? [], Math.round(currentTime * fps));
+          if (!poly) break;
+          const flat = poly.flatMap((p) => { const d = vToD({ x: p[0], y: p[1] }); return [d.x, d.y]; });
+          if (pointInPoly(pos.x, pos.y, flat)) return o.id;
+          break;
+        }
+      }
+    }
+    return null;
+  };
+  clickRef.current = { fn: hitTest, mode, onSelect: onSelectOverlay, w: size.width, h: size.height };
+
+  useEffect(() => {
+    const box = boxRef.current;
+    if (!box) return;
+    const onClick = (e: MouseEvent) => {
+      const s = clickRef.current;
+      const ov = overlayRef.current;
+      if (!s || s.mode !== 'idle' || !ov) return;
+      const rect = ov.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
+      const pos = { x: (e.clientX - rect.left) * (s.w / rect.width), y: (e.clientY - rect.top) * (s.h / rect.height) };
+      if (pos.x < 0 || pos.y < 0 || pos.x > s.w || pos.y > s.h) return;
+      const id = s.fn(pos);
+      if (id) { e.stopPropagation(); e.stopImmediatePropagation(); e.preventDefault(); s.onSelect(id); }
+      else s.onSelect(null); // empty → deselect (let the click reach the video)
+    };
+    box.addEventListener('click', onClick, true); // capture: intercept before the video toggles play
+    return () => box.removeEventListener('click', onClick, true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <div className="video-stage" ref={boxRef} style={{ aspectRatio: aspect }}>
       <div className="zoom-content" style={zoomStyle}>
@@ -169,6 +267,7 @@ export function VideoStage({
       {view && (
         <div
           className="konva-overlay"
+          ref={overlayRef}
           onMouseDown={handleClick}
           style={{
             pointerEvents: interactive ? 'auto' : 'none', // idle → native video controls stay usable
