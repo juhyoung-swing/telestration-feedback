@@ -35,6 +35,22 @@ const FEATURE_MODE = {
   'zoom-in': 'placing-zoom',
 } as const;
 
+// Which Effect-tab feature owns an overlay (so selecting it opens the right editor).
+function featureForOverlay(o: Overlay): FeatureId {
+  switch (o.type) {
+    case 'ground-halo': return o.trackId ? 'follow-circle' : 'circle';
+    case 'cutout': return 'cutout';
+    case 'spotlight': return 'spotlight';
+    case 'marker': return 'marker';
+    case 'text': return 'text';
+    case 'coverage-zone': return 'zone';
+    case 'path': return 'path';
+    case 'connector': return 'connector';
+    case 'zoom-in': return 'zoom-in';
+    case 'speed': return 'slowmo';
+  }
+}
+
 export default function App() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const blobUrlRef = useRef<string | null>(null);
@@ -190,6 +206,16 @@ export default function App() {
 
   // apply preview playback rate (playbackRate resets when the video reloads / remounts)
   useEffect(() => { const v = videoRef.current; if (v) v.playbackRate = speed; }, [speed, src, view]);
+
+  // Selecting an overlay (canvas or timeline) opens its editor: switch to its feature tile + Effect tab.
+  useEffect(() => {
+    if (!selectedOverlayId) return;
+    const o = overlays.find((x) => x.id === selectedOverlayId);
+    if (!o) return;
+    setSelectedFeature(featureForOverlay(o));
+    setActiveTab('effect');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedOverlayId]);
 
   // Smooth playhead + overlay time-gating while playing (timeupdate is only ~4 Hz).
   useEffect(() => {
