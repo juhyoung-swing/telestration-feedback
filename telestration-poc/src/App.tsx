@@ -22,6 +22,14 @@ import type {
 
 let idCounter = 0;
 const uid = (p: string) => `${p}-${++idCounter}`;
+// Seed the id counter above any id already present so freshly-created overlays
+// never collide with ones restored from a saved project (the counter resets on reload).
+const seedIdCounter = (overlays: { id: string }[]) => {
+  for (const o of overlays) {
+    const m = /-(\d+)$/.exec(o.id);
+    if (m) idCounter = Math.max(idCounter, Number(m[1]));
+  }
+};
 
 const DEFAULT_SRC = '/court.mp4';
 const DEFAULT_LEN = 5; // new static effects span this many seconds from the playhead
@@ -176,6 +184,7 @@ export default function App() {
       setCalibMethod(p.calibMethod);
     } else { setCalibration(null); setCalibMethod(null); }
     setOverlays(p.overlays ?? []);
+    seedIdCounter(p.overlays ?? []);
     setPast([]); setFuture([]);
     setPlayerAnchors(p.playerAnchors ?? []);
     setSelectedOverlayId(null);
@@ -398,7 +407,6 @@ export default function App() {
   const addSpeedSegment = () => {
     const id = uid('speed');
     mutate((o) => [...o, { id, type: 'speed', name: nextName(o, 'speed', 'Slow'), visible: true, ...spanAtPlayhead(), rate: slowmoRate }]);
-    setSelectedOverlayId(id);
   };
   const updateSpeed = (id: string, rate: number) =>
     setOverlays((o) => o.map((x) => (x.id === id && x.type === 'speed' ? { ...x, rate } : x)));
@@ -421,7 +429,6 @@ export default function App() {
     if (mode === 'drawing-zone' && pts.length >= 3) {
       const id = uid('zone');
       mutate((o) => [...o, { id, type: 'coverage-zone', name: nextName(o, 'coverage-zone', 'Zone'), visible: true, ...spanAtPlayhead(), points: pts, color: zoneParams.color, opacity: zoneParams.opacity }]);
-      setSelectedOverlayId(id);
     }
     setDraftZone([]);
     setMode('idle');
@@ -547,7 +554,6 @@ export default function App() {
           height: shape === 'arc' ? pathParams.height : 0, dashed: pathParams.dashed, color: pathParams.color,
         }]);
         setPathDraft(null);
-        setSelectedOverlayId(id);
         setMode('idle');
       } else {
         setPathDraft(videoPt);
@@ -560,11 +566,11 @@ export default function App() {
     if (mode === 'placing-halo') {
       const id = uid('halo');
       mutate((o) => [...o, { id, type: 'ground-halo', name: nextName(o, 'ground-halo', 'Circle'), visible: true, ...spanAtPlayhead(), courtX: court.x, courtY: court.y, radiusMeters: circleParams.radiusMeters, color: circleParams.color, opacity: circleParams.opacity }]);
-      setSelectedOverlayId(id); setMode('idle');
+      setMode('idle');
     } else if (mode === 'placing-marker') {
       const id = uid('marker');
       mutate((o) => [...o, { id, type: 'marker', name: nextName(o, 'marker', 'Marker'), visible: true, ...spanAtPlayhead(), ...cxy, color: FEATURE_COLORS.marker }]);
-      setSelectedOverlayId(id); setMode('idle');
+      setMode('idle');
     } else if (mode === 'placing-text') {
       const id = uid('text');
       const text = textDraft.trim() || '텍스트';
@@ -574,11 +580,11 @@ export default function App() {
         fontSize: textParams.fontSize, fontFamily: textParams.fontFamily, bold: textParams.bold, align: textParams.align,
         color: textParams.color, bg: textParams.bg, bgColor: textParams.bgColor, bgOpacity: textParams.bgOpacity,
       }]);
-      setSelectedOverlayId(id); setMode('idle');
+      setMode('idle');
     } else if (mode === 'placing-zoom') {
       const id = uid('zoom');
       mutate((o) => [...o, { id, type: 'zoom-in', name: nextName(o, 'zoom-in', 'Zoom'), visible: true, ...spanAtPlayhead(), ...cxy, scale: zoomParams.scale }]);
-      setSelectedOverlayId(id); setMode('idle');
+      setMode('idle');
     } else if (mode === 'drawing-zone') {
       setDraftZone((z) => [...z, cxy]);
     } else if (mode === 'drawing-connector') {
@@ -586,7 +592,7 @@ export default function App() {
         const p0 = draftZone[0];
         const id = uid('conn');
         mutate((o) => [...o, { id, type: 'connector', name: nextName(o, 'connector', 'Connector'), visible: true, ...spanAtPlayhead(), points: [p0, cxy], color: FEATURE_COLORS.connector }]);
-        setDraftZone([]); setSelectedOverlayId(id); setMode('idle');
+        setDraftZone([]); setMode('idle');
       } else {
         setDraftZone([cxy]);
       }

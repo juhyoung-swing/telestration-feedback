@@ -96,6 +96,11 @@ export function VideoStage({
   const [dims, setDims] = useState<{ w: number; h: number } | null>(null);
   const overlayRef = useRef<HTMLDivElement>(null); // konva-overlay div (stage container)
   const clickRef = useRef<{ fn: (pos: Pt) => string | null; mode: Mode; onSelect: (id: string | null) => void; w: number; h: number } | null>(null);
+  // Mode at mouse-press time. A placement click flips mode→idle inside the same
+  // click (placement runs before the capture-phase select handler), so the live
+  // mode would read 'idle' and wrongly select the just-placed overlay. Gate the
+  // click-select on the press-time mode instead.
+  const downModeRef = useRef<Mode>('idle');
 
   const interactive = mode !== 'idle';
 
@@ -235,10 +240,13 @@ export function VideoStage({
   useEffect(() => {
     const box = boxRef.current;
     if (!box) return;
+    const onDown = () => { downModeRef.current = clickRef.current?.mode ?? 'idle'; };
     const onClick = (e: MouseEvent) => {
       const s = clickRef.current;
       const ov = overlayRef.current;
-      if (!s || s.mode !== 'idle' || !ov) return;
+      // Skip when this click began in a placement/drawing mode — that click just
+      // placed an overlay (which set mode→idle); it must not also select it.
+      if (!s || s.mode !== 'idle' || downModeRef.current !== 'idle' || !ov) return;
       const rect = ov.getBoundingClientRect();
       if (!rect.width || !rect.height) return;
       const pos = { x: (e.clientX - rect.left) * (s.w / rect.width), y: (e.clientY - rect.top) * (s.h / rect.height) };
@@ -247,8 +255,9 @@ export function VideoStage({
       if (id) { e.stopPropagation(); e.stopImmediatePropagation(); e.preventDefault(); s.onSelect(id); }
       else s.onSelect(null); // empty → deselect (let the click reach the video)
     };
+    box.addEventListener('mousedown', onDown, true);
     box.addEventListener('click', onClick, true); // capture: intercept before the video toggles play
-    return () => box.removeEventListener('click', onClick, true);
+    return () => { box.removeEventListener('mousedown', onDown, true); box.removeEventListener('click', onClick, true); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
