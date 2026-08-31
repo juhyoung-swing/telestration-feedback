@@ -14,6 +14,8 @@ export function EditingToolbar({
   canDelete,
   cur,
   dur,
+  speed,
+  onSpeed,
   zoom,
   onZoom,
   snap,
@@ -31,6 +33,8 @@ export function EditingToolbar({
   canDelete: boolean;
   cur: number;
   dur: number;
+  speed: number;
+  onSpeed: (s: number) => void;
   zoom: number;
   onZoom: (z: number) => void;
   snap: boolean;
@@ -54,6 +58,14 @@ export function EditingToolbar({
       >🧲</button>
 
       <span className="time">{fmt(cur)} <span className="muted">/ {fmt(dur)}</span></span>
+
+      <select className="speed-sel" value={speed} onChange={(e) => onSpeed(Number(e.target.value))} title="재생 배속">
+        <option value={0.25}>0.25×</option>
+        <option value={0.5}>0.5×</option>
+        <option value={1}>1×</option>
+        <option value={1.5}>1.5×</option>
+        <option value={2}>2×</option>
+      </select>
 
       <div className="zoom-slider" title="타임라인 줌 (+/−)">
         <button className="zoom-btn" onClick={() => onZoom(clampZ(zoom / 1.5))} disabled={zoom <= ZMIN} title="축소 (−)">−</button>

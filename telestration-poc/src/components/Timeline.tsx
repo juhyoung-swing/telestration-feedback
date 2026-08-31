@@ -24,6 +24,7 @@ type Props = {
   videoName: string;
   zoom: number;               // 1 = fit whole clip; >1 = zoomed in
   snap: boolean;
+  speed: number;              // preview playback rate (shown on the base track)
   onBeginHistory: () => void; // called once at drag-start so a whole drag is one undo step
   onSelect: (id: string) => void;
   onSeek: (t: number) => void;
@@ -155,7 +156,7 @@ export function Timeline(p: Props) {
             <div className="tl-row">
               <div className="tl-bar base" style={{ left: 0, width: contentW }} onMouseDown={(e) => e.stopPropagation()}>
                 <span className="tl-bar-label">{p.videoName}</span>
-                <span className="tl-badge">1x</span>
+                <span className="tl-badge">{p.speed}×</span>
               </div>
             </div>
           </div>

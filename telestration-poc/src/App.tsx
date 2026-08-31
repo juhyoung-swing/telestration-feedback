@@ -83,6 +83,7 @@ export default function App() {
   const [dur, setDur] = useState(0);
   const [tlZoom, setTlZoom] = useState(1); // timeline horizontal zoom (1 = fit whole clip)
   const [snap, setSnap] = useState(true);  // snap dragged bars to playhead / edges
+  const [speed, setSpeed] = useState(1);   // preview playback rate (0.25×–2×)
 
   // tracking (players.json auto-4, and fragments.json for user-anchored re-ID)
   const [players, setPlayers] = useState<Players | null>(null);
@@ -185,6 +186,9 @@ export default function App() {
     };
     // `view` re-binds after the video element remounts on entering the editor.
   }, [src, view]);
+
+  // apply preview playback rate (playbackRate resets when the video reloads / remounts)
+  useEffect(() => { const v = videoRef.current; if (v) v.playbackRate = speed; }, [speed, src, view]);
 
   // Smooth playhead + overlay time-gating while playing (timeupdate is only ~4 Hz).
   useEffect(() => {
@@ -768,6 +772,8 @@ export default function App() {
           canDelete={!!selectedOverlayId}
           cur={cur}
           dur={dur}
+          speed={speed}
+          onSpeed={setSpeed}
           zoom={tlZoom}
           onZoom={setTlZoom}
           snap={snap}
@@ -780,6 +786,7 @@ export default function App() {
           currentTime={cur}
           selectedId={selectedOverlayId}
           videoName={videoName}
+          speed={speed}
           zoom={tlZoom}
           snap={snap}
           onBeginHistory={beginHistory}
