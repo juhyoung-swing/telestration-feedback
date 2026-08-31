@@ -156,6 +156,11 @@ body {
 .video-el { display: block; width: 100%; height: 100%; object-fit: contain; }
 .konva-overlay { position: absolute; inset: 0; }
 .zoom-content { will-change: transform; } /* Zoom In: CSS punch-in of video + overlays together */
+.stage-hint {
+  position: absolute; top: 12px; left: 50%; transform: translateX(-50%); z-index: 20; pointer-events: none;
+  background: rgba(12, 16, 22, .82); color: #fff; border: 1px solid var(--accent); border-radius: 999px;
+  padding: 6px 14px; font-size: 12px; font-weight: 600; white-space: nowrap; box-shadow: 0 4px 16px rgba(0,0,0,.4);
+}
 
 /* (b2) editing toolbar */
 .edit-toolbar { display: flex; align-items: center; gap: 8px; background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 8px 10px; }

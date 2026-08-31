@@ -29,6 +29,8 @@ type Props = {
   mode: Mode;
   showGrid: boolean;
   currentTime: number; // seconds — overlays render only within their [start,end]
+  hint: string | null; // on-canvas guidance for the active placement/drawing mode
+  selectedId: string | null; // timeline-selected overlay → highlighted on the canvas
   players: Players | null; // tracked player trajectories (foot points in video px)
   cutouts: PlayerCutouts | null; // per-player silhouette polygons (video px)
   fragments: Fragments | null; // raw fragments (for player-calibration hit-testing)
@@ -51,6 +53,8 @@ export function VideoStage({
   mode,
   showGrid,
   currentTime,
+  hint,
+  selectedId,
   players,
   cutouts,
   fragments,
@@ -117,6 +121,26 @@ export function VideoStage({
     zoomStyle = { ...zoomStyle, transform: `translate(${tx}px, ${ty}px) scale(${s})` };
   }
   const zoomActive = !!activeZoom;
+
+  // Selection feedback: a ring at the selected overlay's anchor (synced from the timeline).
+  const selAnchor: Pt | null = (() => {
+    if (!selectedId || !calibration || !view) return null;
+    const o = overlays.find((x) => x.id === selectedId);
+    if (!o || !o.visible || currentTime < o.startTime || currentTime > o.endTime) return null;
+    const atFoot = (id: string): Pt | null => {
+      const f = footAt(players?.[id] ?? [], currentTime);
+      if (!f) return null;
+      const c = unprojectToCourt(calibration.inverseHomography, f[0], f[1]);
+      return project(c.x, c.y);
+    };
+    switch (o.type) {
+      case 'ground-halo': return o.trackId ? atFoot(o.trackId) : project(o.courtX, o.courtY);
+      case 'marker': case 'text': case 'zoom-in': return project(o.courtX, o.courtY);
+      case 'coverage-zone': case 'path': case 'connector': return o.points[0] ? project(o.points[0].courtX, o.points[0].courtY) : null;
+      case 'cutout': case 'spotlight': return atFoot(o.trackId);
+      default: return null;
+    }
+  })();
 
   return (
     <div className="video-stage" ref={boxRef} style={{ aspectRatio: aspect }}>
@@ -195,6 +219,14 @@ export function VideoStage({
                     }
                   })}
 
+              {/* selection ring (synced from the timeline) */}
+              {selAnchor && (
+                <>
+                  <Circle x={selAnchor.x} y={selAnchor.y} radius={26} stroke="#ffffff" strokeWidth={2} dash={[6, 5]} listening={false} shadowColor="#000" shadowBlur={4} shadowOpacity={0.6} />
+                  <Circle x={selAnchor.x} y={selAnchor.y} radius={3.5} fill="#ffffff" listening={false} />
+                </>
+              )}
+
               {/* draft preview for zone / path / connector */}
               {calibration && (mode === 'drawing-zone' || mode === 'drawing-path' || mode === 'drawing-connector') && draftZone.length > 0 && (
                 <>
@@ -233,6 +265,8 @@ export function VideoStage({
         </div>
       )}
       </div>
+
+      {hint && <div className="stage-hint">{hint}</div>}
     </div>
   );
 }

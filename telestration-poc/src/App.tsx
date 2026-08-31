@@ -61,6 +61,7 @@ export default function App() {
   const [circleParams, setCircleParams] = useState<CircleParams>({ radiusMeters: 0.8, color: '#E4EF3D', opacity: 0.2 });
   const [zoneParams, setZoneParams] = useState<ZoneParams>({ color: '#17335F', opacity: 0.18 });
   const [zoomParams, setZoomParams] = useState<ZoomParams>({ scale: 2.2 });
+  const [textDraft, setTextDraft] = useState('텍스트'); // Text feature: content typed in the panel
 
   // playback
   const [playing, setPlaying] = useState(false);
@@ -338,8 +339,8 @@ export default function App() {
     } else if (mode === 'placing-marker') {
       setOverlays((o) => [...o, { id: uid('marker'), type: 'marker', name: nextName(o, 'marker', 'Marker'), visible: true, ...spanAtPlayhead(), ...cxy, color: FEATURE_COLORS.marker }]);
     } else if (mode === 'placing-text') {
-      const text = window.prompt('텍스트 입력', '텍스트');
-      if (text) setOverlays((o) => [...o, { id: uid('text'), type: 'text', name: nextName(o, 'text', 'Text'), visible: true, ...spanAtPlayhead(), ...cxy, text, color: FEATURE_COLORS.text }]);
+      const text = textDraft.trim() || '텍스트';
+      setOverlays((o) => [...o, { id: uid('text'), type: 'text', name: nextName(o, 'text', 'Text'), visible: true, ...spanAtPlayhead(), ...cxy, text, color: FEATURE_COLORS.text }]);
     } else if (mode === 'placing-zoom') {
       setOverlays((o) => [...o, { id: uid('zoom'), type: 'zoom-in', name: nextName(o, 'zoom-in', 'Zoom'), visible: true, ...spanAtPlayhead(), ...cxy, scale: zoomParams.scale }]);
     } else if (mode === 'drawing-zone' || mode === 'drawing-path') {
@@ -468,6 +469,24 @@ export default function App() {
   const lineCoverage = familiesCovered(currentLineIds);
   const canFinishLines = currentLineIds.length >= 4 && lineCoverage.ok;
 
+  // On-canvas guidance for whatever placement/drawing mode is active.
+  const stageHint: string | null = (() => {
+    const n = draftZone.length;
+    switch (mode) {
+      case 'calibrating': return `코트 네 모서리를 클릭하세요 · ${draftCalib.length}/4 · Esc 취소`;
+      case 'line-calibrating': return '코트 선을 클릭해 그리세요 · Enter 완료 · Esc 취소';
+      case 'player-calibrating': return `각 선수를 클릭해 지정 · ${playerAnchors.length}/4 · 완료는 왼쪽 패널 · Esc 취소`;
+      case 'placing-halo': return '코트를 클릭 → Circle 배치 · Esc 종료';
+      case 'placing-marker': return '코트를 클릭 → Marker 배치 · Esc 종료';
+      case 'placing-text': return '코트를 클릭 → Text 배치 · Esc 종료';
+      case 'placing-zoom': return '코트를 클릭 → 확대 중심 지정 · Esc 종료';
+      case 'drawing-zone': return `Zone 영역 · ${n}점 (3점 이상) · Enter 완료 · Esc 취소`;
+      case 'drawing-path': return `Path 경로 · ${n}점 (2점 이상) · Enter 완료 · Esc 취소`;
+      case 'drawing-connector': return `Connector · ${n}/2점 클릭 · Esc 취소`;
+      default: return null;
+    }
+  })();
+
   return (
     <div className="editor">
       <Rail active={activeTab} onSelect={setActiveTab} />
@@ -528,6 +547,8 @@ export default function App() {
             setZoneParams={setZoneParams}
             zoomParams={zoomParams}
             setZoomParams={setZoomParams}
+            textDraft={textDraft}
+            setTextDraft={setTextDraft}
             onCreate={startFeature}
             onFinishDraft={finishDraft}
             onCancelDraft={cancelDraft}
@@ -553,6 +574,8 @@ export default function App() {
           mode={mode}
           showGrid={showGrid}
           currentTime={cur}
+          hint={stageHint}
+          selectedId={selectedOverlayId}
           players={players}
           cutouts={cutouts}
           fragments={fragments}

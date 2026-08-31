@@ -19,6 +19,8 @@ type Props = {
   setZoneParams: (p: ZoneParams) => void;
   zoomParams: ZoomParams;
   setZoomParams: (p: ZoomParams) => void;
+  textDraft: string;
+  setTextDraft: (s: string) => void;
   onCreate: (id: FeatureId) => void;
   onFinishDraft: () => void;
   onCancelDraft: () => void;
@@ -87,6 +89,11 @@ export function HighlightPanel(p: Props) {
         <div className="field"><label>배율 {p.zoomParams.scale.toFixed(1)}×</label>
           <input type="range" min="1.2" max="4" step="0.1" value={p.zoomParams.scale}
             onChange={(e) => p.setZoomParams({ ...p.zoomParams, scale: Number(e.target.value) })} /></div>
+      )}
+      {p.selected === 'text' && (
+        <div className="field"><label>라벨 내용</label>
+          <input type="text" value={p.textDraft} placeholder="텍스트" maxLength={40}
+            onChange={(e) => p.setTextDraft(e.target.value)} /></div>
       )}
 
       {/* create / finish */}
