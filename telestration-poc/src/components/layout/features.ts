@@ -1,6 +1,6 @@
 import type { FeatureId, RailTab } from '../../types';
 
-export type FeatureGroup = 'Tactic' | 'Action';
+export type FeatureGroup = 'Player' | 'Tactic' | 'Action';
 
 export type FeatureDef = {
   id: FeatureId;
@@ -11,10 +11,13 @@ export type FeatureDef = {
   hint: string;
 };
 
-// Tile features in the Effect tab. The paper's Player group (Circle/Spotlight/Connector) is
-// handled by the Player section instead; the static court Circle lives under Tactic.
+// Tile features in the Effect tab. Player-group tiles apply to a player chosen in the lower
+// section (선수 지정 + P1~P4); the static court Circle lives separately under Tactic.
 export const FEATURES: FeatureDef[] = [
-  { id: 'circle', label: 'Circle', group: 'Tactic', icon: '◎', implemented: true, hint: '코트를 클릭해 바닥에 고정 헤일로(원)를 놓습니다. (선수를 따라가는 원은 위 Player 목록의 "원")' },
+  { id: 'follow-circle', label: 'Circle', group: 'Player', icon: '◎', implemented: true, hint: '선수를 따라다니는 바닥 원. 아래에서 선수를 선택해 적용합니다.' },
+  { id: 'cutout', label: 'Cutout', group: 'Player', icon: '🧍', implemented: true, hint: '선수 실루엣 외곽선. 아래에서 선수를 선택해 적용합니다.' },
+  { id: 'spotlight', label: 'Spotlight', group: 'Player', icon: '🔦', implemented: true, hint: '배경 어둡게 + 선수 강조. 아래에서 선수를 선택해 적용합니다.' },
+  { id: 'circle', label: 'Circle', group: 'Tactic', icon: '◎', implemented: true, hint: '코트를 클릭해 바닥에 고정 헤일로(원)를 놓습니다. (선수를 따라가는 원은 Player 그룹의 Circle)' },
   { id: 'path', label: 'Path', group: 'Tactic', icon: '↝', implemented: true, hint: '코트를 여러 번 클릭해 화살표 경로를 그립니다.' },
   { id: 'zone', label: 'Zone', group: 'Tactic', icon: '▰', implemented: true, hint: '코트를 3점 이상 클릭해 커버리지 존을 그립니다.' },
   { id: 'marker', label: 'Marker', group: 'Tactic', icon: '📍', implemented: true, hint: '코트를 클릭해 지점 마커를 놓습니다.' },
@@ -23,7 +26,7 @@ export const FEATURES: FeatureDef[] = [
   { id: 'zoom-in', label: 'Zoom In', group: 'Action', icon: '🔍', implemented: true, hint: '코트를 클릭한 지점을 중심으로 화면을 확대합니다 (재생 중 punch-in).' },
 ];
 
-export const FEATURE_GROUPS: FeatureGroup[] = ['Tactic', 'Action'];
+export const FEATURE_GROUPS: FeatureGroup[] = ['Player', 'Tactic', 'Action'];
 
 export const RAIL_TABS: { id: RailTab; label: string; icon: string }[] = [
   { id: 'media', label: 'Media', icon: '🎬' },

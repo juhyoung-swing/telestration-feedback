@@ -57,7 +57,7 @@ export default function App() {
 
   // UI shell state
   const [activeTab, setActiveTab] = useState<RailTab>('court');
-  const [selectedFeature, setSelectedFeature] = useState<FeatureId>('circle');
+  const [selectedFeature, setSelectedFeature] = useState<FeatureId>('follow-circle');
   const [selectedOverlayId, setSelectedOverlayId] = useState<string | null>(null);
   const [circleParams, setCircleParams] = useState<CircleParams>({ radiusMeters: 0.8, color: '#E4EF3D', opacity: 0.2 });
   const [zoneParams, setZoneParams] = useState<ZoneParams>({ color: '#17335F', opacity: 0.18 });

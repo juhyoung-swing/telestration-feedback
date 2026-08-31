@@ -111,9 +111,12 @@ export type CutoutData = { video: string; fps: number; width: number; height: nu
 // Player was merged into the Effect tab (its Player section), so it's no longer a rail tab.
 export type RailTab = 'media' | 'court' | 'effect' | 'narrative';
 
-// SportsBuddy feature set. Spotlight (and player-follow Circle/Cutout) live in the Effect
-// tab's Player section as per-player toggles, so they are not tile features here.
-export type FeatureId = 'circle' | 'connector' | 'path' | 'zone' | 'marker' | 'text' | 'zoom-in';
+// SportsBuddy feature set as Effect-tab tiles. Player-group tiles (follow-circle / cutout /
+// spotlight) apply to a player picked in the panel's lower section; the rest place on the court.
+export type FeatureId =
+  | 'follow-circle' | 'cutout' | 'spotlight'          // Player group (apply to a selected player)
+  | 'circle' | 'path' | 'zone' | 'marker' | 'connector' // Tactic group (place on court)
+  | 'text' | 'zoom-in';                                 // Action group
 
 export type CircleParams = { radiusMeters: number; color: string; opacity: number };
 export type ZoneParams = { color: string; opacity: number };
