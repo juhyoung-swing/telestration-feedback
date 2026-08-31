@@ -159,7 +159,7 @@ export function Timeline(p: Props) {
               </div>
             ))}
 
-            {p.overlays.length === 0 && <div className="tl-empty">효과를 만들면 여기 타임라인에 트랙으로 표시됩니다 (Highlight → Create)</div>}
+            {p.overlays.length === 0 && <div className="tl-empty">효과를 만들면 여기 타임라인에 트랙으로 표시됩니다 (Effect → Create)</div>}
 
             <div className="tl-row">
               <div className="tl-bar base" style={{ left: 0, width: contentW }} onMouseDown={(e) => e.stopPropagation()}>

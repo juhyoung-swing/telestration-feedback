@@ -1,5 +1,6 @@
 import { FEATURES, FEATURE_GROUPS } from '../features';
-import type { CircleParams, FeatureId, Mode, ZoneParams, ZoomParams } from '../../../types';
+import { playersBySpan, posLabel } from '../../../geometry/tracking';
+import type { CircleParams, FeatureId, Mode, Players, ZoneParams, ZoomParams } from '../../../types';
 
 const FEATURE_MODE: Record<string, Mode> = {
   circle: 'placing-halo', marker: 'placing-marker', text: 'placing-text',
@@ -9,6 +10,22 @@ const FEATURE_MODE: Record<string, Mode> = {
 
 type Props = {
   hasCalibration: boolean;
+  // ── Player section (tracking-based per-player effects) ──
+  players: Players | null;
+  onFollow: (id: string) => void;
+  followedIds: Set<string>;
+  onToggleCutout: (id: string) => void;
+  cutoutIds: Set<string>;
+  hasCutouts: boolean;
+  onToggleSpotlight: (id: string) => void;
+  spotlightIds: Set<string>;
+  colors: string[];
+  hasFragments: boolean;
+  anchorCount: number;
+  onStartPlayerCalib: () => void;
+  onFinishPlayerCalib: () => void;
+  onCancelPlayerCalib: () => void;
+  // ── Effect catalog (Tactic / Action tiles) ──
   selected: FeatureId;
   onSelect: (id: FeatureId) => void;
   mode: Mode;
@@ -24,21 +41,68 @@ type Props = {
   onCreate: (id: FeatureId) => void;
   onFinishDraft: () => void;
   onCancelDraft: () => void;
-  onGoPlayerTab: () => void;
 };
 
-export function HighlightPanel(p: Props) {
+export function EffectPanel(p: Props) {
   const def = FEATURES.find((f) => f.id === p.selected)!;
   const myMode = FEATURE_MODE[p.selected];
   const active = p.mode === myMode;
-  const isMulti = p.selected === 'zone' || p.selected === 'path'; // finish/cancel
+  const isMulti = p.selected === 'zone' || p.selected === 'path';
   const isConnector = p.selected === 'connector';
   const isPoint = p.selected === 'circle' || p.selected === 'marker' || p.selected === 'text' || p.selected === 'zoom-in';
 
+  const list = p.players ? playersBySpan(p.players) : [];
+  const calibrating = p.mode === 'player-calibrating';
+
   return (
     <div className="panel">
-      <div className="panel-title">Highlight · 효과</div>
+      <div className="panel-title">Effect · 효과</div>
+      {!p.hasCalibration && <div className="warn-note">먼저 <b>Court</b> 탭에서 캘리브레이션하세요.</div>}
 
+      {/* ── Player · 선수 ── (per-player Circle / Cutout / Spotlight) */}
+      <div className="field-label">Player · 선수</div>
+      <p className="panel-desc" style={{ marginTop: 0 }}>
+        선수별 <b>원(Circle)</b> · <b>컷(Cutout)</b> · <b>스팟(Spotlight)</b>. 외형 re-ID로 자동 4명, <b>선수 지정</b>으로 직접 정할 수 있습니다.
+      </p>
+
+      {!calibrating ? (
+        <button className="btn" onClick={p.onStartPlayerCalib} disabled={!p.hasFragments}>선수 지정 시작</button>
+      ) : (
+        <div className="calib-hint">
+          영상에서 각 선수를 순서대로 클릭 — 다음 <b className="accent">P{p.anchorCount + 1}</b> ({p.anchorCount}/4 지정됨).
+          <div className="btn-row">
+            <button className="btn primary" onClick={p.onFinishPlayerCalib} disabled={p.anchorCount < 2}>완료 ({p.anchorCount})</button>
+            <button className="btn" onClick={p.onCancelPlayerCalib}>취소</button>
+          </div>
+          <div className="muted-note">클릭한 선수의 옷 색을 기준으로 나머지 조각을 자동 배정합니다.</div>
+        </div>
+      )}
+
+      {!p.players && <div className="soon-note" style={{ marginTop: 8 }}>트래킹 데이터(players.json)를 불러오지 못했습니다.</div>}
+      {p.players && (
+        <div className="player-list">
+          {list.map((pl) => {
+            const on = p.followedIds.has(pl.id);
+            const cutOn = p.cutoutIds.has(pl.id);
+            const spotOn = p.spotlightIds.has(pl.id);
+            const color = p.colors[(Number(pl.id) - 1) % p.colors.length];
+            return (
+              <div key={pl.id} className={`player-row ${on || cutOn || spotOn ? 'on' : ''}`}>
+                <span className="player-dot" style={{ background: color }} />
+                <span className="player-tag">P{pl.id}</span>
+                <span className="player-span">{posLabel(pl.medY)} <span className="muted">· {pl.t0.toFixed(0)}–{pl.t1.toFixed(0)}s</span></span>
+                <button className={on ? 'btn sm active' : 'btn sm'} onClick={() => p.onFollow(pl.id)} disabled={!p.hasCalibration} title="바닥 원(Circle) — 선수를 따라감">원</button>
+                <button className={cutOn ? 'btn sm active' : 'btn sm'} onClick={() => p.onToggleCutout(pl.id)} disabled={!p.hasCutouts} title="사람 컷아웃(실루엣)">컷</button>
+                <button className={spotOn ? 'btn sm active' : 'btn sm'} onClick={() => p.onToggleSpotlight(pl.id)} disabled={!p.hasCalibration} title="스팟라이트(배경 어둡게 + 선수 강조)">스팟</button>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      <div className="panel-divider" />
+
+      {/* ── Effect catalog (Tactic / Action) ── */}
       {FEATURE_GROUPS.map((g) => (
         <div key={g} className="feature-group">
           <div className="field-label">{g}</div>
@@ -61,7 +125,6 @@ export function HighlightPanel(p: Props) {
 
       <div className="panel-divider" />
       <div className="panel-subtitle">{def.label}</div>
-      {!p.hasCalibration && <div className="warn-note">먼저 <b>Court</b> 탭에서 캘리브레이션하세요.</div>}
       <div className="panel-desc" style={{ marginTop: 0 }}>{def.hint}</div>
 
       {/* per-feature settings */}
@@ -98,9 +161,7 @@ export function HighlightPanel(p: Props) {
       )}
 
       {/* create / finish */}
-      {p.selected === 'spotlight' ? (
-        <button className="btn primary block" onClick={p.onGoPlayerTab}>Player 탭에서 선수별 스팟 켜기 →</button>
-      ) : !def.implemented ? (
+      {!def.implemented ? (
         <button className="btn primary block" disabled>Create (곧)</button>
       ) : active && isMulti ? (
         <div className="btn-row">

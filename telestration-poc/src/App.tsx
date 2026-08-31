@@ -3,8 +3,7 @@ import { VideoStage } from './components/VideoStage';
 import { Rail } from './components/layout/Rail';
 import { MediaPanel } from './components/layout/panels/MediaPanel';
 import { CourtPanel } from './components/layout/panels/CourtPanel';
-import { PlayerPanel } from './components/layout/panels/PlayerPanel';
-import { HighlightPanel } from './components/layout/panels/HighlightPanel';
+import { EffectPanel } from './components/layout/panels/EffectPanel';
 import { NarrativePanel } from './components/layout/panels/NarrativePanel';
 import { EditingToolbar } from './components/EditingToolbar';
 import { Timeline } from './components/Timeline';
@@ -548,8 +547,8 @@ export default function App() {
             onCancelLine={cancelLineCalibration}
           />
         )}
-        {activeTab === 'player' && (
-          <PlayerPanel
+        {activeTab === 'effect' && (
+          <EffectPanel
             hasCalibration={!!calibration}
             players={players}
             onFollow={followPlayer}
@@ -560,17 +559,11 @@ export default function App() {
             onToggleSpotlight={toggleSpotlight}
             spotlightIds={spotlightIds}
             colors={PLAYER_COLORS}
-            mode={mode}
             hasFragments={!!fragments}
             anchorCount={playerAnchors.length}
             onStartPlayerCalib={startPlayerCalibration}
             onFinishPlayerCalib={finishPlayerCalibration}
             onCancelPlayerCalib={cancelPlayerCalibration}
-          />
-        )}
-        {activeTab === 'highlight' && (
-          <HighlightPanel
-            hasCalibration={!!calibration}
             selected={selectedFeature}
             onSelect={setSelectedFeature}
             mode={mode}
@@ -586,7 +579,6 @@ export default function App() {
             onCreate={startFeature}
             onFinishDraft={finishDraft}
             onCancelDraft={cancelDraft}
-            onGoPlayerTab={() => setActiveTab('player')}
           />
         )}
         {activeTab === 'narrative' && <NarrativePanel />}

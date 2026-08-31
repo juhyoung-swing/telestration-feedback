@@ -1,7 +1,7 @@
 import { RAIL_TABS } from './features';
 import type { RailTab } from '../../types';
 
-// (a1) The left icon rail — Media / Court / Highlight / Narrative.
+// (a1) The left icon rail — Media / Court / Effect / Narrative.
 export function Rail({ active, onSelect }: { active: RailTab; onSelect: (t: RailTab) => void }) {
   return (
     <nav className="rail">

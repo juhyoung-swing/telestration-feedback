@@ -108,10 +108,12 @@ export type PlayerCutouts = Record<string, CutoutSample[]>;
 export type CutoutData = { video: string; fps: number; width: number; height: number; step: number; players: PlayerCutouts };
 
 // ── UI (SportsBuddy-style shell) ────────────────────────────────────────────
-export type RailTab = 'media' | 'court' | 'player' | 'highlight' | 'narrative';
+// Player was merged into the Effect tab (its Player section), so it's no longer a rail tab.
+export type RailTab = 'media' | 'court' | 'effect' | 'narrative';
 
-// SportsBuddy feature set — all wired to real geometry (spotlight via the Player tab).
-export type FeatureId = 'circle' | 'spotlight' | 'connector' | 'path' | 'zone' | 'marker' | 'text' | 'zoom-in';
+// SportsBuddy feature set. Spotlight (and player-follow Circle/Cutout) live in the Effect
+// tab's Player section as per-player toggles, so they are not tile features here.
+export type FeatureId = 'circle' | 'connector' | 'path' | 'zone' | 'marker' | 'text' | 'zoom-in';
 
 export type CircleParams = { radiusMeters: number; color: string; opacity: number };
 export type ZoneParams = { color: string; opacity: number };
