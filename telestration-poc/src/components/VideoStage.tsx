@@ -199,7 +199,7 @@ export function VideoStage({
                       case 'text':
                         return <TextLabel key={o.id} courtX={o.courtX} courtY={o.courtY} text={o.text} project={project} color={o.color} />;
                       case 'path':
-                        return <PathArrow key={o.id} space={o.space} shape={o.shape} points={o.points} height={o.height} toDisplay={toDisplaySpace} color={o.color} />;
+                        return <PathArrow key={o.id} space={o.space} shape={o.shape} points={o.points} height={o.height} dashed={o.dashed} toDisplay={toDisplaySpace} color={o.color} />;
                       case 'connector':
                         return <Connector key={o.id} points={o.points} project={project} color={o.color} />;
                       case 'spotlight':

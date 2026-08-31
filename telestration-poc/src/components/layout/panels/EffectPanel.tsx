@@ -40,7 +40,7 @@ type Props = {
   pathParams: PathParams;
   setPathParams: (p: PathParams) => void;
   selectedPath: PathArrow | null;             // a selected Path overlay → editable live
-  onUpdatePath: (id: string, patch: Partial<{ shape: 'line' | 'arc'; height: number }>) => void;
+  onUpdatePath: (id: string, patch: Partial<{ shape: 'line' | 'arc'; height: number; dashed: boolean; color: string }>) => void;
   onEditPath: () => void;                       // enter endpoint-drag mode
   editingPath: boolean;
   onFinishEditPath: () => void;
@@ -68,6 +68,10 @@ export function EffectPanel(p: Props) {
     if (selPath && selPath.shape === 'arc') p.onUpdatePath(selPath.id, { height: v });
     else p.setPathParams({ ...p.pathParams, height: v });
   };
+  const pathColor = selPath?.color ?? p.pathParams.color;
+  const pathDashed = selPath?.dashed ?? p.pathParams.dashed;
+  const setPathColor = (c: string) => (selPath ? p.onUpdatePath(selPath.id, { color: c }) : p.setPathParams({ ...p.pathParams, color: c }));
+  const setPathDashed = (d: boolean) => (selPath ? p.onUpdatePath(selPath.id, { dashed: d }) : p.setPathParams({ ...p.pathParams, dashed: d }));
 
   const list = p.players ? playersBySpan(p.players) : [];
   const calibrating = p.mode === 'player-calibrating';
@@ -227,6 +231,18 @@ export function EffectPanel(p: Props) {
             <div className="field"><label>높이 {heightVal.toFixed(2)}</label>
               <input type="range" min="0" max="1.2" step="0.05" value={heightVal}
                 onChange={(e) => setHeight(Number(e.target.value))} /></div>
+          )}
+          {p.selected === 'path' && (
+            <>
+              <div className="field"><label>색상</label>
+                <input type="color" value={pathColor} onChange={(e) => setPathColor(e.target.value)} /></div>
+              <div className="field"><label>선</label>
+                <div className="btn-row">
+                  <button className={`btn sm ${!pathDashed ? 'active' : ''}`} onClick={() => setPathDashed(false)}>실선</button>
+                  <button className={`btn sm ${pathDashed ? 'active' : ''}`} onClick={() => setPathDashed(true)}>대시</button>
+                </div>
+              </div>
+            </>
           )}
 
           {/* create / finish */}

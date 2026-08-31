@@ -83,6 +83,7 @@ export type PathArrow = TimeSpan & {
   shape: 'line' | 'arc';
   points: { x: number; y: number }[]; // [start, end] — court metres or video px per `space`
   height: number; // arc peak as a fraction of chord length; 0 for a line
+  dashed: boolean;
   color?: string;
 };
 export type Connector = TimeSpan & {
@@ -129,4 +130,4 @@ export type FeatureId =
 export type CircleParams = { radiusMeters: number; color: string; opacity: number };
 export type ZoneParams = { color: string; opacity: number };
 export type ZoomParams = { scale: number };
-export type PathParams = { shape: 'court-line' | 'screen-line' | 'arc'; height: number };
+export type PathParams = { shape: 'court-line' | 'screen-line' | 'arc'; height: number; color: string; dashed: boolean };

@@ -62,7 +62,7 @@ export default function App() {
   const [circleParams, setCircleParams] = useState<CircleParams>({ radiusMeters: 0.8, color: '#E4EF3D', opacity: 0.2 });
   const [zoneParams, setZoneParams] = useState<ZoneParams>({ color: '#17335F', opacity: 0.18 });
   const [zoomParams, setZoomParams] = useState<ZoomParams>({ scale: 2.2 });
-  const [pathParams, setPathParams] = useState<PathParams>({ shape: 'court-line', height: 0.4 });
+  const [pathParams, setPathParams] = useState<PathParams>({ shape: 'court-line', height: 0.4, color: FEATURE_COLORS.path, dashed: false });
   const [pathDraft, setPathDraft] = useState<Pt | null>(null); // first click (video px) while drawing a path
   const [textDraft, setTextDraft] = useState('텍스트'); // Text feature: content typed in the panel
 
@@ -259,7 +259,7 @@ export default function App() {
     setMode('idle');
   };
   // Live-edit a placed path (shape/height/points) — no history churn per slider tick.
-  const updatePath = (id: string, patch: Partial<{ shape: 'line' | 'arc'; height: number; points: { x: number; y: number }[] }>) =>
+  const updatePath = (id: string, patch: Partial<{ shape: 'line' | 'arc'; height: number; dashed: boolean; color: string; points: { x: number; y: number }[] }>) =>
     setOverlays((o) => o.map((x) => (x.id === id && x.type === 'path' ? { ...x, ...patch } : x)));
   const cancelDraft = () => { setDraftZone([]); setPathDraft(null); setMode('idle'); };
 
@@ -369,7 +369,7 @@ export default function App() {
         mutate((o) => [...o, {
           id: uid('path'), type: 'path', name: nextName(o, 'path', 'Path'), visible: true, ...spanAtPlayhead(),
           space: isScreen ? 'screen' : 'court', shape, points: [conv(pathDraft), conv(videoPt)],
-          height: shape === 'arc' ? pathParams.height : 0, color: FEATURE_COLORS.path,
+          height: shape === 'arc' ? pathParams.height : 0, dashed: pathParams.dashed, color: pathParams.color,
         }]);
         setPathDraft(null);
         setMode('idle');

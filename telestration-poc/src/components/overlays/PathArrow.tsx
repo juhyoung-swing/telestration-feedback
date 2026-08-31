@@ -12,6 +12,7 @@ export function PathArrow({
   shape,
   points,
   height = 0,
+  dashed = false,
   toDisplay,
   color = '#FF3B3B',
   arrow = true,
@@ -20,6 +21,7 @@ export function PathArrow({
   shape: 'line' | 'arc';
   points: { x: number; y: number }[];
   height?: number;
+  dashed?: boolean;
   toDisplay: (space: 'court' | 'screen', x: number, y: number) => Pt; // → display px
   color?: string;
   arrow?: boolean;
@@ -49,6 +51,7 @@ export function PathArrow({
       stroke={color}
       fill={color}
       strokeWidth={4}
+      dash={dashed ? [14, 10] : undefined}
       pointerLength={arrow ? 16 : 0}
       pointerWidth={arrow ? 16 : 0}
       lineJoin="round"
