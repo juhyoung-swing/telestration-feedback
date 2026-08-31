@@ -63,6 +63,8 @@ export default function App() {
   const [playing, setPlaying] = useState(false);
   const [cur, setCur] = useState(0);
   const [dur, setDur] = useState(0);
+  const [tlZoom, setTlZoom] = useState(1); // timeline horizontal zoom (1 = fit whole clip)
+  const [snap, setSnap] = useState(true);  // snap dragged bars to playhead / edges
 
   // tracking (players.json auto-4, and fragments.json for user-anchored re-ID)
   const [players, setPlayers] = useState<Players | null>(null);
@@ -406,6 +408,39 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode, dims, drawnLines, lineDraft, activeLineId]);
 
+  // Playback & timeline shortcuts (video-editor conventions): Space = play/pause,
+  // ←/→ = step a frame (Shift = 1s), +/− = zoom timeline, S = toggle snapping.
+  useEffect(() => {
+    const FRAME = 1 / 30;
+    const onKey = (e: KeyboardEvent) => {
+      const el = e.target;
+      if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement || el instanceof HTMLSelectElement) return;
+      const v = videoRef.current;
+      if (e.code === 'Space') {
+        if (el instanceof HTMLButtonElement) return; // let a focused button handle its own space
+        e.preventDefault();
+        togglePlay();
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        if (v) seek(Math.max(0, v.currentTime - (e.shiftKey ? 1 : FRAME)));
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        if (v) seek(Math.min(v.duration || dur || 0, v.currentTime + (e.shiftKey ? 1 : FRAME)));
+      } else if (e.key === '+' || e.key === '=') {
+        e.preventDefault();
+        setTlZoom((z) => Math.min(16, +(z * 1.5).toFixed(3)));
+      } else if (e.key === '-' || e.key === '_') {
+        e.preventDefault();
+        setTlZoom((z) => Math.max(1, +(z / 1.5).toFixed(3)));
+      } else if (e.key === 's' || e.key === 'S') {
+        setSnap((s) => !s);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dur]);
+
   // line-calibration coverage for the panel
   const currentLineIds = Array.from(new Set([
     ...drawnLines.map((l) => l.id),
@@ -522,6 +557,10 @@ export default function App() {
           canDelete={!!selectedOverlayId}
           cur={cur}
           dur={dur}
+          zoom={tlZoom}
+          onZoom={setTlZoom}
+          snap={snap}
+          onToggleSnap={() => setSnap((s) => !s)}
         />
 
         <Timeline
@@ -530,6 +569,8 @@ export default function App() {
           currentTime={cur}
           selectedId={selectedOverlayId}
           videoName={videoName}
+          zoom={tlZoom}
+          snap={snap}
           onSelect={setSelectedOverlayId}
           onSeek={seek}
           onToggleVisible={toggleVisible}
