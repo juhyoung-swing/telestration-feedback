@@ -72,10 +72,13 @@ export type TextLabel = TimeSpan & {
   id: string; type: 'text'; name: string; visible: boolean;
   courtX: number; courtY: number; text: string; color?: string;
 };
-// A polyline on the court: Path (arrow at the end) / Connector (line between points).
+// Path: a directional arrow between two court points — straight, or a parabola whose
+// bow (curvature, signed meters perpendicular to the chord) is adjustable.
 export type PathArrow = TimeSpan & {
   id: string; type: 'path'; name: string; visible: boolean;
-  points: { courtX: number; courtY: number }[]; color?: string;
+  points: { courtX: number; courtY: number }[]; // [start, end]
+  curvature: number; // 0 = straight; ± = bow amount (m) to either side
+  color?: string;
 };
 export type Connector = TimeSpan & {
   id: string; type: 'connector'; name: string; visible: boolean;
@@ -121,3 +124,4 @@ export type FeatureId =
 export type CircleParams = { radiusMeters: number; color: string; opacity: number };
 export type ZoneParams = { color: string; opacity: number };
 export type ZoomParams = { scale: number };
+export type PathParams = { kind: 'straight' | 'parabola'; curvature: number };

@@ -1,6 +1,6 @@
 import { FEATURES, FEATURE_GROUPS } from '../features';
 import { playersBySpan, posLabel } from '../../../geometry/tracking';
-import type { CircleParams, FeatureId, Mode, Players, ZoneParams, ZoomParams } from '../../../types';
+import type { CircleParams, FeatureId, Mode, PathArrow, PathParams, Players, ZoneParams, ZoomParams } from '../../../types';
 
 const FEATURE_MODE: Record<string, Mode> = {
   circle: 'placing-halo', marker: 'placing-marker', text: 'placing-text',
@@ -37,6 +37,10 @@ type Props = {
   setZoneParams: (p: ZoneParams) => void;
   zoomParams: ZoomParams;
   setZoomParams: (p: ZoomParams) => void;
+  pathParams: PathParams;
+  setPathParams: (p: PathParams) => void;
+  selectedPath: PathArrow | null;             // a selected Path overlay → its bow is editable live
+  onSetPathCurvature: (id: string, c: number) => void;
   textDraft: string;
   setTextDraft: (s: string) => void;
   onCreate: (id: FeatureId) => void;
@@ -48,10 +52,23 @@ export function EffectPanel(p: Props) {
   const def = FEATURES.find((f) => f.id === p.selected)!;
   const myMode = FEATURE_MODE[p.selected];
   const active = p.mode === myMode;
-  const isMulti = p.selected === 'zone' || p.selected === 'path';
-  const isConnector = p.selected === 'connector';
+  const isMulti = p.selected === 'zone';
+  const isTwoClick = p.selected === 'connector' || p.selected === 'path'; // start + end
   const isPoint = p.selected === 'circle' || p.selected === 'marker' || p.selected === 'text' || p.selected === 'zoom-in';
   const isPlayer = PLAYER_FEATURES.includes(p.selected);
+
+  // Path: edit the selected path's bow if one is selected, else the defaults for new paths.
+  const selPath = p.selectedPath;
+  const pathIsParabola = selPath ? Math.abs(selPath.curvature) > 0.01 : p.pathParams.kind === 'parabola';
+  const pathCurv = selPath ? selPath.curvature : p.pathParams.curvature;
+  const setPathKind = (kind: 'straight' | 'parabola') => {
+    if (selPath) p.onSetPathCurvature(selPath.id, kind === 'parabola' ? (p.pathParams.curvature || 2) : 0);
+    else p.setPathParams({ ...p.pathParams, kind });
+  };
+  const setPathCurv = (v: number) => {
+    if (selPath) p.onSetPathCurvature(selPath.id, v);
+    else p.setPathParams({ ...p.pathParams, curvature: v });
+  };
 
   const list = p.players ? playersBySpan(p.players) : [];
   const calibrating = p.mode === 'player-calibrating';
@@ -182,16 +199,31 @@ export function EffectPanel(p: Props) {
               <input type="text" value={p.textDraft} placeholder="텍스트" maxLength={40}
                 onChange={(e) => p.setTextDraft(e.target.value)} /></div>
           )}
+          {p.selected === 'path' && (
+            <>
+              <div className="field"><label>모양{selPath ? ' (선택 편집)' : ''}</label>
+                <div className="btn-row">
+                  <button className={`btn sm ${!pathIsParabola ? 'active' : ''}`} onClick={() => setPathKind('straight')}>직선</button>
+                  <button className={`btn sm ${pathIsParabola ? 'active' : ''}`} onClick={() => setPathKind('parabola')}>포물선</button>
+                </div>
+              </div>
+              {pathIsParabola && (
+                <div className="field"><label>굴곡 {pathCurv.toFixed(1)}m</label>
+                  <input type="range" min="-5" max="5" step="0.1" value={pathCurv}
+                    onChange={(e) => setPathCurv(Number(e.target.value))} /></div>
+              )}
+            </>
+          )}
 
           {/* create / finish */}
           {active && isMulti ? (
             <div className="btn-row">
-              <button className="btn primary" onClick={p.onFinishDraft} disabled={p.draftCount < (p.selected === 'zone' ? 3 : 2)}>완료 ({p.draftCount})</button>
+              <button className="btn primary" onClick={p.onFinishDraft} disabled={p.draftCount < 3}>완료 ({p.draftCount})</button>
               <button className="btn" onClick={p.onCancelDraft}>취소</button>
             </div>
-          ) : active && isConnector ? (
+          ) : active && isTwoClick ? (
             <div className="btn-row">
-              <span className="muted-note">두 지점을 클릭하세요 ({p.draftCount}/2)</span>
+              <span className="muted-note">시작·끝 2점을 클릭하세요 ({p.draftCount}/2)</span>
               <button className="btn" onClick={p.onCancelDraft}>취소</button>
             </div>
           ) : active && isPoint ? (

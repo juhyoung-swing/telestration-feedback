@@ -15,7 +15,7 @@ import { courtLineDef, fitImageLine, homographyFromLines, familiesCovered } from
 import { PLAYER_COLORS, playerColor, hitTestFragment, assignFragments } from './geometry/tracking';
 import type {
   CircleParams, CourtCalibration, CutoutData, DrawnLine, FeatureId, FragmentData, Fragments, Mode, Overlay,
-  PlayerAnchor, PlayerCutouts, Players, RailTab, TrackingData, ZoneParams, ZoomParams,
+  PathParams, PlayerAnchor, PlayerCutouts, Players, RailTab, TrackingData, ZoneParams, ZoomParams,
 } from './types';
 
 let idCounter = 0;
@@ -62,6 +62,7 @@ export default function App() {
   const [circleParams, setCircleParams] = useState<CircleParams>({ radiusMeters: 0.8, color: '#E4EF3D', opacity: 0.2 });
   const [zoneParams, setZoneParams] = useState<ZoneParams>({ color: '#17335F', opacity: 0.18 });
   const [zoomParams, setZoomParams] = useState<ZoomParams>({ scale: 2.2 });
+  const [pathParams, setPathParams] = useState<PathParams>({ kind: 'straight', curvature: 2 });
   const [textDraft, setTextDraft] = useState('텍스트'); // Text feature: content typed in the panel
 
   // playback
@@ -251,12 +252,13 @@ export default function App() {
     const pts = draftZone;
     if (mode === 'drawing-zone' && pts.length >= 3) {
       mutate((o) => [...o, { id: uid('zone'), type: 'coverage-zone', name: nextName(o, 'coverage-zone', 'Zone'), visible: true, ...spanAtPlayhead(), points: pts, color: zoneParams.color, opacity: zoneParams.opacity }]);
-    } else if (mode === 'drawing-path' && pts.length >= 2) {
-      mutate((o) => [...o, { id: uid('path'), type: 'path', name: nextName(o, 'path', 'Path'), visible: true, ...spanAtPlayhead(), points: pts, color: FEATURE_COLORS.path }]);
     }
     setDraftZone([]);
     setMode('idle');
   };
+  // Live-edit a placed path's bow (no history churn per slider tick).
+  const setPathCurvature = (id: string, curvature: number) =>
+    setOverlays((o) => o.map((x) => (x.id === id && x.type === 'path' ? { ...x, curvature } : x)));
   const cancelDraft = () => { setDraftZone([]); setMode('idle'); };
 
   // Toggle a Circle bound to a tracked player. Its court position is derived
@@ -366,8 +368,19 @@ export default function App() {
       mutate((o) => [...o, { id: uid('text'), type: 'text', name: nextName(o, 'text', 'Text'), visible: true, ...spanAtPlayhead(), ...cxy, text, color: FEATURE_COLORS.text }]);
     } else if (mode === 'placing-zoom') {
       mutate((o) => [...o, { id: uid('zoom'), type: 'zoom-in', name: nextName(o, 'zoom-in', 'Zoom'), visible: true, ...spanAtPlayhead(), ...cxy, scale: zoomParams.scale }]);
-    } else if (mode === 'drawing-zone' || mode === 'drawing-path') {
+    } else if (mode === 'drawing-zone') {
       setDraftZone((z) => [...z, cxy]);
+    } else if (mode === 'drawing-path') {
+      // 2-click: start then end. Straight, or a parabola bowed by pathParams.curvature.
+      if (draftZone.length >= 1) {
+        const p0 = draftZone[0];
+        const curvature = pathParams.kind === 'parabola' ? pathParams.curvature : 0;
+        mutate((o) => [...o, { id: uid('path'), type: 'path', name: nextName(o, 'path', 'Path'), visible: true, ...spanAtPlayhead(), points: [p0, cxy], curvature, color: FEATURE_COLORS.path }]);
+        setDraftZone([]);
+        setMode('idle');
+      } else {
+        setDraftZone([cxy]);
+      }
     } else if (mode === 'drawing-connector') {
       if (draftZone.length >= 1) {
         const p0 = draftZone[0];
@@ -453,7 +466,7 @@ export default function App() {
         setDrawnLines([]);
         setActiveLineId(null);
         setPlayerAnchors([]);
-      } else if (e.key === 'Enter' && (mode === 'drawing-zone' || mode === 'drawing-path')) finishDraft();
+      } else if (e.key === 'Enter' && mode === 'drawing-zone') finishDraft();
       else if (e.key === 'Enter' && mode === 'line-calibrating') finishLineCalibration();
     };
     window.addEventListener('keydown', onKey);
@@ -514,7 +527,7 @@ export default function App() {
       case 'placing-text': return '코트를 클릭 → Text 배치 · Esc 종료';
       case 'placing-zoom': return '코트를 클릭 → 확대 중심 지정 · Esc 종료';
       case 'drawing-zone': return `Zone 영역 · ${n}점 (3점 이상) · Enter 완료 · Esc 취소`;
-      case 'drawing-path': return `Path 경로 · ${n}점 (2점 이상) · Enter 완료 · Esc 취소`;
+      case 'drawing-path': return `Path · 시작·끝 2점 클릭 (${n}/2) · Esc 취소`;
       case 'drawing-connector': return `Connector · ${n}/2점 클릭 · Esc 취소`;
       default: return null;
     }
@@ -574,6 +587,10 @@ export default function App() {
             setZoneParams={setZoneParams}
             zoomParams={zoomParams}
             setZoomParams={setZoomParams}
+            pathParams={pathParams}
+            setPathParams={setPathParams}
+            selectedPath={selectedOverlay?.type === 'path' ? selectedOverlay : null}
+            onSetPathCurvature={setPathCurvature}
             textDraft={textDraft}
             setTextDraft={setTextDraft}
             onCreate={startFeature}
