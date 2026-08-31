@@ -200,6 +200,7 @@ body {
 .tl-bar.cutout { background: #8f7ae6; color: #f2eeff; }
 .tl-bar.spotlight { background: #f2c14e; color: #2a2206; }
 .tl-bar.zoom-in { background: #66d19e; color: #05271a; }
+.tl-bar.speed { background: #9b6dff; color: #f3eeff; }
 .tl-bar.base { background: var(--panel-3); color: var(--text); cursor: default; border-color: var(--border); }
 .tl-bar.selected { outline: 2px solid #fff; outline-offset: -1px; }
 .tl-bar.off { opacity: .45; }

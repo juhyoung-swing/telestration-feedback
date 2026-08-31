@@ -311,6 +311,8 @@ export function VideoStage({
                         return null; // rendered by SpotlightDim above
                       case 'zoom-in':
                         return null; // applied as a CSS transform on the whole stage
+                      case 'speed':
+                        return null; // playback-rate modifier, no canvas shape
                       case 'cutout': {
                         if (!cutouts) return null;
                         const poly = polyAt(cutouts[o.trackId] ?? [], Math.round(currentTime * fps));

@@ -1,6 +1,6 @@
 import { FEATURES, FEATURE_GROUPS } from '../features';
 import { playersBySpan, posLabel } from '../../../geometry/tracking';
-import type { CircleParams, FeatureId, Mode, PathArrow, PathParams, Players, TextLabel, TextParams, ZoneParams, ZoomParams } from '../../../types';
+import type { CircleParams, FeatureId, Mode, PathArrow, PathParams, Players, SpeedSegment, TextLabel, TextParams, ZoneParams, ZoomParams } from '../../../types';
 
 const FEATURE_MODE: Record<string, Mode> = {
   circle: 'placing-halo', marker: 'placing-marker', text: 'placing-text',
@@ -53,6 +53,10 @@ type Props = {
   onEditText: () => void;
   editingText: boolean;
   onFinishEditText: () => void;
+  slowmoRate: number;
+  setSlowmoRate: (r: number) => void;
+  selectedSpeed: SpeedSegment | null;
+  onUpdateSpeed: (id: string, rate: number) => void;
   onCreate: (id: FeatureId) => void;
   onFinishDraft: () => void;
   onCancelDraft: () => void;
@@ -84,6 +88,11 @@ export function EffectPanel(p: Props) {
   const selText = p.selectedText;
   const t = selText ?? p.textParams;
   const tSet = (patch: Partial<TextParams>) => (selText ? p.onUpdateText(selText.id, patch) : p.setTextParams({ ...p.textParams, ...patch }));
+
+  // Slow-mo: rate of a selected speed segment, or the default for new ones.
+  const selSpeed = p.selectedSpeed;
+  const speedRate = selSpeed ? selSpeed.rate : p.slowmoRate;
+  const setSpeedRate = (r: number) => (selSpeed ? p.onUpdateSpeed(selSpeed.id, r) : p.setSlowmoRate(r));
 
   const list = p.players ? playersBySpan(p.players) : [];
   const calibrating = p.mode === 'player-calibrating';
@@ -209,6 +218,16 @@ export function EffectPanel(p: Props) {
               <input type="range" min="1.2" max="4" step="0.1" value={p.zoomParams.scale}
                 onChange={(e) => p.setZoomParams({ ...p.zoomParams, scale: Number(e.target.value) })} /></div>
           )}
+          {p.selected === 'slowmo' && (
+            <div className="field"><label>배속{selSpeed ? ' (선택 편집)' : ''}</label>
+              <select value={speedRate} onChange={(e) => setSpeedRate(Number(e.target.value))}>
+                <option value={0.25}>0.25× (아주 느리게)</option>
+                <option value={0.5}>0.5× (느리게)</option>
+                <option value={0.75}>0.75×</option>
+                <option value={1.5}>1.5× (빠르게)</option>
+                <option value={2}>2×</option>
+              </select></div>
+          )}
           {p.selected === 'text' && (
             <>
               <div className="field"><label>내용</label>
@@ -307,6 +326,8 @@ export function EffectPanel(p: Props) {
             </div>
           ) : active && isPoint ? (
             <button className="btn primary block" onClick={() => p.onCreate(p.selected)}>배치 중 · 코트 클릭 (종료)</button>
+          ) : p.selected === 'slowmo' ? (
+            <button className="btn primary block" onClick={() => p.onCreate('slowmo')}>+ 배속 구간 추가 (현재 위치)</button>
           ) : (
             <button className="btn primary block" onClick={() => p.onCreate(p.selected)} disabled={!p.hasCalibration}>Create</button>
           )}

@@ -76,6 +76,7 @@ export default function App() {
   const [pathDraft, setPathDraft] = useState<Pt | null>(null); // first click (video px) while drawing a path
   const [textDraft, setTextDraft] = useState('텍스트'); // Text feature: content typed in the panel
   const [textParams, setTextParams] = useState<TextParams>({ fontSize: 22, fontFamily: 'sans-serif', bold: true, align: 'center', color: '#FFFFFF', bg: true, bgColor: '#000000', bgOpacity: 0.55 });
+  const [slowmoRate, setSlowmoRate] = useState(0.5); // default rate for new speed segments
 
   // playback
   const [playing, setPlaying] = useState(false);
@@ -203,6 +204,16 @@ export default function App() {
     return () => cancelAnimationFrame(raf);
   }, [playing]);
 
+  // Per-segment slow-mo: whenever the playhead moves, inside a speed segment → its rate, else the
+  // global speed. Keyed on `cur` (updates via rAF when visible, timeupdate when hidden) so it's robust.
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    const seg = overlays.find((o): o is Extract<Overlay, { type: 'speed' }> => o.type === 'speed' && o.visible && cur >= o.startTime && cur <= o.endTime);
+    const rate = seg ? seg.rate : speed;
+    if (v.playbackRate !== rate) v.playbackRate = rate;
+  }, [cur, overlays, speed]);
+
   const seek = (t: number) => {
     const v = videoRef.current;
     if (v) v.currentTime = t;
@@ -315,8 +326,15 @@ export default function App() {
   }, [mode, draftCalib]);
 
   // ── overlay tools ──────────────────────────────────────────────────────
+  // A speed segment is a timeline-only clip (no canvas placement) added at the playhead.
+  const addSpeedSegment = () =>
+    mutate((o) => [...o, { id: uid('speed'), type: 'speed', name: nextName(o, 'speed', 'Slow'), visible: true, ...spanAtPlayhead(), rate: slowmoRate }]);
+  const updateSpeed = (id: string, rate: number) =>
+    setOverlays((o) => o.map((x) => (x.id === id && x.type === 'speed' ? { ...x, rate } : x)));
+
   // Enter/exit a feature's placement or drawing mode.
   const startFeature = (id: FeatureId) => {
+    if (id === 'slowmo') { addSpeedSegment(); return; } // timeline clip — no calibration/placement needed
     if (!calibration) return;
     const target = FEATURE_MODE[id as keyof typeof FEATURE_MODE];
     if (!target) return;
@@ -502,7 +520,7 @@ export default function App() {
       if (src.type === 'ground-halo' || src.type === 'marker' || src.type === 'text' || src.type === 'zoom-in') {
         return [...o, { ...src, id: newId, name, courtX: src.courtX + 0.6, courtY: src.courtY + 0.6 }];
       }
-      if (src.type === 'cutout' || src.type === 'spotlight') return [...o, { ...src, id: newId, name }];
+      if (src.type === 'cutout' || src.type === 'spotlight' || src.type === 'speed') return [...o, { ...src, id: newId, name }];
       if (src.type === 'path') {
         const off = src.space === 'screen' ? 24 : 0.4;
         return [...o, { ...src, id: newId, name, points: src.points.map((p) => ({ x: p.x + off, y: p.y + off })) }];
@@ -713,6 +731,10 @@ export default function App() {
             onEditText={() => setMode('editing-text')}
             editingText={mode === 'editing-text'}
             onFinishEditText={() => setMode('idle')}
+            slowmoRate={slowmoRate}
+            setSlowmoRate={setSlowmoRate}
+            selectedSpeed={selectedOverlay?.type === 'speed' ? selectedOverlay : null}
+            onUpdateSpeed={updateSpeed}
             onCreate={startFeature}
             onFinishDraft={finishDraft}
             onCancelDraft={cancelDraft}

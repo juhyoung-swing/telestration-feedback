@@ -109,6 +109,12 @@ export type Spotlight = TimeSpan & {
   id: string; type: 'spotlight'; name: string; visible: boolean;
   trackId: string;
 };
+// Speed segment: while the playhead is inside [start,end], the video plays at `rate`
+// (slow-motion < 1, fast > 1). Not drawn on the canvas — a playback modifier on the timeline.
+export type SpeedSegment = TimeSpan & {
+  id: string; type: 'speed'; name: string; visible: boolean;
+  rate: number;
+};
 // Zoom In: while active, punch-in (magnify) the whole composited view about a court
 // point (or a tracked player's foot). The video + overlays scale together, so the
 // telestration stays glued to the court. `scale` = magnification factor (>1).
@@ -117,7 +123,7 @@ export type ZoomIn = TimeSpan & {
   courtX: number; courtY: number; scale: number; trackId?: string;
 };
 
-export type Overlay = GroundHalo | CoverageZone | Marker | TextLabel | PathArrow | Connector | Cutout | Spotlight | ZoomIn;
+export type Overlay = GroundHalo | CoverageZone | Marker | TextLabel | PathArrow | Connector | Cutout | Spotlight | ZoomIn | SpeedSegment;
 
 // Per-player silhouette polygons (video px), from scripts/seg_players.py.
 export type CutoutSample = { f: number; poly: [number, number][] };
@@ -133,7 +139,7 @@ export type RailTab = 'media' | 'court' | 'effect' | 'narrative';
 export type FeatureId =
   | 'follow-circle' | 'cutout' | 'spotlight'          // Player group (apply to a selected player)
   | 'circle' | 'path' | 'zone' | 'marker' | 'connector' // Tactic group (place on court)
-  | 'text' | 'zoom-in';                                 // Action group
+  | 'text' | 'zoom-in' | 'slowmo';                      // Action group
 
 export type CircleParams = { radiusMeters: number; color: string; opacity: number };
 export type ZoneParams = { color: string; opacity: number };
