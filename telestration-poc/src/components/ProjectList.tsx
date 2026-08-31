@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { ChangeEvent } from 'react';
 import type { Project } from '../lib/projects';
 
@@ -13,16 +13,31 @@ export function ProjectList({
   onOpen,
   onCreate,
   onDelete,
+  onRename,
 }: {
   projects: Project[];
   onOpen: (p: Project) => void;
   onCreate: (name: string, file: File | null) => void;
   onDelete: (id: string) => void;
+  onRename: (id: string, name: string) => void;
 }) {
   const [creating, setCreating] = useState(false);
   const [source, setSource] = useState<'file' | 'sample' | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [name, setName] = useState('');
+  const [menuId, setMenuId] = useState<string | null>(null);
+  const [renamingId, setRenamingId] = useState<string | null>(null);
+  const [renameVal, setRenameVal] = useState('');
+
+  useEffect(() => {
+    if (!menuId) return;
+    const close = () => setMenuId(null);
+    window.addEventListener('click', close);
+    return () => window.removeEventListener('click', close);
+  }, [menuId]);
+
+  const startRename = (p: Project) => { setRenamingId(p.id); setRenameVal(p.name); };
+  const commitRename = (id: string) => { if (renamingId === id) { onRename(id, renameVal); setRenamingId(null); } };
 
   const reset = () => { setCreating(false); setSource(null); setFile(null); setName(''); };
   const pickFile = (e: ChangeEvent<HTMLInputElement>) => {
@@ -47,21 +62,33 @@ export function ProjectList({
 
         <div className="project-grid">
           {projects.map((p) => (
-            <div key={p.id} className="project-card" onClick={() => onOpen(p)} title="열기">
+            <div key={p.id} className="project-card" onClick={() => { if (renamingId !== p.id) onOpen(p); }} title={renamingId === p.id ? '' : '열기'}>
               <div className="pc-thumb">{p.thumbnail ? <img src={p.thumbnail} alt="" /> : '🎬'}</div>
               <div className="pc-body">
-                <div className="pc-name">{p.name}</div>
+                {renamingId === p.id ? (
+                  <input
+                    className="pc-rename" value={renameVal} autoFocus
+                    onClick={(e) => e.stopPropagation()}
+                    onChange={(e) => setRenameVal(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === 'Enter') commitRename(p.id); else if (e.key === 'Escape') setRenamingId(null); }}
+                    onBlur={() => commitRename(p.id)}
+                  />
+                ) : (
+                  <div className="pc-name">{p.name}</div>
+                )}
                 <div className="pc-meta">{p.videoName} · {fmtDate(p.updatedAt)}</div>
-                <div className="pc-badges">
-                  <span className={p.corners ? 'ok' : 'muted'}>보정 {p.corners ? '✓' : '—'}</span>
-                  <span className="muted">효과 {p.overlays.length}</span>
-                </div>
               </div>
               <button
-                className="pc-del"
-                title="삭제"
-                onClick={(e) => { e.stopPropagation(); if (confirm(`"${p.name}" 프로젝트를 삭제할까요?`)) onDelete(p.id); }}
-              >🗑</button>
+                className="pc-menu-btn"
+                title="메뉴"
+                onClick={(e) => { e.stopPropagation(); setMenuId(menuId === p.id ? null : p.id); }}
+              >⋯</button>
+              {menuId === p.id && (
+                <ul className="pc-menu" onClick={(e) => e.stopPropagation()}>
+                  <li onClick={() => { setMenuId(null); startRename(p); }}>이름 바꾸기</li>
+                  <li className="danger" onClick={() => { setMenuId(null); if (confirm(`"${p.name}" 프로젝트를 삭제할까요?`)) onDelete(p.id); }}>삭제</li>
+                </ul>
+              )}
             </div>
           ))}
           {projects.length === 0 && <div className="pc-empty">아직 프로젝트가 없습니다. "+ 새 프로젝트"로 시작하세요.</div>}

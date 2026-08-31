@@ -196,6 +196,11 @@ export default function App() {
     await openProject(p, 'calibrate'); // new project → court-calibration step first
   };
   const removeProject = (id: string) => { deleteProjectRec(id); setProjects(listProjects()); };
+  const renameProject = (id: string, name: string) => {
+    const p = listProjects().find((x) => x.id === id);
+    if (p && name.trim()) saveProject({ ...p, name: name.trim(), updatedAt: Date.now() });
+    setProjects(listProjects());
+  };
   const backToProjects = () => { setView('projects'); };
 
   // re-apply user player-calibration once fragments load for an opened project
@@ -731,7 +736,7 @@ export default function App() {
   );
 
   if (view === 'projects') {
-    return <ProjectList projects={projects} onOpen={(p) => void openProject(p)} onCreate={(name, file) => void createProject(name, file)} onDelete={removeProject} />;
+    return <ProjectList projects={projects} onOpen={(p) => void openProject(p)} onCreate={(name, file) => void createProject(name, file)} onDelete={removeProject} onRename={renameProject} />;
   }
 
   if (view === 'calibrate') {
@@ -819,7 +824,6 @@ export default function App() {
           <div className="center-head-l">
             <button className="btn ghost sm back-projects" onClick={backToProjects} title="프로젝트 목록으로 (자동 저장됨)">← 프로젝트</button>
             <span className="center-title">{projectName || videoName}</span>
-            <span className="center-sub">{calibration ? `보정 ✓ (${calibMethod === 'line' ? '선' : '모서리'})` : '미보정'} · 오버레이 {overlays.length} · 자동 저장</span>
             <button className="btn ghost sm" onClick={() => setView('calibrate')} title="코트 재보정">재보정</button>
           </div>
           <ExportDropdown videoName={videoName} />
