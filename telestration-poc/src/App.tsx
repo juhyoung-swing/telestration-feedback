@@ -23,6 +23,9 @@ let idCounter = 0;
 const uid = (p: string) => `${p}-${++idCounter}`;
 
 const DEFAULT_SRC = '/court.mp4';
+const DEFAULT_LEN = 5; // new static effects span this many seconds from the playhead
+const FOLLOW_LEN = 8;  // new player-follow effects span this many seconds from the playhead
+const clampT = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
 const FEATURE_COLORS: Record<string, string> = { marker: '#FF3B3B', text: '#FFFFFF', path: '#FF3B3B', connector: '#00E5FF' };
 const FEATURE_MODE = {
   circle: 'placing-halo', marker: 'placing-marker', text: 'placing-text',
@@ -128,6 +131,21 @@ export default function App() {
   const changeRange = (id: string, startTime: number, endTime: number) =>
     setOverlays((o) => o.map((x) => (x.id === id ? { ...x, startTime, endTime } : x)));
 
+  // New effects land at the playhead with a default duration (video-editor convention),
+  // instead of spanning the whole clip and piling up on top of each other.
+  const spanAtPlayhead = (len = DEFAULT_LEN) => {
+    const total = dur > 0 ? dur : cur + len;
+    const L = Math.min(len, total);
+    const s = clampT(cur, 0, total - L);
+    return { startTime: s, endTime: s + L };
+  };
+  // Player-follow effects land at the playhead too, but clamped to the player's tracked span.
+  const followSpan = (t0: number, t1: number, len = FOLLOW_LEN) => {
+    const L = Math.min(len, Math.max(0.001, t1 - t0));
+    const s = clampT(cur, t0, Math.max(t0, t1 - L));
+    return { startTime: s, endTime: s + L };
+  };
+
   // ── calibration (corners) ──────────────────────────────────────────────
   const startCalibration = () => {
     videoRef.current?.pause();
@@ -207,11 +225,10 @@ export default function App() {
   // Finish a multi-point drawing (Zone ≥3 closed / Path ≥2 arrow).
   const finishDraft = () => {
     const pts = draftZone;
-    const end = dur > 0 ? dur : 9999;
     if (mode === 'drawing-zone' && pts.length >= 3) {
-      setOverlays((o) => [...o, { id: uid('zone'), type: 'coverage-zone', name: nextName(o, 'coverage-zone', 'Zone'), visible: true, startTime: 0, endTime: end, points: pts, color: zoneParams.color, opacity: zoneParams.opacity }]);
+      setOverlays((o) => [...o, { id: uid('zone'), type: 'coverage-zone', name: nextName(o, 'coverage-zone', 'Zone'), visible: true, ...spanAtPlayhead(), points: pts, color: zoneParams.color, opacity: zoneParams.opacity }]);
     } else if (mode === 'drawing-path' && pts.length >= 2) {
-      setOverlays((o) => [...o, { id: uid('path'), type: 'path', name: nextName(o, 'path', 'Path'), visible: true, startTime: 0, endTime: end, points: pts, color: FEATURE_COLORS.path }]);
+      setOverlays((o) => [...o, { id: uid('path'), type: 'path', name: nextName(o, 'path', 'Path'), visible: true, ...spanAtPlayhead(), points: pts, color: FEATURE_COLORS.path }]);
     }
     setDraftZone([]);
     setMode('idle');
@@ -228,14 +245,15 @@ export default function App() {
     const pts = players[playerId];
     if (!pts || pts.length === 0) return;
     const t0 = pts[0].t, t1 = pts[pts.length - 1].t;
+    const span = followSpan(t0, t1);
     const color = playerColor(playerId) ?? circleParams.color;
     setOverlays((o) => [...o, {
       id: uid('halo'), type: 'ground-halo', name: `Player ${playerId}`, visible: true,
-      startTime: t0, endTime: t1, courtX: 0, courtY: 0,
+      ...span, courtX: 0, courtY: 0,
       radiusMeters: circleParams.radiusMeters, color, opacity: circleParams.opacity,
       trackId: playerId,
     }]);
-    if (cur < t0 || cur > t1) seek(t0); // jump into range so it's immediately visible
+    if (cur < span.startTime || cur > span.endTime) seek(span.startTime); // jump into range so it's immediately visible
   };
   const followedIds = new Set(
     overlays.filter((o) => o.type === 'ground-halo' && o.trackId).map((o) => (o as { trackId?: string }).trackId!),
@@ -249,11 +267,12 @@ export default function App() {
     const pts = players[playerId];
     if (!pts || pts.length === 0) return;
     const t0 = pts[0].t, t1 = pts[pts.length - 1].t;
+    const span = followSpan(t0, t1);
     setOverlays((o) => [...o, {
       id: uid('cut'), type: 'cutout', name: `Cutout ${playerId}`, visible: true,
-      startTime: t0, endTime: t1, trackId: playerId, color: playerColor(playerId),
+      ...span, trackId: playerId, color: playerColor(playerId),
     }]);
-    if (cur < t0 || cur > t1) seek(t0);
+    if (cur < span.startTime || cur > span.endTime) seek(span.startTime);
   };
   const cutoutIds = new Set(
     overlays.filter((o) => o.type === 'cutout').map((o) => (o as { trackId: string }).trackId),
@@ -267,8 +286,9 @@ export default function App() {
     const pts = players[playerId];
     if (!pts || pts.length === 0) return;
     const t0 = pts[0].t, t1 = pts[pts.length - 1].t;
-    setOverlays((o) => [...o, { id: uid('spot'), type: 'spotlight', name: `Spotlight ${playerId}`, visible: true, startTime: t0, endTime: t1, trackId: playerId }]);
-    if (cur < t0 || cur > t1) seek(t0);
+    const span = followSpan(t0, t1);
+    setOverlays((o) => [...o, { id: uid('spot'), type: 'spotlight', name: `Spotlight ${playerId}`, visible: true, ...span, trackId: playerId }]);
+    if (cur < span.startTime || cur > span.endTime) seek(span.startTime);
   };
   const spotlightIds = new Set(
     overlays.filter((o) => o.type === 'spotlight').map((o) => (o as { trackId: string }).trackId),
@@ -313,22 +333,21 @@ export default function App() {
     if (!calibration) return;
     const court = unprojectToCourt(calibration.inverseHomography, videoPt.x, videoPt.y);
     const cxy = { courtX: court.x, courtY: court.y };
-    const end = dur > 0 ? dur : 9999;
     if (mode === 'placing-halo') {
-      setOverlays((o) => [...o, { id: uid('halo'), type: 'ground-halo', name: nextName(o, 'ground-halo', 'Circle'), visible: true, startTime: 0, endTime: end, courtX: court.x, courtY: court.y, radiusMeters: circleParams.radiusMeters, color: circleParams.color, opacity: circleParams.opacity }]);
+      setOverlays((o) => [...o, { id: uid('halo'), type: 'ground-halo', name: nextName(o, 'ground-halo', 'Circle'), visible: true, ...spanAtPlayhead(), courtX: court.x, courtY: court.y, radiusMeters: circleParams.radiusMeters, color: circleParams.color, opacity: circleParams.opacity }]);
     } else if (mode === 'placing-marker') {
-      setOverlays((o) => [...o, { id: uid('marker'), type: 'marker', name: nextName(o, 'marker', 'Marker'), visible: true, startTime: 0, endTime: end, ...cxy, color: FEATURE_COLORS.marker }]);
+      setOverlays((o) => [...o, { id: uid('marker'), type: 'marker', name: nextName(o, 'marker', 'Marker'), visible: true, ...spanAtPlayhead(), ...cxy, color: FEATURE_COLORS.marker }]);
     } else if (mode === 'placing-text') {
       const text = window.prompt('텍스트 입력', '텍스트');
-      if (text) setOverlays((o) => [...o, { id: uid('text'), type: 'text', name: nextName(o, 'text', 'Text'), visible: true, startTime: 0, endTime: end, ...cxy, text, color: FEATURE_COLORS.text }]);
+      if (text) setOverlays((o) => [...o, { id: uid('text'), type: 'text', name: nextName(o, 'text', 'Text'), visible: true, ...spanAtPlayhead(), ...cxy, text, color: FEATURE_COLORS.text }]);
     } else if (mode === 'placing-zoom') {
-      setOverlays((o) => [...o, { id: uid('zoom'), type: 'zoom-in', name: nextName(o, 'zoom-in', 'Zoom'), visible: true, startTime: 0, endTime: end, ...cxy, scale: zoomParams.scale }]);
+      setOverlays((o) => [...o, { id: uid('zoom'), type: 'zoom-in', name: nextName(o, 'zoom-in', 'Zoom'), visible: true, ...spanAtPlayhead(), ...cxy, scale: zoomParams.scale }]);
     } else if (mode === 'drawing-zone' || mode === 'drawing-path') {
       setDraftZone((z) => [...z, cxy]);
     } else if (mode === 'drawing-connector') {
       if (draftZone.length >= 1) {
         const p0 = draftZone[0];
-        setOverlays((o) => [...o, { id: uid('conn'), type: 'connector', name: nextName(o, 'connector', 'Connector'), visible: true, startTime: 0, endTime: end, points: [p0, cxy], color: FEATURE_COLORS.connector }]);
+        setOverlays((o) => [...o, { id: uid('conn'), type: 'connector', name: nextName(o, 'connector', 'Connector'), visible: true, ...spanAtPlayhead(), points: [p0, cxy], color: FEATURE_COLORS.connector }]);
         setDraftZone([]);
         setMode('idle');
       } else {
