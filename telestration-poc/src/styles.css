@@ -268,3 +268,11 @@ body {
 .file-drop:hover { border-color: var(--accent); color: var(--text); }
 .file-drop.has { border-style: solid; border-color: var(--accent); color: var(--text); }
 .btn.subtle.active { border-color: var(--accent); color: var(--accent); background: var(--accent-weak); }
+
+/* import-time court calibration step */
+.calibrate-view { display: flex; flex-direction: column; height: 100vh; background: var(--bg); }
+.calibrate-head { display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-bottom: 1px solid var(--border); background: var(--panel); }
+.calibrate-title { font-size: 15px; font-weight: 700; flex: 1; }
+.calibrate-body { flex: 1; min-height: 0; display: grid; grid-template-columns: 300px minmax(0, 1fr); }
+.calibrate-side { background: var(--panel); border-right: 1px solid var(--border); overflow-y: auto; }
+.calibrate-main { padding: 16px 20px; display: flex; align-items: center; justify-content: center; min-width: 0; }

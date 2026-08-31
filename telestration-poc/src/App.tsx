@@ -1,7 +1,6 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { VideoStage } from './components/VideoStage';
 import { Rail } from './components/layout/Rail';
-import { MediaPanel } from './components/layout/panels/MediaPanel';
 import { CourtPanel } from './components/layout/panels/CourtPanel';
 import { EffectPanel } from './components/layout/panels/EffectPanel';
 import { NarrativePanel } from './components/layout/panels/NarrativePanel';
@@ -55,8 +54,8 @@ export default function App() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const blobUrlRef = useRef<string | null>(null);
 
-  // project shell: 'projects' landing vs the 'editor'
-  const [view, setView] = useState<'projects' | 'editor'>('projects');
+  // project shell: 'projects' landing → 'calibrate' (import-time court setup) → 'editor'
+  const [view, setView] = useState<'projects' | 'calibrate' | 'editor'>('projects');
   const [projects, setProjects] = useState<Project[]>([]);
   const [projectId, setProjectId] = useState<string | null>(null);
   const [projectName, setProjectName] = useState('');
@@ -82,7 +81,7 @@ export default function App() {
   const [activeLineId, setActiveLineId] = useState<string | null>(null);
 
   // UI shell state
-  const [activeTab, setActiveTab] = useState<RailTab>('court');
+  const [activeTab, setActiveTab] = useState<RailTab>('effect');
   const [selectedFeature, setSelectedFeature] = useState<FeatureId>('follow-circle');
   const [selectedOverlayId, setSelectedOverlayId] = useState<string | null>(null);
   const [circleParams, setCircleParams] = useState<CircleParams>({ radiusMeters: 0.8, color: '#E4EF3D', opacity: 0.2 });
@@ -125,7 +124,13 @@ export default function App() {
   // ── projects ─────────────────────────────────────────────────────────────
   useEffect(() => { if (view === 'projects') setProjects(listProjects()); }, [view]);
 
-  const openProject = async (p: Project) => {
+  // entering the import-time calibration step arms corner calibration
+  useEffect(() => {
+    if (view === 'calibrate' && !calibration && mode === 'idle') startCalibration();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [view]);
+
+  const openProject = async (p: Project, toView: 'editor' | 'calibrate' = 'editor') => {
     if (blobUrlRef.current) { URL.revokeObjectURL(blobUrlRef.current); blobUrlRef.current = null; }
     if (p.videoKey) {
       const blob = await loadVideoBlob(p.videoKey);
@@ -145,9 +150,9 @@ export default function App() {
     setSelectedOverlayId(null);
     setDraftCalib([]); setDraftZone([]); setPathDraft(null); setDrawnLines([]); setLineDraft([]); setActiveLineId(null);
     setMode('idle');
-    setActiveTab('court');
+    setActiveTab('effect');
     setProjectId(p.id); setProjectName(p.name);
-    setView('editor');
+    setView(toView);
   };
   const createProject = async (name: string, file: File | null) => {
     let p = newProject(name);
@@ -157,7 +162,7 @@ export default function App() {
       p = { ...p, videoName: file.name, videoKey: key };
     }
     saveProject(p);
-    await openProject(p);
+    await openProject(p, 'calibrate'); // new project → court-calibration step first
   };
   const removeProject = (id: string) => { deleteProjectRec(id); setProjects(listProjects()); };
   const backToProjects = () => { setView('projects'); };
@@ -588,35 +593,6 @@ export default function App() {
     else v.pause();
   };
 
-  // ── media ──────────────────────────────────────────────────────────────
-  const loadFile = useCallback((file: File) => {
-    if (blobUrlRef.current) URL.revokeObjectURL(blobUrlRef.current);
-    const url = URL.createObjectURL(file);
-    blobUrlRef.current = url;
-    // persist the uploaded video to IndexedDB so this project auto-restores it later
-    const key = newVideoKey();
-    void saveVideoBlob(key, file).catch(() => {});
-    setVideoKey(key);
-    setSrc(url);
-    setVideoName(file.name);
-    setCalibration(null);
-    setCalibMethod(null);
-    setOverlays([]);
-    setPast([]);
-    setFuture([]);
-    setDraftCalib([]);
-    setDraftZone([]);
-    setDrawnLines([]);
-    setLineDraft([]);
-    setActiveLineId(null);
-    setSelectedOverlayId(null);
-    setMode('idle');
-    setDims(null);
-    setPlayers(null); // players.json only matches the default court.mp4
-    setFragments(null);
-    setPlayerAnchors([]);
-  }, []);
-
   // Esc leaves interactive mode; Enter finishes a zone/line.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -699,8 +675,46 @@ export default function App() {
     }
   })();
 
+  const courtPanel = (
+    <CourtPanel
+      mode={mode} hasCalibration={!!calibration} method={calibMethod} showGrid={showGrid}
+      draftCalibCount={draftCalib.length} activeLineId={activeLineId} lineDraftCount={lineDraft.length}
+      currentLineIds={currentLineIds} lineCoverage={lineCoverage} canFinishLines={canFinishLines}
+      onStartCorner={startCalibration} onStartLine={startLineCalibration} onReset={resetCalibration}
+      onToggleGrid={() => setShowGrid((s) => !s)} onSelectLine={selectLine} onFinishLine={finishLineCalibration} onCancelLine={cancelLineCalibration}
+    />
+  );
+  const videoStage = (
+    <VideoStage
+      src={src} videoRef={videoRef} calibration={calibration} overlays={overlays} mode={mode}
+      showGrid={showGrid} currentTime={cur} hint={stageHint} selectedId={selectedOverlayId} onSelectOverlay={setSelectedOverlayId}
+      players={players} cutouts={cutouts} fragments={fragments} playerAnchors={playerAnchors} fps={trackFps}
+      draftCalib={draftCalib} draftZone={draftZone} pathDraft={pathDraft}
+      onUpdatePathPoints={(id, points) => updatePath(id, { points })} onUpdateText={updateText}
+      drawnLines={drawnLines} lineDraft={lineDraft} activeLineId={activeLineId} onStageClick={onStageClick} onDimensions={(w, h) => setDims({ w, h })}
+    />
+  );
+
   if (view === 'projects') {
     return <ProjectList projects={projects} onOpen={(p) => void openProject(p)} onCreate={(name, file) => void createProject(name, file)} onDelete={removeProject} />;
+  }
+
+  if (view === 'calibrate') {
+    return (
+      <div className="calibrate-view">
+        <header className="calibrate-head">
+          <button className="btn ghost sm" onClick={backToProjects} title="프로젝트 목록으로">← 프로젝트</button>
+          <span className="calibrate-title">🎾 코트 보정 · {projectName}</span>
+          <button className="btn primary sm" onClick={() => setView('editor')}>
+            {calibration ? '완료 · 에디터로 →' : '건너뛰고 에디터로 →'}
+          </button>
+        </header>
+        <div className="calibrate-body">
+          <aside className="calibrate-side">{courtPanel}</aside>
+          <main className="calibrate-main">{videoStage}</main>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -708,28 +722,6 @@ export default function App() {
       <Rail active={activeTab} onSelect={setActiveTab} />
 
       <section className="left-panel">
-        {activeTab === 'media' && <MediaPanel videoName={videoName} dims={dims} onLoadFile={loadFile} />}
-        {activeTab === 'court' && (
-          <CourtPanel
-            mode={mode}
-            hasCalibration={!!calibration}
-            method={calibMethod}
-            showGrid={showGrid}
-            draftCalibCount={draftCalib.length}
-            activeLineId={activeLineId}
-            lineDraftCount={lineDraft.length}
-            currentLineIds={currentLineIds}
-            lineCoverage={lineCoverage}
-            canFinishLines={canFinishLines}
-            onStartCorner={startCalibration}
-            onStartLine={startLineCalibration}
-            onReset={resetCalibration}
-            onToggleGrid={() => setShowGrid((s) => !s)}
-            onSelectLine={selectLine}
-            onFinishLine={finishLineCalibration}
-            onCancelLine={cancelLineCalibration}
-          />
-        )}
         {activeTab === 'effect' && (
           <EffectPanel
             hasCalibration={!!calibration}
@@ -790,38 +782,13 @@ export default function App() {
           <div className="center-head-l">
             <button className="btn ghost sm back-projects" onClick={backToProjects} title="프로젝트 목록으로 (자동 저장됨)">← 프로젝트</button>
             <span className="center-title">{projectName || videoName}</span>
-            <span className="center-sub">{calibration ? `캘리브레이션 ✓ (${calibMethod === 'line' ? '선' : '모서리'})` : '미보정'} · 오버레이 {overlays.length} · 자동 저장</span>
+            <span className="center-sub">{calibration ? `보정 ✓ (${calibMethod === 'line' ? '선' : '모서리'})` : '미보정'} · 오버레이 {overlays.length} · 자동 저장</span>
+            <button className="btn ghost sm" onClick={() => setView('calibrate')} title="코트 재보정">재보정</button>
           </div>
           <ExportDropdown videoName={videoName} />
         </div>
 
-        <VideoStage
-          src={src}
-          videoRef={videoRef}
-          calibration={calibration}
-          overlays={overlays}
-          mode={mode}
-          showGrid={showGrid}
-          currentTime={cur}
-          hint={stageHint}
-          selectedId={selectedOverlayId}
-          onSelectOverlay={setSelectedOverlayId}
-          players={players}
-          cutouts={cutouts}
-          fragments={fragments}
-          playerAnchors={playerAnchors}
-          fps={trackFps}
-          draftCalib={draftCalib}
-          draftZone={draftZone}
-          pathDraft={pathDraft}
-          onUpdatePathPoints={(id, points) => updatePath(id, { points })}
-          onUpdateText={updateText}
-          drawnLines={drawnLines}
-          lineDraft={lineDraft}
-          activeLineId={activeLineId}
-          onStageClick={onStageClick}
-          onDimensions={(w, h) => setDims({ w, h })}
-        />
+        {videoStage}
 
         <EditingToolbar
           playing={playing}

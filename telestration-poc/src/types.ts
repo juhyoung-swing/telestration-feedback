@@ -131,8 +131,8 @@ export type PlayerCutouts = Record<string, CutoutSample[]>;
 export type CutoutData = { video: string; fps: number; width: number; height: number; step: number; players: PlayerCutouts };
 
 // ── UI (SportsBuddy-style shell) ────────────────────────────────────────────
-// Player was merged into the Effect tab (its Player section), so it's no longer a rail tab.
-export type RailTab = 'media' | 'court' | 'effect' | 'narrative';
+// Media/Court were removed: video import + court calibration happen at project creation.
+export type RailTab = 'effect' | 'narrative';
 
 // SportsBuddy feature set as Effect-tab tiles. Player-group tiles (follow-circle / cutout /
 // spotlight) apply to a player picked in the panel's lower section; the rest place on the court.

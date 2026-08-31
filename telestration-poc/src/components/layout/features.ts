@@ -30,8 +30,6 @@ export const FEATURES: FeatureDef[] = [
 export const FEATURE_GROUPS: FeatureGroup[] = ['Player', 'Tactic', 'Action'];
 
 export const RAIL_TABS: { id: RailTab; label: string; icon: string }[] = [
-  { id: 'media', label: 'Media', icon: '🎬' },
-  { id: 'court', label: 'Court', icon: '🎾' },
   { id: 'effect', label: 'Effect', icon: '✨' },
   { id: 'narrative', label: 'Narrative', icon: '💬' },
 ];

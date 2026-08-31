@@ -107,7 +107,7 @@ export function EffectPanel(p: Props) {
   return (
     <div className="panel">
       <div className="panel-title">Effect · 효과</div>
-      {!p.hasCalibration && <div className="warn-note">먼저 <b>Court</b> 탭에서 캘리브레이션하세요.</div>}
+      {!p.hasCalibration && <div className="warn-note">코트 보정이 필요합니다 — 상단 <b>재보정</b>을 누르세요. (화면 위 텍스트·직선·배속은 보정 없이도 가능)</div>}
 
       {/* ── tile catalog: Player / Tactic / Action ── */}
       {FEATURE_GROUPS.map((g) => (
