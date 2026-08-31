@@ -6,7 +6,7 @@ export type Mode =
   | 'idle' | 'calibrating' | 'line-calibrating' | 'player-calibrating'
   | 'placing-halo' | 'drawing-zone'
   | 'placing-marker' | 'placing-text' | 'drawing-path' | 'drawing-connector'
-  | 'placing-zoom' | 'editing-path';
+  | 'placing-zoom' | 'editing-path' | 'editing-text';
 
 /** One court line drawn during line-calibration: which line + the clicked points (video px). */
 export type DrawnLine = { id: string; points: Pt[] };
@@ -70,7 +70,15 @@ export type Marker = TimeSpan & {
 };
 export type TextLabel = TimeSpan & {
   id: string; type: 'text'; name: string; visible: boolean;
-  courtX: number; courtY: number; text: string; color?: string;
+  courtX: number; courtY: number;   // top-left anchor (court meters), projected to the box's top-left
+  text: string;
+  fontSize: number;                 // display px
+  fontFamily: string;
+  bold: boolean;
+  align: 'left' | 'center' | 'right';
+  color?: string;
+  boxW: number; boxH: number;       // box size (display px) — drag to resize
+  bg: boolean; bgColor: string; bgOpacity: number;
 };
 // Path: a directional arrow between two endpoints.
 //  - space 'court'  → endpoints are court metres, projected onto the floor (perspective).
@@ -131,3 +139,4 @@ export type CircleParams = { radiusMeters: number; color: string; opacity: numbe
 export type ZoneParams = { color: string; opacity: number };
 export type ZoomParams = { scale: number };
 export type PathParams = { shape: 'court-line' | 'screen-line' | 'arc'; height: number; color: string; dashed: boolean };
+export type TextParams = { fontSize: number; fontFamily: string; bold: boolean; align: 'left' | 'center' | 'right'; color: string; bg: boolean; bgColor: string; bgOpacity: number };

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { CSSProperties, RefObject } from 'react';
-import { Stage, Layer, Circle } from 'react-konva';
+import { Stage, Layer, Circle, Rect } from 'react-konva';
 import { useElementSize } from '../hooks/useElementSize';
 import { projectCourtPoint, unprojectToCourt, circleInCourt } from '../geometry/homography';
 import type { Pt } from '../geometry/homography';
@@ -57,6 +57,7 @@ type Props = {
   draftZone: { courtX: number; courtY: number }[]; // court meters
   pathDraft: Pt | null; // path drawing: first click (video px)
   onUpdatePathPoints: (id: string, points: { x: number; y: number }[]) => void; // endpoint drag
+  onUpdateText: (id: string, patch: Partial<Extract<Overlay, { type: 'text' }>>) => void; // text box move/resize
   drawnLines: DrawnLine[]; // line-calibration: committed lines (video px)
   lineDraft: Pt[]; // line-calibration: active line points (video px)
   activeLineId: string | null;
@@ -84,6 +85,7 @@ export function VideoStage({
   draftZone,
   pathDraft,
   onUpdatePathPoints,
+  onUpdateText,
   drawnLines,
   lineDraft,
   activeLineId,
@@ -162,7 +164,8 @@ export function VideoStage({
     };
     switch (o.type) {
       case 'ground-halo': return o.trackId ? atFoot(o.trackId) : project(o.courtX, o.courtY);
-      case 'marker': case 'text': case 'zoom-in': return project(o.courtX, o.courtY);
+      case 'marker': case 'zoom-in': return project(o.courtX, o.courtY);
+      case 'text': { const tl = project(o.courtX, o.courtY); return { x: tl.x + o.boxW / 2, y: tl.y + o.boxH / 2 }; }
       case 'path': return o.points[0] ? toDisplaySpace(o.space, o.points[0].x, o.points[0].y) : null;
       case 'coverage-zone': case 'connector': return o.points[0] ? project(o.points[0].courtX, o.points[0].courtY) : null;
       case 'cutout': case 'spotlight': return atFoot(o.trackId);
@@ -180,7 +183,8 @@ export function VideoStage({
     for (let k = visible.length - 1; k >= 0; k--) {
       const o = visible[k];
       switch (o.type) {
-        case 'marker': case 'text': if (near(project(o.courtX, o.courtY), 22)) return o.id; break;
+        case 'marker': if (near(project(o.courtX, o.courtY), 22)) return o.id; break;
+        case 'text': { const tl = project(o.courtX, o.courtY); if (pos.x >= tl.x && pos.x <= tl.x + o.boxW && pos.y >= tl.y && pos.y <= tl.y + o.boxH) return o.id; break; }
         case 'ground-halo': {
           let cx = o.courtX, cy = o.courtY;
           if (o.trackId && players) {
@@ -296,7 +300,9 @@ export function VideoStage({
                       case 'marker':
                         return <Marker key={o.id} courtX={o.courtX} courtY={o.courtY} project={project} color={o.color} />;
                       case 'text':
-                        return <TextLabel key={o.id} courtX={o.courtX} courtY={o.courtY} text={o.text} project={project} color={o.color} />;
+                        return <TextLabel key={o.id} courtX={o.courtX} courtY={o.courtY} text={o.text} project={project} color={o.color}
+                          fontSize={o.fontSize} fontFamily={o.fontFamily} bold={o.bold} align={o.align} boxW={o.boxW} boxH={o.boxH}
+                          bg={o.bg} bgColor={o.bgColor} bgOpacity={o.bgOpacity} />;
                       case 'path':
                         return <PathArrow key={o.id} space={o.space} shape={o.shape} points={o.points} height={o.height} dashed={o.dashed} toDisplay={toDisplaySpace} color={o.color} />;
                       case 'connector':
@@ -391,6 +397,26 @@ export function VideoStage({
                     const d = toDisplaySpace(o.space, pp.x, pp.y);
                     return <Circle key={i} x={d.x} y={d.y} radius={9} fill="#fff" stroke="#FF3B3B" strokeWidth={3} draggable onDragMove={(e) => drag(i, e.target)} />;
                   })}
+                </Layer>
+              );
+            })()}
+
+            {/* editing-text: drag the box to move, corner handle to resize */}
+            {mode === 'editing-text' && view && calibration && (() => {
+              const o = overlays.find((x) => x.id === selectedId);
+              if (!o || o.type !== 'text') return null;
+              const tl = project(o.courtX, o.courtY);
+              return (
+                <Layer>
+                  <Rect
+                    x={tl.x} y={tl.y} width={o.boxW} height={o.boxH}
+                    fill="rgba(255,59,59,0.08)" stroke="#FF3B3B" strokeWidth={1.5} dash={[5, 4]} draggable
+                    onDragMove={(e) => { const vid = displayToVideo({ x: e.target.x(), y: e.target.y() }, view); const c = unprojectToCourt(calibration.inverseHomography, vid.x, vid.y); onUpdateText(o.id, { courtX: c.x, courtY: c.y }); }}
+                  />
+                  <Circle
+                    x={tl.x + o.boxW} y={tl.y + o.boxH} radius={8} fill="#fff" stroke="#FF3B3B" strokeWidth={2.5} draggable
+                    onDragMove={(e) => onUpdateText(o.id, { boxW: Math.max(40, e.target.x() - tl.x), boxH: Math.max(24, e.target.y() - tl.y) })}
+                  />
                 </Layer>
               );
             })()}

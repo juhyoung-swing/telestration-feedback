@@ -18,7 +18,7 @@ import { courtLineDef, fitImageLine, homographyFromLines, familiesCovered } from
 import { PLAYER_COLORS, playerColor, hitTestFragment, assignFragments } from './geometry/tracking';
 import type {
   CircleParams, CourtCalibration, CutoutData, DrawnLine, FeatureId, FragmentData, Fragments, Mode, Overlay,
-  PathParams, PlayerAnchor, PlayerCutouts, Players, RailTab, TrackingData, ZoneParams, ZoomParams,
+  PathParams, PlayerAnchor, PlayerCutouts, Players, RailTab, TextParams, TrackingData, ZoneParams, ZoomParams,
 } from './types';
 
 let idCounter = 0;
@@ -75,6 +75,7 @@ export default function App() {
   const [pathParams, setPathParams] = useState<PathParams>({ shape: 'court-line', height: 0.4, color: FEATURE_COLORS.path, dashed: false });
   const [pathDraft, setPathDraft] = useState<Pt | null>(null); // first click (video px) while drawing a path
   const [textDraft, setTextDraft] = useState('텍스트'); // Text feature: content typed in the panel
+  const [textParams, setTextParams] = useState<TextParams>({ fontSize: 22, fontFamily: 'sans-serif', bold: true, align: 'center', color: '#FFFFFF', bg: true, bgColor: '#000000', bgOpacity: 0.55 });
 
   // playback
   const [playing, setPlaying] = useState(false);
@@ -332,6 +333,9 @@ export default function App() {
   // Live-edit a placed path (shape/height/points) — no history churn per slider tick.
   const updatePath = (id: string, patch: Partial<{ shape: 'line' | 'arc'; height: number; dashed: boolean; color: string; points: { x: number; y: number }[] }>) =>
     setOverlays((o) => o.map((x) => (x.id === id && x.type === 'path' ? { ...x, ...patch } : x)));
+  // Live-edit a placed text box (content/style/size/position).
+  const updateText = (id: string, patch: Partial<Extract<Overlay, { type: 'text' }>>) =>
+    setOverlays((o) => o.map((x) => (x.id === id && x.type === 'text' ? { ...x, ...patch } : x)));
   const cancelDraft = () => { setDraftZone([]); setPathDraft(null); setMode('idle'); };
 
   // Toggle a Circle bound to a tracked player. Its court position is derived
@@ -458,7 +462,12 @@ export default function App() {
       mutate((o) => [...o, { id: uid('marker'), type: 'marker', name: nextName(o, 'marker', 'Marker'), visible: true, ...spanAtPlayhead(), ...cxy, color: FEATURE_COLORS.marker }]);
     } else if (mode === 'placing-text') {
       const text = textDraft.trim() || '텍스트';
-      mutate((o) => [...o, { id: uid('text'), type: 'text', name: nextName(o, 'text', 'Text'), visible: true, ...spanAtPlayhead(), ...cxy, text, color: FEATURE_COLORS.text }]);
+      mutate((o) => [...o, {
+        id: uid('text'), type: 'text', name: nextName(o, 'text', 'Text'), visible: true, ...spanAtPlayhead(),
+        ...cxy, text, boxW: 180, boxH: 52,
+        fontSize: textParams.fontSize, fontFamily: textParams.fontFamily, bold: textParams.bold, align: textParams.align,
+        color: textParams.color, bg: textParams.bg, bgColor: textParams.bgColor, bgOpacity: textParams.bgOpacity,
+      }]);
     } else if (mode === 'placing-zoom') {
       mutate((o) => [...o, { id: uid('zoom'), type: 'zoom-in', name: nextName(o, 'zoom-in', 'Zoom'), visible: true, ...spanAtPlayhead(), ...cxy, scale: zoomParams.scale }]);
     } else if (mode === 'drawing-zone') {
@@ -620,6 +629,7 @@ export default function App() {
       case 'drawing-zone': return `Zone 영역 · ${n}점 (3점 이상) · Enter 완료 · Esc 취소`;
       case 'drawing-path': return `Path · 시작·끝 2점 클릭 (${pathDraft ? 1 : 0}/2) · Esc 취소`;
       case 'editing-path': return 'Path 끝점을 드래그해 이동 · Esc 완료';
+      case 'editing-text': return '박스를 드래그해 이동 · 모서리 핸들로 크기 조절 · Esc 완료';
       case 'drawing-connector': return `Connector · ${n}/2점 클릭 · Esc 취소`;
       default: return null;
     }
@@ -692,6 +702,13 @@ export default function App() {
             onFinishEditPath={() => setMode('idle')}
             textDraft={textDraft}
             setTextDraft={setTextDraft}
+            textParams={textParams}
+            setTextParams={setTextParams}
+            selectedText={selectedOverlay?.type === 'text' ? selectedOverlay : null}
+            onUpdateText={updateText}
+            onEditText={() => setMode('editing-text')}
+            editingText={mode === 'editing-text'}
+            onFinishEditText={() => setMode('idle')}
             onCreate={startFeature}
             onFinishDraft={finishDraft}
             onCancelDraft={cancelDraft}
@@ -730,6 +747,7 @@ export default function App() {
           draftZone={draftZone}
           pathDraft={pathDraft}
           onUpdatePathPoints={(id, points) => updatePath(id, { points })}
+          onUpdateText={updateText}
           drawnLines={drawnLines}
           lineDraft={lineDraft}
           activeLineId={activeLineId}

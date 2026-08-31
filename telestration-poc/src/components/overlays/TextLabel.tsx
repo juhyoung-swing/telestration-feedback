@@ -1,7 +1,8 @@
 import { Group, Rect, Text } from 'react-konva';
 import type { Pt } from '../../geometry/homography';
+import { hexToRgba } from '../../utils/color';
 
-/** A text label anchored to a court point, with a dark chip for readability. */
+/** A resizable text box anchored (top-left) to a court point. Text wraps to the box width. */
 export function TextLabel({
   courtX,
   courtY,
@@ -9,6 +10,14 @@ export function TextLabel({
   project,
   color = '#FFFFFF',
   fontSize = 20,
+  fontFamily = 'sans-serif',
+  bold = true,
+  align = 'center',
+  boxW = 180,
+  boxH = 52,
+  bg = true,
+  bgColor = '#000000',
+  bgOpacity = 0.55,
 }: {
   courtX: number;
   courtY: number;
@@ -16,15 +25,33 @@ export function TextLabel({
   project: (courtX: number, courtY: number) => Pt;
   color?: string;
   fontSize?: number;
+  fontFamily?: string;
+  bold?: boolean;
+  align?: 'left' | 'center' | 'right';
+  boxW?: number;
+  boxH?: number;
+  bg?: boolean;
+  bgColor?: string;
+  bgOpacity?: number;
 }) {
-  const d = project(courtX, courtY);
-  const pad = 7;
-  const w = Math.max(24, text.length * fontSize * 0.62) + pad * 2;
-  const h = fontSize + pad * 2;
+  const d = project(courtX, courtY); // top-left
+  const pad = 8;
   return (
     <Group listening={false}>
-      <Rect x={d.x - w / 2} y={d.y - h / 2} width={w} height={h} fill="rgba(0,0,0,0.55)" cornerRadius={5} />
-      <Text x={d.x - w / 2} y={d.y - fontSize / 2} width={w} align="center" text={text} fontSize={fontSize} fontStyle="bold" fill={color} />
+      {bg && <Rect x={d.x} y={d.y} width={boxW} height={boxH} fill={hexToRgba(bgColor, bgOpacity)} cornerRadius={6} />}
+      <Text
+        x={d.x + pad} y={d.y}
+        width={boxW - pad * 2} height={boxH}
+        text={text}
+        fontSize={fontSize}
+        fontFamily={fontFamily}
+        fontStyle={bold ? 'bold' : 'normal'}
+        align={align}
+        verticalAlign="middle"
+        wrap="word"
+        fill={color}
+        listening={false}
+      />
     </Group>
   );
 }

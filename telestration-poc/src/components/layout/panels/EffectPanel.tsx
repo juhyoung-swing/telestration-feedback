@@ -1,6 +1,6 @@
 import { FEATURES, FEATURE_GROUPS } from '../features';
 import { playersBySpan, posLabel } from '../../../geometry/tracking';
-import type { CircleParams, FeatureId, Mode, PathArrow, PathParams, Players, ZoneParams, ZoomParams } from '../../../types';
+import type { CircleParams, FeatureId, Mode, PathArrow, PathParams, Players, TextLabel, TextParams, ZoneParams, ZoomParams } from '../../../types';
 
 const FEATURE_MODE: Record<string, Mode> = {
   circle: 'placing-halo', marker: 'placing-marker', text: 'placing-text',
@@ -46,6 +46,13 @@ type Props = {
   onFinishEditPath: () => void;
   textDraft: string;
   setTextDraft: (s: string) => void;
+  textParams: TextParams;
+  setTextParams: (p: TextParams) => void;
+  selectedText: TextLabel | null;
+  onUpdateText: (id: string, patch: Partial<TextLabel>) => void;
+  onEditText: () => void;
+  editingText: boolean;
+  onFinishEditText: () => void;
   onCreate: (id: FeatureId) => void;
   onFinishDraft: () => void;
   onCancelDraft: () => void;
@@ -72,6 +79,11 @@ export function EffectPanel(p: Props) {
   const pathDashed = selPath?.dashed ?? p.pathParams.dashed;
   const setPathColor = (c: string) => (selPath ? p.onUpdatePath(selPath.id, { color: c }) : p.setPathParams({ ...p.pathParams, color: c }));
   const setPathDashed = (d: boolean) => (selPath ? p.onUpdatePath(selPath.id, { dashed: d }) : p.setPathParams({ ...p.pathParams, dashed: d }));
+
+  // Text: a selected text box is edited live; otherwise the controls set defaults for new text.
+  const selText = p.selectedText;
+  const t = selText ?? p.textParams;
+  const tSet = (patch: Partial<TextParams>) => (selText ? p.onUpdateText(selText.id, patch) : p.setTextParams({ ...p.textParams, ...patch }));
 
   const list = p.players ? playersBySpan(p.players) : [];
   const calibrating = p.mode === 'player-calibrating';
@@ -198,9 +210,46 @@ export function EffectPanel(p: Props) {
                 onChange={(e) => p.setZoomParams({ ...p.zoomParams, scale: Number(e.target.value) })} /></div>
           )}
           {p.selected === 'text' && (
-            <div className="field"><label>라벨 내용</label>
-              <input type="text" value={p.textDraft} placeholder="텍스트" maxLength={40}
-                onChange={(e) => p.setTextDraft(e.target.value)} /></div>
+            <>
+              <div className="field"><label>내용</label>
+                <input type="text" value={selText ? selText.text : p.textDraft} placeholder="텍스트" maxLength={120}
+                  onChange={(e) => (selText ? p.onUpdateText(selText.id, { text: e.target.value }) : p.setTextDraft(e.target.value))} /></div>
+              <div className="field"><label>글자 크기 {t.fontSize}px</label>
+                <input type="range" min="10" max="72" step="1" value={t.fontSize} onChange={(e) => tSet({ fontSize: Number(e.target.value) })} /></div>
+              <div className="field"><label>폰트</label>
+                <select value={t.fontFamily} onChange={(e) => tSet({ fontFamily: e.target.value })}>
+                  <option value="sans-serif">기본 (고딕)</option>
+                  <option value="serif">명조</option>
+                  <option value="monospace">고정폭</option>
+                </select></div>
+              <div className="field"><label>글자 색</label>
+                <input type="color" value={t.color ?? '#FFFFFF'} onChange={(e) => tSet({ color: e.target.value })} /></div>
+              <div className="field"><label>스타일 · 정렬</label>
+                <div className="btn-row">
+                  <button className={`btn sm ${t.bold ? 'active' : ''}`} onClick={() => tSet({ bold: !t.bold })}><b>B</b></button>
+                  <button className={`btn sm ${t.align === 'left' ? 'active' : ''}`} onClick={() => tSet({ align: 'left' })}>좌</button>
+                  <button className={`btn sm ${t.align === 'center' ? 'active' : ''}`} onClick={() => tSet({ align: 'center' })}>중</button>
+                  <button className={`btn sm ${t.align === 'right' ? 'active' : ''}`} onClick={() => tSet({ align: 'right' })}>우</button>
+                </div></div>
+              <div className="field"><label>배경</label>
+                <div className="btn-row">
+                  <button className={`btn sm ${t.bg ? 'active' : ''}`} onClick={() => tSet({ bg: true })}>켜기</button>
+                  <button className={`btn sm ${!t.bg ? 'active' : ''}`} onClick={() => tSet({ bg: false })}>끄기</button>
+                </div></div>
+              {t.bg && (
+                <>
+                  <div className="field"><label>배경 색</label>
+                    <input type="color" value={t.bgColor} onChange={(e) => tSet({ bgColor: e.target.value })} /></div>
+                  <div className="field"><label>배경 투명도 {t.bgOpacity.toFixed(2)}</label>
+                    <input type="range" min="0" max="1" step="0.05" value={t.bgOpacity} onChange={(e) => tSet({ bgOpacity: Number(e.target.value) })} /></div>
+                </>
+              )}
+              {selText && (
+                <button className={`btn sm block ${p.editingText ? 'active' : ''}`} onClick={p.editingText ? p.onFinishEditText : p.onEditText}>
+                  {p.editingText ? '박스 편집 완료' : '박스 편집 (드래그로 이동·크기)'}
+                </button>
+              )}
+            </>
           )}
           {p.selected === 'path' && !selPath && (
             <div className="field"><label>모양</label>
