@@ -18,7 +18,7 @@ export const FEATURES: FeatureDef[] = [
   { id: 'cutout', label: 'Cutout', group: 'Player', icon: '🧍', implemented: true, hint: '선수 실루엣 외곽선. 아래에서 선수를 선택해 적용합니다.' },
   { id: 'spotlight', label: 'Spotlight', group: 'Player', icon: '🔦', implemented: true, hint: '배경 어둡게 + 선수 강조. 아래에서 선수를 선택해 적용합니다.' },
   { id: 'circle', label: 'Circle', group: 'Tactic', icon: '◎', implemented: true, hint: '코트를 클릭해 바닥에 고정 헤일로(원)를 놓습니다.' },
-  { id: 'path', label: 'Path', group: 'Tactic', icon: '↝', implemented: true, hint: '코트를 여러 번 클릭해 화살표 경로를 그립니다.' },
+  { id: 'path', label: 'Path', group: 'Tactic', icon: '↝', implemented: true, hint: '시작·끝 2점을 클릭해 화살표를 그립니다 (직선·맵/화면, 3D 포물선).' },
   { id: 'zone', label: 'Zone', group: 'Tactic', icon: '▰', implemented: true, hint: '코트를 3점 이상 클릭해 커버리지 존을 그립니다.' },
   { id: 'marker', label: 'Marker', group: 'Tactic', icon: '📍', implemented: true, hint: '코트를 클릭해 지점 마커를 놓습니다.' },
   { id: 'connector', label: 'Connector', group: 'Tactic', icon: '🔗', implemented: true, hint: '두 지점을 클릭해 잇는 선을 그립니다.' },

@@ -38,6 +38,8 @@ type Props = {
   fps: number;
   draftCalib: Pt[]; // video px
   draftZone: { courtX: number; courtY: number }[]; // court meters
+  pathDraft: Pt | null; // path drawing: first click (video px)
+  onUpdatePathPoints: (id: string, points: { x: number; y: number }[]) => void; // endpoint drag
   drawnLines: DrawnLine[]; // line-calibration: committed lines (video px)
   lineDraft: Pt[]; // line-calibration: active line points (video px)
   activeLineId: string | null;
@@ -62,6 +64,8 @@ export function VideoStage({
   fps,
   draftCalib,
   draftZone,
+  pathDraft,
+  onUpdatePathPoints,
   drawnLines,
   lineDraft,
   activeLineId,
@@ -82,6 +86,9 @@ export function VideoStage({
   const project = (courtX: number, courtY: number): Pt =>
     videoToDisplay(projectCourtPoint(calibration!.homography, courtX, courtY), view!);
   const vToD = (p: Pt): Pt => videoToDisplay(p, view!);
+  // path endpoints: court metres project onto the floor; screen px map flat.
+  const toDisplaySpace = (space: 'court' | 'screen', x: number, y: number): Pt =>
+    space === 'court' ? project(x, y) : vToD({ x, y });
 
   const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!interactive || !view) return;
@@ -136,7 +143,8 @@ export function VideoStage({
     switch (o.type) {
       case 'ground-halo': return o.trackId ? atFoot(o.trackId) : project(o.courtX, o.courtY);
       case 'marker': case 'text': case 'zoom-in': return project(o.courtX, o.courtY);
-      case 'coverage-zone': case 'path': case 'connector': return o.points[0] ? project(o.points[0].courtX, o.points[0].courtY) : null;
+      case 'path': return o.points[0] ? toDisplaySpace(o.space, o.points[0].x, o.points[0].y) : null;
+      case 'coverage-zone': case 'connector': return o.points[0] ? project(o.points[0].courtX, o.points[0].courtY) : null;
       case 'cutout': case 'spotlight': return atFoot(o.trackId);
       default: return null;
     }
@@ -191,7 +199,7 @@ export function VideoStage({
                       case 'text':
                         return <TextLabel key={o.id} courtX={o.courtX} courtY={o.courtY} text={o.text} project={project} color={o.color} />;
                       case 'path':
-                        return <PathArrow key={o.id} points={o.points} curvature={o.curvature} project={project} color={o.color} />;
+                        return <PathArrow key={o.id} space={o.space} shape={o.shape} points={o.points} height={o.height} toDisplay={toDisplaySpace} color={o.color} />;
                       case 'connector':
                         return <Connector key={o.id} points={o.points} project={project} color={o.color} />;
                       case 'spotlight':
@@ -227,15 +235,19 @@ export function VideoStage({
                 </>
               )}
 
-              {/* draft preview for zone / path / connector */}
-              {calibration && (mode === 'drawing-zone' || mode === 'drawing-path' || mode === 'drawing-connector') && draftZone.length > 0 && (
+              {/* draft preview for zone / connector */}
+              {calibration && (mode === 'drawing-zone' || mode === 'drawing-connector') && draftZone.length > 0 && (
                 <>
                   {mode === 'drawing-zone' && <CoverageZone points={draftZone} project={project} closed={draftZone.length >= 3} />}
-                  {mode === 'drawing-path' && <PathArrow points={draftZone} project={project} arrow={false} color="#FF3B3B" />}
                   {mode === 'drawing-connector' && <Connector points={draftZone} project={project} />}
                   {draftZone.map((p, i) => { const d = project(p.courtX, p.courtY); return <Circle key={i} x={d.x} y={d.y} radius={4} fill="#fff" stroke="#000" strokeWidth={1} listening={false} />; })}
                 </>
               )}
+              {/* path: first-click marker while drawing */}
+              {mode === 'drawing-path' && pathDraft && view && (() => {
+                const d = vToD(pathDraft);
+                return <Circle x={d.x} y={d.y} radius={5} fill="#fff" stroke="#FF3B3B" strokeWidth={2} listening={false} />;
+              })()}
 
               {/* player-calibration: detected boxes to click + anchored labels */}
               {mode === 'player-calibrating' && fragments && (
@@ -261,6 +273,28 @@ export function VideoStage({
                 <CalibrationPoints points={calibration.imagePoints} toDisplay={vToD} committed />
               )}
             </Layer>
+
+            {/* editing-path: draggable endpoint handles on a listening layer */}
+            {mode === 'editing-path' && view && (() => {
+              const o = overlays.find((x) => x.id === selectedId);
+              if (!o || o.type !== 'path') return null;
+              if (o.space === 'court' && !calibration) return null;
+              const drag = (idx: number, node: { x(): number; y(): number }) => {
+                const vid = displayToVideo({ x: node.x(), y: node.y() }, view);
+                const np = o.space === 'court'
+                  ? (() => { const c = unprojectToCourt(calibration!.inverseHomography, vid.x, vid.y); return { x: c.x, y: c.y }; })()
+                  : { x: vid.x, y: vid.y };
+                onUpdatePathPoints(o.id, o.points.map((pp, i) => (i === idx ? np : pp)));
+              };
+              return (
+                <Layer>
+                  {o.points.map((pp, i) => {
+                    const d = toDisplaySpace(o.space, pp.x, pp.y);
+                    return <Circle key={i} x={d.x} y={d.y} radius={9} fill="#fff" stroke="#FF3B3B" strokeWidth={3} draggable onDragMove={(e) => drag(i, e.target)} />;
+                  })}
+                </Layer>
+              );
+            })()}
           </Stage>
         </div>
       )}

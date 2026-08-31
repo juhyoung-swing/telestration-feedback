@@ -6,7 +6,7 @@ export type Mode =
   | 'idle' | 'calibrating' | 'line-calibrating' | 'player-calibrating'
   | 'placing-halo' | 'drawing-zone'
   | 'placing-marker' | 'placing-text' | 'drawing-path' | 'drawing-connector'
-  | 'placing-zoom';
+  | 'placing-zoom' | 'editing-path';
 
 /** One court line drawn during line-calibration: which line + the clicked points (video px). */
 export type DrawnLine = { id: string; points: Pt[] };
@@ -72,12 +72,17 @@ export type TextLabel = TimeSpan & {
   id: string; type: 'text'; name: string; visible: boolean;
   courtX: number; courtY: number; text: string; color?: string;
 };
-// Path: a directional arrow between two court points — straight, or a parabola whose
-// bow (curvature, signed meters perpendicular to the chord) is adjustable.
+// Path: a directional arrow between two endpoints.
+//  - space 'court'  → endpoints are court metres, projected onto the floor (perspective).
+//  - space 'screen' → endpoints are video px, drawn flat on screen (ignores the court).
+//  - shape 'line'   → straight. shape 'arc' → a 3D-look parabola that lifts UP off the floor
+//    (peak = `height` × chord length, upward in screen), like a ball/lob trajectory.
 export type PathArrow = TimeSpan & {
   id: string; type: 'path'; name: string; visible: boolean;
-  points: { courtX: number; courtY: number }[]; // [start, end]
-  curvature: number; // 0 = straight; ± = bow amount (m) to either side
+  space: 'court' | 'screen';
+  shape: 'line' | 'arc';
+  points: { x: number; y: number }[]; // [start, end] — court metres or video px per `space`
+  height: number; // arc peak as a fraction of chord length; 0 for a line
   color?: string;
 };
 export type Connector = TimeSpan & {
@@ -124,4 +129,4 @@ export type FeatureId =
 export type CircleParams = { radiusMeters: number; color: string; opacity: number };
 export type ZoneParams = { color: string; opacity: number };
 export type ZoomParams = { scale: number };
-export type PathParams = { kind: 'straight' | 'parabola'; curvature: number };
+export type PathParams = { shape: 'court-line' | 'screen-line' | 'arc'; height: number };

@@ -62,7 +62,8 @@ export default function App() {
   const [circleParams, setCircleParams] = useState<CircleParams>({ radiusMeters: 0.8, color: '#E4EF3D', opacity: 0.2 });
   const [zoneParams, setZoneParams] = useState<ZoneParams>({ color: '#17335F', opacity: 0.18 });
   const [zoomParams, setZoomParams] = useState<ZoomParams>({ scale: 2.2 });
-  const [pathParams, setPathParams] = useState<PathParams>({ kind: 'straight', curvature: 2 });
+  const [pathParams, setPathParams] = useState<PathParams>({ shape: 'court-line', height: 0.4 });
+  const [pathDraft, setPathDraft] = useState<Pt | null>(null); // first click (video px) while drawing a path
   const [textDraft, setTextDraft] = useState('텍스트'); // Text feature: content typed in the panel
 
   // playback
@@ -245,6 +246,7 @@ export default function App() {
     if (!target) return;
     setMode((m) => (m === target ? 'idle' : target));
     setDraftZone([]);
+    setPathDraft(null);
   };
   const nextName = (o: Overlay[], t: Overlay['type'], label: string) => `${label} ${o.filter((x) => x.type === t).length + 1}`;
   // Finish a multi-point drawing (Zone ≥3 closed / Path ≥2 arrow).
@@ -256,10 +258,10 @@ export default function App() {
     setDraftZone([]);
     setMode('idle');
   };
-  // Live-edit a placed path's bow (no history churn per slider tick).
-  const setPathCurvature = (id: string, curvature: number) =>
-    setOverlays((o) => o.map((x) => (x.id === id && x.type === 'path' ? { ...x, curvature } : x)));
-  const cancelDraft = () => { setDraftZone([]); setMode('idle'); };
+  // Live-edit a placed path (shape/height/points) — no history churn per slider tick.
+  const updatePath = (id: string, patch: Partial<{ shape: 'line' | 'arc'; height: number; points: { x: number; y: number }[] }>) =>
+    setOverlays((o) => o.map((x) => (x.id === id && x.type === 'path' ? { ...x, ...patch } : x)));
+  const cancelDraft = () => { setDraftZone([]); setPathDraft(null); setMode('idle'); };
 
   // Toggle a Circle bound to a tracked player. Its court position is derived
   // per-frame (foot → H⁻¹ → court); span = the player's tracked span; each player
@@ -356,6 +358,26 @@ export default function App() {
       });
       return;
     }
+    if (mode === 'drawing-path') {
+      // 2-click path. Screen-space lines don't need the court; court-space ones do.
+      const isScreen = pathParams.shape === 'screen-line';
+      if (!isScreen && !calibration) return;
+      if (pathDraft) {
+        const conv = (v: Pt) =>
+          isScreen ? { x: v.x, y: v.y } : (() => { const c = unprojectToCourt(calibration!.inverseHomography, v.x, v.y); return { x: c.x, y: c.y }; })();
+        const shape: 'line' | 'arc' = pathParams.shape === 'arc' ? 'arc' : 'line';
+        mutate((o) => [...o, {
+          id: uid('path'), type: 'path', name: nextName(o, 'path', 'Path'), visible: true, ...spanAtPlayhead(),
+          space: isScreen ? 'screen' : 'court', shape, points: [conv(pathDraft), conv(videoPt)],
+          height: shape === 'arc' ? pathParams.height : 0, color: FEATURE_COLORS.path,
+        }]);
+        setPathDraft(null);
+        setMode('idle');
+      } else {
+        setPathDraft(videoPt);
+      }
+      return;
+    }
     if (!calibration) return;
     const court = unprojectToCourt(calibration.inverseHomography, videoPt.x, videoPt.y);
     const cxy = { courtX: court.x, courtY: court.y };
@@ -370,17 +392,6 @@ export default function App() {
       mutate((o) => [...o, { id: uid('zoom'), type: 'zoom-in', name: nextName(o, 'zoom-in', 'Zoom'), visible: true, ...spanAtPlayhead(), ...cxy, scale: zoomParams.scale }]);
     } else if (mode === 'drawing-zone') {
       setDraftZone((z) => [...z, cxy]);
-    } else if (mode === 'drawing-path') {
-      // 2-click: start then end. Straight, or a parabola bowed by pathParams.curvature.
-      if (draftZone.length >= 1) {
-        const p0 = draftZone[0];
-        const curvature = pathParams.kind === 'parabola' ? pathParams.curvature : 0;
-        mutate((o) => [...o, { id: uid('path'), type: 'path', name: nextName(o, 'path', 'Path'), visible: true, ...spanAtPlayhead(), points: [p0, cxy], curvature, color: FEATURE_COLORS.path }]);
-        setDraftZone([]);
-        setMode('idle');
-      } else {
-        setDraftZone([cxy]);
-      }
     } else if (mode === 'drawing-connector') {
       if (draftZone.length >= 1) {
         const p0 = draftZone[0];
@@ -408,6 +419,10 @@ export default function App() {
         return [...o, { ...src, id: newId, name, courtX: src.courtX + 0.6, courtY: src.courtY + 0.6 }];
       }
       if (src.type === 'cutout' || src.type === 'spotlight') return [...o, { ...src, id: newId, name }];
+      if (src.type === 'path') {
+        const off = src.space === 'screen' ? 24 : 0.4;
+        return [...o, { ...src, id: newId, name, points: src.points.map((p) => ({ x: p.x + off, y: p.y + off })) }];
+      }
       return [...o, { ...src, id: newId, name, points: src.points.map((p) => ({ courtX: p.courtX + 0.6, courtY: p.courtY + 0.6 })) }];
     });
   };
@@ -461,6 +476,7 @@ export default function App() {
       if (e.key === 'Escape') {
         setMode('idle');
         setDraftZone([]);
+        setPathDraft(null);
         setDraftCalib([]);
         setLineDraft([]);
         setDrawnLines([]);
@@ -527,7 +543,8 @@ export default function App() {
       case 'placing-text': return '코트를 클릭 → Text 배치 · Esc 종료';
       case 'placing-zoom': return '코트를 클릭 → 확대 중심 지정 · Esc 종료';
       case 'drawing-zone': return `Zone 영역 · ${n}점 (3점 이상) · Enter 완료 · Esc 취소`;
-      case 'drawing-path': return `Path · 시작·끝 2점 클릭 (${n}/2) · Esc 취소`;
+      case 'drawing-path': return `Path · 시작·끝 2점 클릭 (${pathDraft ? 1 : 0}/2) · Esc 취소`;
+      case 'editing-path': return 'Path 끝점을 드래그해 이동 · Esc 완료';
       case 'drawing-connector': return `Connector · ${n}/2점 클릭 · Esc 취소`;
       default: return null;
     }
@@ -580,7 +597,7 @@ export default function App() {
             selected={selectedFeature}
             onSelect={setSelectedFeature}
             mode={mode}
-            draftCount={draftZone.length}
+            draftCount={mode === 'drawing-path' ? (pathDraft ? 1 : 0) : draftZone.length}
             circleParams={circleParams}
             setCircleParams={setCircleParams}
             zoneParams={zoneParams}
@@ -590,7 +607,10 @@ export default function App() {
             pathParams={pathParams}
             setPathParams={setPathParams}
             selectedPath={selectedOverlay?.type === 'path' ? selectedOverlay : null}
-            onSetPathCurvature={setPathCurvature}
+            onUpdatePath={updatePath}
+            onEditPath={() => setMode('editing-path')}
+            editingPath={mode === 'editing-path'}
+            onFinishEditPath={() => setMode('idle')}
             textDraft={textDraft}
             setTextDraft={setTextDraft}
             onCreate={startFeature}
@@ -627,6 +647,8 @@ export default function App() {
           fps={trackFps}
           draftCalib={draftCalib}
           draftZone={draftZone}
+          pathDraft={pathDraft}
+          onUpdatePathPoints={(id, points) => updatePath(id, { points })}
           drawnLines={drawnLines}
           lineDraft={lineDraft}
           activeLineId={activeLineId}

@@ -39,8 +39,11 @@ type Props = {
   setZoomParams: (p: ZoomParams) => void;
   pathParams: PathParams;
   setPathParams: (p: PathParams) => void;
-  selectedPath: PathArrow | null;             // a selected Path overlay → its bow is editable live
-  onSetPathCurvature: (id: string, c: number) => void;
+  selectedPath: PathArrow | null;             // a selected Path overlay → editable live
+  onUpdatePath: (id: string, patch: Partial<{ shape: 'line' | 'arc'; height: number }>) => void;
+  onEditPath: () => void;                       // enter endpoint-drag mode
+  editingPath: boolean;
+  onFinishEditPath: () => void;
   textDraft: string;
   setTextDraft: (s: string) => void;
   onCreate: (id: FeatureId) => void;
@@ -57,17 +60,13 @@ export function EffectPanel(p: Props) {
   const isPoint = p.selected === 'circle' || p.selected === 'marker' || p.selected === 'text' || p.selected === 'zoom-in';
   const isPlayer = PLAYER_FEATURES.includes(p.selected);
 
-  // Path: edit the selected path's bow if one is selected, else the defaults for new paths.
+  // Path: a selected path is edited live; otherwise the buttons/slider set defaults for new paths.
   const selPath = p.selectedPath;
-  const pathIsParabola = selPath ? Math.abs(selPath.curvature) > 0.01 : p.pathParams.kind === 'parabola';
-  const pathCurv = selPath ? selPath.curvature : p.pathParams.curvature;
-  const setPathKind = (kind: 'straight' | 'parabola') => {
-    if (selPath) p.onSetPathCurvature(selPath.id, kind === 'parabola' ? (p.pathParams.curvature || 2) : 0);
-    else p.setPathParams({ ...p.pathParams, kind });
-  };
-  const setPathCurv = (v: number) => {
-    if (selPath) p.onSetPathCurvature(selPath.id, v);
-    else p.setPathParams({ ...p.pathParams, curvature: v });
+  const showHeight = selPath ? selPath.shape === 'arc' : p.pathParams.shape === 'arc';
+  const heightVal = selPath && selPath.shape === 'arc' ? selPath.height : p.pathParams.height;
+  const setHeight = (v: number) => {
+    if (selPath && selPath.shape === 'arc') p.onUpdatePath(selPath.id, { height: v });
+    else p.setPathParams({ ...p.pathParams, height: v });
   };
 
   const list = p.players ? playersBySpan(p.players) : [];
@@ -199,20 +198,35 @@ export function EffectPanel(p: Props) {
               <input type="text" value={p.textDraft} placeholder="텍스트" maxLength={40}
                 onChange={(e) => p.setTextDraft(e.target.value)} /></div>
           )}
-          {p.selected === 'path' && (
-            <>
-              <div className="field"><label>모양{selPath ? ' (선택 편집)' : ''}</label>
-                <div className="btn-row">
-                  <button className={`btn sm ${!pathIsParabola ? 'active' : ''}`} onClick={() => setPathKind('straight')}>직선</button>
-                  <button className={`btn sm ${pathIsParabola ? 'active' : ''}`} onClick={() => setPathKind('parabola')}>포물선</button>
-                </div>
+          {p.selected === 'path' && !selPath && (
+            <div className="field"><label>모양</label>
+              <div className="btn-row">
+                <button className={`btn sm ${p.pathParams.shape === 'court-line' ? 'active' : ''}`} onClick={() => p.setPathParams({ ...p.pathParams, shape: 'court-line' })}>직선·맵</button>
+                <button className={`btn sm ${p.pathParams.shape === 'screen-line' ? 'active' : ''}`} onClick={() => p.setPathParams({ ...p.pathParams, shape: 'screen-line' })}>직선·화면</button>
+                <button className={`btn sm ${p.pathParams.shape === 'arc' ? 'active' : ''}`} onClick={() => p.setPathParams({ ...p.pathParams, shape: 'arc' })}>포물선·3D</button>
               </div>
-              {pathIsParabola && (
-                <div className="field"><label>굴곡 {pathCurv.toFixed(1)}m</label>
-                  <input type="range" min="-5" max="5" step="0.1" value={pathCurv}
-                    onChange={(e) => setPathCurv(Number(e.target.value))} /></div>
+            </div>
+          )}
+          {p.selected === 'path' && selPath && (
+            <>
+              <div className="muted-note">선택된 Path 편집 · {selPath.space === 'screen' ? '화면' : '맵'}</div>
+              {selPath.space === 'court' && (
+                <div className="field"><label>모양</label>
+                  <div className="btn-row">
+                    <button className={`btn sm ${selPath.shape === 'line' ? 'active' : ''}`} onClick={() => p.onUpdatePath(selPath.id, { shape: 'line', height: 0 })}>직선</button>
+                    <button className={`btn sm ${selPath.shape === 'arc' ? 'active' : ''}`} onClick={() => p.onUpdatePath(selPath.id, { shape: 'arc', height: p.pathParams.height || 0.4 })}>포물선·3D</button>
+                  </div>
+                </div>
               )}
+              <button className={`btn sm block ${p.editingPath ? 'active' : ''}`} onClick={p.editingPath ? p.onFinishEditPath : p.onEditPath}>
+                {p.editingPath ? '이동 완료' : '위치 편집 (끝점 드래그)'}
+              </button>
             </>
+          )}
+          {p.selected === 'path' && showHeight && (
+            <div className="field"><label>높이 {heightVal.toFixed(2)}</label>
+              <input type="range" min="0" max="1.2" step="0.05" value={heightVal}
+                onChange={(e) => setHeight(Number(e.target.value))} /></div>
           )}
 
           {/* create / finish */}

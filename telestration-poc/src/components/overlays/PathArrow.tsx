@@ -1,52 +1,48 @@
 import { Arrow } from 'react-konva';
 import type { Pt } from '../../geometry/homography';
 
-type CourtPt = { courtX: number; courtY: number };
-
 /**
- * A directional path on the court floor. Straight (curvature 0) draws the polyline as-is;
- * a parabola bows by `curvature` metres perpendicular to the start→end chord — sampled as a
- * quadratic Bézier in COURT space, then each sample projected, so the arc stays glued to the floor.
+ * A directional path. `space` decides where the two endpoints live and how they map to the
+ * display: 'court' projects court metres onto the floor (perspective); 'screen' maps video px
+ * flat. `shape` 'line' is straight; 'arc' bows UP in screen space by `height` × chord length —
+ * a 3D-look lob/trajectory that lifts off the floor rather than a flat ground curve.
  */
 export function PathArrow({
+  space,
+  shape,
   points,
-  curvature = 0,
-  project,
+  height = 0,
+  toDisplay,
   color = '#FF3B3B',
   arrow = true,
 }: {
-  points: CourtPt[];
-  curvature?: number;
-  project: (courtX: number, courtY: number) => Pt;
+  space: 'court' | 'screen';
+  shape: 'line' | 'arc';
+  points: { x: number; y: number }[];
+  height?: number;
+  toDisplay: (space: 'court' | 'screen', x: number, y: number) => Pt; // → display px
   color?: string;
   arrow?: boolean;
 }) {
-  let court: CourtPt[];
-  if (Math.abs(curvature) < 0.01 || points.length < 2) {
-    court = points; // straight: draw the given endpoints (perspective handled by project)
-  } else {
-    const A = points[0], B = points[points.length - 1];
-    const mx = (A.courtX + B.courtX) / 2, my = (A.courtY + B.courtY) / 2;
-    const dx = B.courtX - A.courtX, dy = B.courtY - A.courtY;
-    const len = Math.hypot(dx, dy) || 1;
-    const px = -dy / len, py = dx / len;               // unit perpendicular to the chord
-    const cx = mx + px * curvature, cy = my + py * curvature; // Bézier control point
+  if (points.length < 2) return null;
+  const a = toDisplay(space, points[0].x, points[0].y);
+  const b = toDisplay(space, points[points.length - 1].x, points[points.length - 1].y);
+
+  let flat: number[];
+  if (shape === 'arc' && Math.abs(height) > 0.001) {
+    const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+    const chord = Math.hypot(b.x - a.x, b.y - a.y);
+    const cx = mx, cy = my - chord * height; // control point lifted straight up (screen -y)
     const N = 24;
-    court = [];
+    flat = [];
     for (let i = 0; i <= N; i++) {
       const t = i / N, u = 1 - t;
-      court.push({
-        courtX: u * u * A.courtX + 2 * u * t * cx + t * t * B.courtX,
-        courtY: u * u * A.courtY + 2 * u * t * cy + t * t * B.courtY,
-      });
+      flat.push(u * u * a.x + 2 * u * t * cx + t * t * b.x, u * u * a.y + 2 * u * t * cy + t * t * b.y);
     }
+  } else {
+    flat = [a.x, a.y, b.x, b.y];
   }
 
-  const flat: number[] = [];
-  for (const c of court) {
-    const d = project(c.courtX, c.courtY);
-    flat.push(d.x, d.y);
-  }
   return (
     <Arrow
       points={flat}
