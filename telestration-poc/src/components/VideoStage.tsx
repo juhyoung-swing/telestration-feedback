@@ -154,7 +154,6 @@ export function VideoStage({
     const ty = clamp(H / 2 - s * cy, H - s * H, 0);
     zoomStyle = { ...zoomStyle, transform: `translate(${tx}px, ${ty}px) scale(${s})` };
   }
-  const zoomActive = !!activeZoom;
 
   // Selection feedback: a ring at the selected overlay's anchor (synced from the timeline).
   const selAnchor: Pt | null = (() => {
@@ -268,8 +267,9 @@ export function VideoStage({
         ref={videoRef}
         className="video-el"
         src={src}
-        controls={!zoomActive}
         playsInline
+        // No native controls — playback is driven only by our own toolbar/timeline,
+        // and a bare <video> ignores clicks, so clicking the frame never toggles play.
         onLoadedMetadata={(e) => {
           const v = e.currentTarget;
           setDims({ w: v.videoWidth, h: v.videoHeight });
