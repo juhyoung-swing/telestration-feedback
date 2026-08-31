@@ -130,7 +130,16 @@ export default function App() {
     setProjectId(p.id); setProjectName(p.name);
     setView('editor');
   };
-  const createProject = (name: string) => { const p = newProject(name); saveProject(p); void openProject(p); };
+  const createProject = async (name: string, file: File | null) => {
+    let p = newProject(name);
+    if (file) {
+      const key = newVideoKey();
+      try { await saveVideoBlob(key, file); } catch { /* quota — video won't persist */ }
+      p = { ...p, videoName: file.name, videoKey: key };
+    }
+    saveProject(p);
+    await openProject(p);
+  };
   const removeProject = (id: string) => { deleteProjectRec(id); setProjects(listProjects()); };
   const backToProjects = () => { setView('projects'); };
 
@@ -617,7 +626,7 @@ export default function App() {
   })();
 
   if (view === 'projects') {
-    return <ProjectList projects={projects} onOpen={(p) => void openProject(p)} onCreate={createProject} onDelete={removeProject} />;
+    return <ProjectList projects={projects} onOpen={(p) => void openProject(p)} onCreate={(name, file) => void createProject(name, file)} onDelete={removeProject} />;
   }
 
   return (

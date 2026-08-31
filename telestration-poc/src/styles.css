@@ -250,3 +250,16 @@ body {
 .btn.ghost { background: transparent; border-color: transparent; color: var(--muted); }
 .btn.ghost:hover { color: var(--text); background: var(--panel-2); }
 .back-projects { margin-right: 4px; }
+
+/* projects bar + new-project modal */
+.projects-bar { display: flex; align-items: center; justify-content: space-between; margin: 20px 0 18px; }
+.projects-count { font-size: 13px; color: var(--muted); }
+.modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.6); display: flex; align-items: center; justify-content: center; z-index: 100; }
+.modal { width: 440px; max-width: calc(100vw - 32px); background: var(--panel); border: 1px solid var(--border); border-radius: 14px; box-shadow: 0 24px 60px rgba(0,0,0,.55); padding: 20px; }
+.modal-title { font-size: 17px; font-weight: 700; margin-bottom: 16px; }
+.modal-body { display: flex; flex-direction: column; gap: 16px; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
+.file-drop { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 64px; padding: 12px; border: 1.5px dashed var(--border); border-radius: 10px; background: var(--panel-2); color: var(--muted); font-size: 13px; cursor: pointer; text-align: center; word-break: break-all; transition: border-color .12s, color .12s; }
+.file-drop:hover { border-color: var(--accent); color: var(--text); }
+.file-drop.has { border-style: solid; border-color: var(--accent); color: var(--text); }
+.btn.subtle.active { border-color: var(--accent); color: var(--accent); background: var(--accent-weak); }
