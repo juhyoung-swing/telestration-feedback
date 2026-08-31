@@ -13,6 +13,7 @@ export type Project = {
   calibMethod: 'corner' | 'line' | null;
   overlays: Overlay[];
   playerAnchors: PlayerAnchor[];
+  thumbnail?: string;                 // small JPEG data URL captured from a video frame
 };
 
 const KEY = 'tele.projects.v1';

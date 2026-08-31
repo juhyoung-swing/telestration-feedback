@@ -48,7 +48,7 @@ export function ProjectList({
         <div className="project-grid">
           {projects.map((p) => (
             <div key={p.id} className="project-card" onClick={() => onOpen(p)} title="열기">
-              <div className="pc-thumb">🎬</div>
+              <div className="pc-thumb">{p.thumbnail ? <img src={p.thumbnail} alt="" /> : '🎬'}</div>
               <div className="pc-body">
                 <div className="pc-name">{p.name}</div>
                 <div className="pc-meta">{p.videoName} · {fmtDate(p.updatedAt)}</div>

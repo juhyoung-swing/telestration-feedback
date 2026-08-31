@@ -60,6 +60,7 @@ export default function App() {
   const [projectId, setProjectId] = useState<string | null>(null);
   const [projectName, setProjectName] = useState('');
   const [videoKey, setVideoKey] = useState<string | null>(null); // IndexedDB key; null = bundled court.mp4
+  const [thumbnail, setThumbnail] = useState<string | null>(null); // project card thumbnail (JPEG data URL)
 
   const [src, setSrc] = useState(DEFAULT_SRC);
   const [videoName, setVideoName] = useState('court.mp4');
@@ -130,6 +131,35 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [view]);
 
+  // capture a card thumbnail on first entering the editor if the project has none.
+  // wait for an actually-presented frame (a fresh <video> paints black for a moment).
+  useEffect(() => {
+    if (view !== 'editor' || thumbnail) return;
+    const v = videoRef.current;
+    if (!v) return;
+    let done = false;
+    const grab = () => { if (!done) { done = true; captureThumb(); } };
+    const whenReady = () => {
+      const rvfc = (v as HTMLVideoElement & { requestVideoFrameCallback?: (cb: () => void) => number }).requestVideoFrameCallback;
+      if (rvfc) rvfc.call(v, () => grab());
+      setTimeout(grab, 500); // fallback if no frame is presented (paused static frame)
+    };
+    if (v.readyState >= 2) whenReady();
+    else v.addEventListener('loadeddata', whenReady, { once: true });
+    return () => { done = true; v.removeEventListener('loadeddata', whenReady); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [view, thumbnail]);
+
+  // capture the current video frame as a small JPEG for the project card
+  const captureThumb = () => {
+    const v = videoRef.current;
+    if (!v || !v.videoWidth) return;
+    const w = 200, h = Math.max(1, Math.round((w * v.videoHeight) / v.videoWidth));
+    const c = document.createElement('canvas'); c.width = w; c.height = h;
+    const ctx = c.getContext('2d'); if (!ctx) return;
+    try { ctx.drawImage(v, 0, 0, w, h); setThumbnail(c.toDataURL('image/jpeg', 0.6)); } catch { /* no frame / tainted */ }
+  };
+
   const openProject = async (p: Project, toView: 'editor' | 'calibrate' = 'editor') => {
     if (blobUrlRef.current) { URL.revokeObjectURL(blobUrlRef.current); blobUrlRef.current = null; }
     if (p.videoKey) {
@@ -139,6 +169,7 @@ export default function App() {
     } else setSrc(DEFAULT_SRC);
     setVideoKey(p.videoKey);
     setVideoName(p.videoName);
+    setThumbnail(p.thumbnail ?? null);
     if (p.corners && p.corners.length === 4) {
       const H = getPerspectiveTransform(COURT_CORNERS, p.corners);
       setCalibration({ imagePoints: p.corners, homography: H, inverseHomography: invert3x3(H) });
@@ -180,11 +211,12 @@ export default function App() {
       saveProject({
         id: projectId, name: projectName, updatedAt: Date.now(), videoName, videoKey,
         corners: calibration?.imagePoints ?? null, calibMethod, overlays, playerAnchors,
+        thumbnail: thumbnail ?? undefined,
       });
     }, 500);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [view, projectId, projectName, videoName, videoKey, calibration, calibMethod, overlays, playerAnchors]);
+  }, [view, projectId, projectName, videoName, videoKey, calibration, calibMethod, overlays, playerAnchors, thumbnail]);
 
   useEffect(() => {
     const v = videoRef.current;
@@ -708,7 +740,7 @@ export default function App() {
         <header className="calibrate-head">
           <button className="btn ghost sm" onClick={backToProjects} title="프로젝트 목록으로">← 프로젝트</button>
           <span className="calibrate-title">🎾 코트 보정 · {projectName}</span>
-          <button className="btn primary sm" onClick={() => setView('editor')}>
+          <button className="btn primary sm" onClick={() => { captureThumb(); setView('editor'); }}>
             {calibration ? '완료 · 에디터로 →' : '건너뛰고 에디터로 →'}
           </button>
         </header>
