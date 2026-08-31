@@ -163,7 +163,7 @@ export function Timeline(p: Props) {
 
             <div className="tl-row">
               <div className="tl-bar base" style={{ left: 0, width: contentW }} onMouseDown={(e) => e.stopPropagation()}>
-                <span className="tl-bar-label">🎞 {p.videoName}</span>
+                <span className="tl-bar-label">{p.videoName}</span>
                 <span className="tl-badge">1x</span>
               </div>
             </div>

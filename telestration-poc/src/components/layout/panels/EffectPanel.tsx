@@ -140,7 +140,7 @@ export function EffectPanel(p: Props) {
                         onClick={() => apply.fn(pl.id)}
                         disabled={!apply.enabled}
                         title={apply.enabled ? `${def.label} 적용/해제` : apply.why}
-                      >{on ? '적용됨' : '적용'}</button>
+                      >{on ? '해제' : '적용'}</button>
                     </div>
                   );
                 })}
