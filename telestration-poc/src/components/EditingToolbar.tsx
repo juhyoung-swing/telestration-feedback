@@ -1,5 +1,4 @@
-// (b2) Editing toolbar. Undo / Delete / Play-Pause / timeline-zoom / snap are real;
-// Redo / Split are visual placeholders (removed in a later UX pass).
+// (b2) Editing toolbar: Undo / Redo / Split / Play-Pause / Delete / snap / timeline-zoom.
 const ZMIN = 1, ZMAX = 16;
 
 export function EditingToolbar({
@@ -7,6 +6,10 @@ export function EditingToolbar({
   onPlayPause,
   onUndo,
   canUndo,
+  onRedo,
+  canRedo,
+  onSplit,
+  canSplit,
   onDelete,
   canDelete,
   cur,
@@ -20,6 +23,10 @@ export function EditingToolbar({
   onPlayPause: () => void;
   onUndo: () => void;
   canUndo: boolean;
+  onRedo: () => void;
+  canRedo: boolean;
+  onSplit: () => void;
+  canSplit: boolean;
   onDelete: () => void;
   canDelete: boolean;
   cur: number;
@@ -34,8 +41,8 @@ export function EditingToolbar({
   return (
     <div className="edit-toolbar">
       <button className="tool" onClick={onUndo} disabled={!canUndo} title="실행취소">↶</button>
-      <button className="tool" disabled title="다시실행 (곧)">↷</button>
-      <button className="tool" disabled title="분할 (곧)">✂</button>
+      <button className="tool" onClick={onRedo} disabled={!canRedo} title="다시실행">↷</button>
+      <button className="tool" onClick={onSplit} disabled={!canSplit} title="선택 효과를 플레이헤드에서 분할">✂</button>
       <button className="tool play" onClick={onPlayPause} title={playing ? '일시정지 (Space)' : '재생 (Space)'}>
         {playing ? '❚❚' : '▶'}
       </button>

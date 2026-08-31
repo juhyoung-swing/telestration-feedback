@@ -27,6 +27,7 @@ type Props = {
   videoName: string;
   zoom: number;               // 1 = fit whole clip; >1 = zoomed in
   snap: boolean;
+  onBeginHistory: () => void; // called once at drag-start so a whole drag is one undo step
   onSelect: (id: string) => void;
   onSeek: (t: number) => void;
   onToggleVisible: (id: string) => void;
@@ -96,7 +97,9 @@ export function Timeline(p: Props) {
     p.onSelect(o.id);
     const startX = e.clientX;
     const s0 = o.startTime, e0 = o.endTime, len = e0 - s0;
+    let moved = false;
     const move = (ev: MouseEvent) => {
+      if (!moved) { moved = true; p.onBeginHistory(); } // snapshot on first move → one undo step per drag
       const dt = (ev.clientX - startX) / pxPerSec;
       let s = s0, en = e0;
       if (kind === 'move') {

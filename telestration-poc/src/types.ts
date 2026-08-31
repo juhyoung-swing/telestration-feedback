@@ -110,8 +110,7 @@ export type CutoutData = { video: string; fps: number; width: number; height: nu
 // ── UI (SportsBuddy-style shell) ────────────────────────────────────────────
 export type RailTab = 'media' | 'court' | 'player' | 'highlight' | 'narrative';
 
-// SportsBuddy feature set. `circle` and `zone` are wired to our real geometry;
-// the rest are UI-present but placement is not implemented yet (v1 shell).
+// SportsBuddy feature set — all wired to real geometry (spotlight via the Player tab).
 export type FeatureId = 'circle' | 'spotlight' | 'connector' | 'path' | 'zone' | 'marker' | 'text' | 'zoom-in';
 
 export type CircleParams = { radiusMeters: number; color: string; opacity: number };

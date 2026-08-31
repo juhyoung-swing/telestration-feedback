@@ -24,6 +24,7 @@ type Props = {
   onCreate: (id: FeatureId) => void;
   onFinishDraft: () => void;
   onCancelDraft: () => void;
+  onGoPlayerTab: () => void;
 };
 
 export function HighlightPanel(p: Props) {
@@ -97,7 +98,9 @@ export function HighlightPanel(p: Props) {
       )}
 
       {/* create / finish */}
-      {!def.implemented ? (
+      {p.selected === 'spotlight' ? (
+        <button className="btn primary block" onClick={p.onGoPlayerTab}>Player 탭에서 선수별 스팟 켜기 →</button>
+      ) : !def.implemented ? (
         <button className="btn primary block" disabled>Create (곧)</button>
       ) : active && isMulti ? (
         <div className="btn-row">

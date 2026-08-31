@@ -44,6 +44,8 @@ export default function App() {
   const [calibration, setCalibration] = useState<CourtCalibration | null>(null);
   const [calibMethod, setCalibMethod] = useState<'corner' | 'line' | null>(null);
   const [overlays, setOverlays] = useState<Overlay[]>([]);
+  const [past, setPast] = useState<Overlay[][]>([]);   // undo stack (snapshots before each edit)
+  const [future, setFuture] = useState<Overlay[][]>([]); // redo stack
   const [mode, setMode] = useState<Mode>('idle');
   const [showGrid, setShowGrid] = useState(false);
 
@@ -131,6 +133,28 @@ export default function App() {
   };
   const changeRange = (id: string, startTime: number, endTime: number) =>
     setOverlays((o) => o.map((x) => (x.id === id ? { ...x, startTime, endTime } : x)));
+
+  // ── undo / redo history ─────────────────────────────────────────────────
+  // Snapshot the current overlays before an edit. Discrete edits go through mutate();
+  // a continuous drag calls beginHistory() once at drag-start, then changeRange() freely.
+  const beginHistory = () => { setPast((p) => [...p.slice(-49), overlays]); setFuture([]); };
+  const mutate = (fn: (o: Overlay[]) => Overlay[]) => { beginHistory(); setOverlays(fn); };
+  const undo = () => {
+    if (past.length === 0) return;
+    const prev = past[past.length - 1];
+    setPast((p) => p.slice(0, -1));
+    setFuture((f) => [overlays, ...f]);
+    setOverlays(prev);
+    setSelectedOverlayId((s) => (prev.some((x) => x.id === s) ? s : null));
+  };
+  const redo = () => {
+    if (future.length === 0) return;
+    const next = future[0];
+    setFuture((f) => f.slice(1));
+    setPast((p) => [...p, overlays]);
+    setOverlays(next);
+    setSelectedOverlayId((s) => (next.some((x) => x.id === s) ? s : null));
+  };
 
   // New effects land at the playhead with a default duration (video-editor convention),
   // instead of spanning the whole clip and piling up on top of each other.
@@ -227,9 +251,9 @@ export default function App() {
   const finishDraft = () => {
     const pts = draftZone;
     if (mode === 'drawing-zone' && pts.length >= 3) {
-      setOverlays((o) => [...o, { id: uid('zone'), type: 'coverage-zone', name: nextName(o, 'coverage-zone', 'Zone'), visible: true, ...spanAtPlayhead(), points: pts, color: zoneParams.color, opacity: zoneParams.opacity }]);
+      mutate((o) => [...o, { id: uid('zone'), type: 'coverage-zone', name: nextName(o, 'coverage-zone', 'Zone'), visible: true, ...spanAtPlayhead(), points: pts, color: zoneParams.color, opacity: zoneParams.opacity }]);
     } else if (mode === 'drawing-path' && pts.length >= 2) {
-      setOverlays((o) => [...o, { id: uid('path'), type: 'path', name: nextName(o, 'path', 'Path'), visible: true, ...spanAtPlayhead(), points: pts, color: FEATURE_COLORS.path }]);
+      mutate((o) => [...o, { id: uid('path'), type: 'path', name: nextName(o, 'path', 'Path'), visible: true, ...spanAtPlayhead(), points: pts, color: FEATURE_COLORS.path }]);
     }
     setDraftZone([]);
     setMode('idle');
@@ -248,7 +272,7 @@ export default function App() {
     const t0 = pts[0].t, t1 = pts[pts.length - 1].t;
     const span = followSpan(t0, t1);
     const color = playerColor(playerId) ?? circleParams.color;
-    setOverlays((o) => [...o, {
+    mutate((o) => [...o, {
       id: uid('halo'), type: 'ground-halo', name: `Player ${playerId}`, visible: true,
       ...span, courtX: 0, courtY: 0,
       radiusMeters: circleParams.radiusMeters, color, opacity: circleParams.opacity,
@@ -269,7 +293,7 @@ export default function App() {
     if (!pts || pts.length === 0) return;
     const t0 = pts[0].t, t1 = pts[pts.length - 1].t;
     const span = followSpan(t0, t1);
-    setOverlays((o) => [...o, {
+    mutate((o) => [...o, {
       id: uid('cut'), type: 'cutout', name: `Cutout ${playerId}`, visible: true,
       ...span, trackId: playerId, color: playerColor(playerId),
     }]);
@@ -288,7 +312,7 @@ export default function App() {
     if (!pts || pts.length === 0) return;
     const t0 = pts[0].t, t1 = pts[pts.length - 1].t;
     const span = followSpan(t0, t1);
-    setOverlays((o) => [...o, { id: uid('spot'), type: 'spotlight', name: `Spotlight ${playerId}`, visible: true, ...span, trackId: playerId }]);
+    mutate((o) => [...o, { id: uid('spot'), type: 'spotlight', name: `Spotlight ${playerId}`, visible: true, ...span, trackId: playerId }]);
     if (cur < span.startTime || cur > span.endTime) seek(span.startTime);
   };
   const spotlightIds = new Set(
@@ -304,7 +328,7 @@ export default function App() {
   const finishPlayerCalibration = () => {
     if (!fragments || playerAnchors.length < 2) return;
     setPlayers(assignFragments(fragments, playerAnchors)); // user-defined players override auto
-    setOverlays((o) => o.filter((x) => !(x.type === 'ground-halo' && x.trackId))); // drop stale tracked halos
+    mutate((o) => o.filter((x) => !(x.type === 'ground-halo' && x.trackId))); // drop stale tracked halos
     setPlayerAnchors([]);
     setMode('idle');
   };
@@ -335,20 +359,20 @@ export default function App() {
     const court = unprojectToCourt(calibration.inverseHomography, videoPt.x, videoPt.y);
     const cxy = { courtX: court.x, courtY: court.y };
     if (mode === 'placing-halo') {
-      setOverlays((o) => [...o, { id: uid('halo'), type: 'ground-halo', name: nextName(o, 'ground-halo', 'Circle'), visible: true, ...spanAtPlayhead(), courtX: court.x, courtY: court.y, radiusMeters: circleParams.radiusMeters, color: circleParams.color, opacity: circleParams.opacity }]);
+      mutate((o) => [...o, { id: uid('halo'), type: 'ground-halo', name: nextName(o, 'ground-halo', 'Circle'), visible: true, ...spanAtPlayhead(), courtX: court.x, courtY: court.y, radiusMeters: circleParams.radiusMeters, color: circleParams.color, opacity: circleParams.opacity }]);
     } else if (mode === 'placing-marker') {
-      setOverlays((o) => [...o, { id: uid('marker'), type: 'marker', name: nextName(o, 'marker', 'Marker'), visible: true, ...spanAtPlayhead(), ...cxy, color: FEATURE_COLORS.marker }]);
+      mutate((o) => [...o, { id: uid('marker'), type: 'marker', name: nextName(o, 'marker', 'Marker'), visible: true, ...spanAtPlayhead(), ...cxy, color: FEATURE_COLORS.marker }]);
     } else if (mode === 'placing-text') {
       const text = textDraft.trim() || '텍스트';
-      setOverlays((o) => [...o, { id: uid('text'), type: 'text', name: nextName(o, 'text', 'Text'), visible: true, ...spanAtPlayhead(), ...cxy, text, color: FEATURE_COLORS.text }]);
+      mutate((o) => [...o, { id: uid('text'), type: 'text', name: nextName(o, 'text', 'Text'), visible: true, ...spanAtPlayhead(), ...cxy, text, color: FEATURE_COLORS.text }]);
     } else if (mode === 'placing-zoom') {
-      setOverlays((o) => [...o, { id: uid('zoom'), type: 'zoom-in', name: nextName(o, 'zoom-in', 'Zoom'), visible: true, ...spanAtPlayhead(), ...cxy, scale: zoomParams.scale }]);
+      mutate((o) => [...o, { id: uid('zoom'), type: 'zoom-in', name: nextName(o, 'zoom-in', 'Zoom'), visible: true, ...spanAtPlayhead(), ...cxy, scale: zoomParams.scale }]);
     } else if (mode === 'drawing-zone' || mode === 'drawing-path') {
       setDraftZone((z) => [...z, cxy]);
     } else if (mode === 'drawing-connector') {
       if (draftZone.length >= 1) {
         const p0 = draftZone[0];
-        setOverlays((o) => [...o, { id: uid('conn'), type: 'connector', name: nextName(o, 'connector', 'Connector'), visible: true, ...spanAtPlayhead(), points: [p0, cxy], color: FEATURE_COLORS.connector }]);
+        mutate((o) => [...o, { id: uid('conn'), type: 'connector', name: nextName(o, 'connector', 'Connector'), visible: true, ...spanAtPlayhead(), points: [p0, cxy], color: FEATURE_COLORS.connector }]);
         setDraftZone([]);
         setMode('idle');
       } else {
@@ -359,12 +383,12 @@ export default function App() {
 
   // ── layer stack ────────────────────────────────────────────────────────
   const removeOverlay = (id: string) => {
-    setOverlays((o) => o.filter((x) => x.id !== id));
+    mutate((o) => o.filter((x) => x.id !== id));
     setSelectedOverlayId((s) => (s === id ? null : s));
   };
-  const toggleVisible = (id: string) => setOverlays((o) => o.map((x) => (x.id === id ? { ...x, visible: !x.visible } : x)));
+  const toggleVisible = (id: string) => mutate((o) => o.map((x) => (x.id === id ? { ...x, visible: !x.visible } : x)));
   const duplicateOverlay = (id: string) => {
-    setOverlays((o) => {
+    mutate((o) => {
       const src = o.find((x) => x.id === id);
       if (!src) return o;
       const name = `${src.name} copy`, newId = uid('dup');
@@ -375,8 +399,16 @@ export default function App() {
       return [...o, { ...src, id: newId, name, points: src.points.map((p) => ({ courtX: p.courtX + 0.6, courtY: p.courtY + 0.6 })) }];
     });
   };
-  const undo = () => setOverlays((o) => o.slice(0, -1));
   const deleteSelected = () => selectedOverlayId && removeOverlay(selectedOverlayId);
+  // Split the selected overlay at the playhead into two clips [start,cur] + [cur,end].
+  const selectedOverlay = overlays.find((x) => x.id === selectedOverlayId) ?? null;
+  const canSplit = !!selectedOverlay && cur > selectedOverlay.startTime + 0.05 && cur < selectedOverlay.endTime - 0.05;
+  const splitSelected = () => {
+    if (!selectedOverlay || !canSplit) return;
+    mutate((prev) => prev.flatMap((x) => (x.id === selectedOverlay.id
+      ? [{ ...x, endTime: cur }, { ...x, id: uid('split'), name: `${x.name}₂`, startTime: cur }]
+      : [x])));
+  };
 
   const togglePlay = () => {
     const v = videoRef.current;
@@ -395,6 +427,8 @@ export default function App() {
     setCalibration(null);
     setCalibMethod(null);
     setOverlays([]);
+    setPast([]);
+    setFuture([]);
     setDraftCalib([]);
     setDraftZone([]);
     setDrawnLines([]);
@@ -552,6 +586,7 @@ export default function App() {
             onCreate={startFeature}
             onFinishDraft={finishDraft}
             onCancelDraft={cancelDraft}
+            onGoPlayerTab={() => setActiveTab('player')}
           />
         )}
         {activeTab === 'narrative' && <NarrativePanel />}
@@ -594,7 +629,11 @@ export default function App() {
           playing={playing}
           onPlayPause={togglePlay}
           onUndo={undo}
-          canUndo={overlays.length > 0}
+          canUndo={past.length > 0}
+          onRedo={redo}
+          canRedo={future.length > 0}
+          onSplit={splitSelected}
+          canSplit={canSplit}
           onDelete={deleteSelected}
           canDelete={!!selectedOverlayId}
           cur={cur}
@@ -613,6 +652,7 @@ export default function App() {
           videoName={videoName}
           zoom={tlZoom}
           snap={snap}
+          onBeginHistory={beginHistory}
           onSelect={setSelectedOverlayId}
           onSeek={seek}
           onToggleVisible={toggleVisible}

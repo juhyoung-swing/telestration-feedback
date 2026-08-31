@@ -7,14 +7,14 @@ export type FeatureDef = {
   label: string;
   group: FeatureGroup;
   icon: string;
-  implemented: boolean; // v1: only circle + zone are wired to real geometry
+  implemented: boolean; // all effects are wired now; only zoom-in stub remained and is done
   hint: string;
 };
 
 // SportsBuddy Highlight features. Grouped exactly as in the paper's Fig. 1.
 export const FEATURES: FeatureDef[] = [
   { id: 'circle', label: 'Circle', group: 'Player', icon: '◎', implemented: true, hint: '코트를 클릭해 바닥 헤일로(원)를 놓습니다.' },
-  { id: 'spotlight', label: 'Spotlight', group: 'Player', icon: '🔦', implemented: false, hint: '배경 어둡게 + 선수 강조 → Player 탭에서 선수별 "스팟" 토글.' },
+  { id: 'spotlight', label: 'Spotlight', group: 'Player', icon: '🔦', implemented: true, hint: '배경 어둡게 + 선수 강조. Player 탭에서 선수별 "스팟"으로 켭니다.' },
   { id: 'connector', label: 'Connector', group: 'Player', icon: '🔗', implemented: true, hint: '두 지점을 클릭해 잇는 선을 그립니다.' },
   { id: 'path', label: 'Path', group: 'Tactic', icon: '↝', implemented: true, hint: '코트를 여러 번 클릭해 화살표 경로를 그립니다.' },
   { id: 'zone', label: 'Zone', group: 'Tactic', icon: '▰', implemented: true, hint: '코트를 3점 이상 클릭해 커버리지 존을 그립니다.' },
