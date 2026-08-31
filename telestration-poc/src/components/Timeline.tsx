@@ -2,9 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 import { useElementSize } from '../hooks/useElementSize';
 import type { Overlay } from '../types';
 
-const ICON: Record<Overlay['type'], string> = {
-  'ground-halo': '◎', 'coverage-zone': '▰', marker: '📍', text: '🅣', path: '↝', connector: '🔗', cutout: '🧍', spotlight: '🔦', 'zoom-in': '🔍',
-};
 const MIN_LEN = 0.2;       // seconds
 const SNAP_PX = 7;         // snap radius in screen px
 const TICK_TARGET_PX = 72; // aim for ~one label per this many px
@@ -147,13 +144,7 @@ export function Timeline(p: Props) {
                   title={`${o.name} · ${fmt(o.startTime)}–${fmt(o.endTime)}`}
                 >
                   <div className="tl-handle l" onMouseDown={(e) => startBarDrag(e, 'trim-l', o)} />
-                  <span className="tl-bar-label">{ICON[o.type]} {o.name}</span>
-                  <button
-                    className="tl-eye"
-                    onMouseDown={(e) => e.stopPropagation()}
-                    onClick={(e) => { e.stopPropagation(); p.onToggleVisible(o.id); }}
-                    title={o.visible ? '숨기기' : '표시'}
-                  >{o.visible ? '👁' : '⊘'}</button>
+                  <span className="tl-bar-label">{o.name}</span>
                   <div className="tl-handle r" onMouseDown={(e) => startBarDrag(e, 'trim-r', o)} />
                 </div>
               </div>
@@ -177,10 +168,11 @@ export function Timeline(p: Props) {
 
       {menu && (
         <ul className="ctx-menu" style={{ left: menu.x, top: menu.y }} onClick={(e) => e.stopPropagation()}>
-          <li onClick={() => { p.onRemove(menu.id); setMenu(null); }}>Remove ⌫</li>
+          <li onClick={() => { p.onToggleVisible(menu.id); setMenu(null); }}>
+            {p.overlays.find((o) => o.id === menu.id)?.visible ? '숨기기' : '표시'}
+          </li>
           <li onClick={() => { p.onDuplicate(menu.id); setMenu(null); }}>Duplicate ⌘K</li>
-          <li className="disabled">Speed ▸</li>
-          <li className="disabled">Mute ⌘M</li>
+          <li onClick={() => { p.onRemove(menu.id); setMenu(null); }}>Remove ⌫</li>
         </ul>
       )}
     </div>
