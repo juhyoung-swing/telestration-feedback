@@ -8,6 +8,9 @@ import { NarrativePanel } from './components/layout/panels/NarrativePanel';
 import { EditingToolbar } from './components/EditingToolbar';
 import { Timeline } from './components/Timeline';
 import { ExportDropdown } from './components/ExportDropdown';
+import { ProjectList } from './components/ProjectList';
+import { listProjects, saveProject, deleteProject as deleteProjectRec, newProject, newVideoKey, saveVideoBlob, loadVideoBlob } from './lib/projects';
+import type { Project } from './lib/projects';
 import { getPerspectiveTransform, invert3x3, projectCourtPoint, unprojectToCourt } from './geometry/homography';
 import type { Pt } from './geometry/homography';
 import { COURT_CORNERS } from './geometry/court';
@@ -35,6 +38,13 @@ const FEATURE_MODE = {
 export default function App() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const blobUrlRef = useRef<string | null>(null);
+
+  // project shell: 'projects' landing vs the 'editor'
+  const [view, setView] = useState<'projects' | 'editor'>('projects');
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [projectId, setProjectId] = useState<string | null>(null);
+  const [projectName, setProjectName] = useState('');
+  const [videoKey, setVideoKey] = useState<string | null>(null); // IndexedDB key; null = bundled court.mp4
 
   const [src, setSrc] = useState(DEFAULT_SRC);
   const [videoName, setVideoName] = useState('court.mp4');
@@ -93,6 +103,56 @@ export default function App() {
     return () => { alive = false; };
   }, []);
 
+  // ── projects ─────────────────────────────────────────────────────────────
+  useEffect(() => { if (view === 'projects') setProjects(listProjects()); }, [view]);
+
+  const openProject = async (p: Project) => {
+    if (blobUrlRef.current) { URL.revokeObjectURL(blobUrlRef.current); blobUrlRef.current = null; }
+    if (p.videoKey) {
+      const blob = await loadVideoBlob(p.videoKey);
+      if (blob) { const url = URL.createObjectURL(blob); blobUrlRef.current = url; setSrc(url); }
+      else setSrc(DEFAULT_SRC);
+    } else setSrc(DEFAULT_SRC);
+    setVideoKey(p.videoKey);
+    setVideoName(p.videoName);
+    if (p.corners && p.corners.length === 4) {
+      const H = getPerspectiveTransform(COURT_CORNERS, p.corners);
+      setCalibration({ imagePoints: p.corners, homography: H, inverseHomography: invert3x3(H) });
+      setCalibMethod(p.calibMethod);
+    } else { setCalibration(null); setCalibMethod(null); }
+    setOverlays(p.overlays ?? []);
+    setPast([]); setFuture([]);
+    setPlayerAnchors(p.playerAnchors ?? []);
+    setSelectedOverlayId(null);
+    setDraftCalib([]); setDraftZone([]); setPathDraft(null); setDrawnLines([]); setLineDraft([]); setActiveLineId(null);
+    setMode('idle');
+    setActiveTab('court');
+    setProjectId(p.id); setProjectName(p.name);
+    setView('editor');
+  };
+  const createProject = (name: string) => { const p = newProject(name); saveProject(p); void openProject(p); };
+  const removeProject = (id: string) => { deleteProjectRec(id); setProjects(listProjects()); };
+  const backToProjects = () => { setView('projects'); };
+
+  // re-apply user player-calibration once fragments load for an opened project
+  useEffect(() => {
+    if (view === 'editor' && fragments && playerAnchors.length >= 2) setPlayers(assignFragments(fragments, playerAnchors));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [view, fragments]);
+
+  // auto-save the open project (debounced) whenever its content changes
+  useEffect(() => {
+    if (view !== 'editor' || !projectId) return;
+    const t = setTimeout(() => {
+      saveProject({
+        id: projectId, name: projectName, updatedAt: Date.now(), videoName, videoKey,
+        corners: calibration?.imagePoints ?? null, calibMethod, overlays, playerAnchors,
+      });
+    }, 500);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [view, projectId, projectName, videoName, videoKey, calibration, calibMethod, overlays, playerAnchors]);
+
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
@@ -105,6 +165,7 @@ export default function App() {
     v.addEventListener('timeupdate', onTime);
     v.addEventListener('seeked', onTime);
     v.addEventListener('loadedmetadata', onMeta);
+    if (v.readyState >= 1) { onMeta(); onTime(); } // cached video: metadata already loaded before listener
     return () => {
       v.removeEventListener('play', onPlay);
       v.removeEventListener('pause', onPause);
@@ -112,7 +173,8 @@ export default function App() {
       v.removeEventListener('seeked', onTime);
       v.removeEventListener('loadedmetadata', onMeta);
     };
-  }, [src]);
+    // `view` re-binds after the video element remounts on entering the editor.
+  }, [src, view]);
 
   // Smooth playhead + overlay time-gating while playing (timeupdate is only ~4 Hz).
   useEffect(() => {
@@ -449,6 +511,10 @@ export default function App() {
     if (blobUrlRef.current) URL.revokeObjectURL(blobUrlRef.current);
     const url = URL.createObjectURL(file);
     blobUrlRef.current = url;
+    // persist the uploaded video to IndexedDB so this project auto-restores it later
+    const key = newVideoKey();
+    void saveVideoBlob(key, file).catch(() => {});
+    setVideoKey(key);
     setSrc(url);
     setVideoName(file.name);
     setCalibration(null);
@@ -550,6 +616,10 @@ export default function App() {
     }
   })();
 
+  if (view === 'projects') {
+    return <ProjectList projects={projects} onOpen={(p) => void openProject(p)} onCreate={createProject} onDelete={removeProject} />;
+  }
+
   return (
     <div className="editor">
       <Rail active={activeTab} onSelect={setActiveTab} />
@@ -624,8 +694,9 @@ export default function App() {
       <main className="center">
         <div className="center-head">
           <div className="center-head-l">
-            <span className="center-title">🎾 {videoName}</span>
-            <span className="center-sub">{calibration ? `캘리브레이션 ✓ (${calibMethod === 'line' ? '선' : '모서리'})` : '미보정'} · 오버레이 {overlays.length}</span>
+            <button className="btn ghost sm back-projects" onClick={backToProjects} title="프로젝트 목록으로 (자동 저장됨)">← 프로젝트</button>
+            <span className="center-title">{projectName || videoName}</span>
+            <span className="center-sub">{calibration ? `캘리브레이션 ✓ (${calibMethod === 'line' ? '선' : '모서리'})` : '미보정'} · 오버레이 {overlays.length} · 자동 저장</span>
           </div>
           <ExportDropdown videoName={videoName} />
         </div>

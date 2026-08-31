@@ -222,3 +222,31 @@ body {
 .icon-btn:disabled { opacity: .4; cursor: not-allowed; }
 .share-row { display: flex; gap: 8px; }
 .share-row .icon-btn { flex: 1; }
+
+/* ── projects landing ──────────────────────────────────────────────────── */
+.projects-screen { width: 100%; height: 100vh; overflow-y: auto; background: var(--bg); display: flex; justify-content: center; }
+.projects-inner { width: 100%; max-width: 860px; padding: 56px 24px 64px; }
+.projects-head h1 { font-size: 26px; margin: 0 0 6px; }
+.projects-head p { color: var(--muted); margin: 0 0 26px; font-size: 14px; }
+.new-project { display: flex; gap: 10px; margin-bottom: 28px; }
+.new-project input { flex: 1; background: var(--panel-2); border: 1px solid var(--border); color: var(--text); border-radius: 10px; padding: 12px 14px; font-size: 14px; }
+.new-project input:focus { outline: none; border-color: var(--accent); }
+.new-project .btn.primary { white-space: nowrap; padding: 0 18px; }
+.project-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
+.project-card { position: relative; display: flex; gap: 12px; background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 14px; cursor: pointer; transition: border-color .12s, background .12s; }
+.project-card:hover { border-color: var(--accent); background: var(--panel-2); }
+.pc-thumb { width: 46px; height: 46px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 22px; background: var(--panel-3); border-radius: 9px; }
+.pc-body { min-width: 0; flex: 1; }
+.pc-name { font-weight: 700; font-size: 15px; margin-bottom: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pc-meta { font-size: 12px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pc-badges { display: flex; gap: 10px; margin-top: 8px; font-size: 11px; }
+.pc-badges .ok { color: var(--accent); }
+.pc-badges .muted { color: var(--muted); }
+.pc-del { position: absolute; top: 8px; right: 8px; appearance: none; border: 0; background: transparent; color: var(--muted); cursor: pointer; font-size: 13px; opacity: 0; transition: opacity .12s; }
+.project-card:hover .pc-del { opacity: 1; }
+.pc-del:hover { color: #ff6b61; }
+.pc-empty { grid-column: 1 / -1; text-align: center; color: var(--muted); padding: 40px 0; font-size: 14px; }
+
+.btn.ghost { background: transparent; border-color: transparent; color: var(--muted); }
+.btn.ghost:hover { color: var(--text); background: var(--panel-2); }
+.back-projects { margin-right: 4px; }
