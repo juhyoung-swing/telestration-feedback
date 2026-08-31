@@ -118,7 +118,7 @@ export function EffectPanel(p: Props) {
               <button
                 key={f.id}
                 className={`feature-tile ${p.selected === f.id ? 'active' : ''} ${f.implemented ? '' : 'soon'}`}
-                onClick={() => p.onSelect(f.id)}
+                onClick={() => { p.onSelect(f.id); if (!PLAYER_FEATURES.includes(f.id)) p.onCreate(f.id); }}
                 title={f.hint}
               >
                 <span className="feature-icon">{f.icon}</span>
@@ -313,24 +313,25 @@ export function EffectPanel(p: Props) {
             </>
           )}
 
-          {/* create / finish */}
+          {/* while a tool is armed: finish/cancel (no Create button — tiles arm placement directly) */}
           {active && isMulti ? (
-            <div className="btn-row">
-              <button className="btn primary" onClick={p.onFinishDraft} disabled={p.draftCount < 3}>완료 ({p.draftCount})</button>
-              <button className="btn" onClick={p.onCancelDraft}>취소</button>
+            <div className="armed">
+              <span className="muted-note">코트를 클릭해 영역을 그리세요 ({p.draftCount}점)</span>
+              <div className="btn-row">
+                <button className="btn primary" onClick={p.onFinishDraft} disabled={p.draftCount < 3}>완료 ({p.draftCount})</button>
+                <button className="btn" onClick={p.onCancelDraft}>취소</button>
+              </div>
             </div>
           ) : active && isTwoClick ? (
-            <div className="btn-row">
+            <div className="armed">
               <span className="muted-note">시작·끝 2점을 클릭하세요 ({p.draftCount}/2)</span>
-              <button className="btn" onClick={p.onCancelDraft}>취소</button>
+              <button className="btn block" onClick={p.onCancelDraft}>취소</button>
             </div>
           ) : active && isPoint ? (
-            <button className="btn primary block" onClick={() => p.onCreate(p.selected)}>배치 중 · 코트 클릭 (종료)</button>
-          ) : p.selected === 'slowmo' ? (
-            <button className="btn primary block" onClick={() => p.onCreate('slowmo')}>+ 배속 구간 추가 (현재 위치)</button>
-          ) : (
-            <button className="btn primary block" onClick={() => p.onCreate(p.selected)} disabled={!p.hasCalibration}>Create</button>
-          )}
+            <div className="armed">
+              <span className="muted-note">코트를 클릭해 배치하세요 · Esc 취소</span>
+            </div>
+          ) : null}
         </>
       )}
     </div>

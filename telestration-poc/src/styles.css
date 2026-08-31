@@ -92,6 +92,8 @@ body {
 .status-pill.ok { color: #6fe08a; border-color: #2f6b40; }
 .muted-note { font-size: 11px; color: var(--muted); }
 .warn-note { font-size: 12px; color: #ffcf6f; background: #3a2f14; border: 1px solid #5a4a1e; border-radius: 8px; padding: 8px; }
+.armed { display: flex; flex-direction: column; gap: 8px; padding: 10px; border: 1px solid var(--accent); border-radius: 8px; background: var(--accent-weak); }
+.armed .muted-note { color: var(--accent); }
 .soon-note { font-size: 12px; color: var(--muted); background: var(--panel-2); border: 1px dashed var(--border); border-radius: 8px; padding: 10px; }
 .demo-note { font-size: 11px; color: var(--muted); text-align: center; margin-top: 6px; }
 .kv { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); }

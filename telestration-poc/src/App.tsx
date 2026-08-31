@@ -353,8 +353,11 @@ export default function App() {
 
   // ── overlay tools ──────────────────────────────────────────────────────
   // A speed segment is a timeline-only clip (no canvas placement) added at the playhead.
-  const addSpeedSegment = () =>
-    mutate((o) => [...o, { id: uid('speed'), type: 'speed', name: nextName(o, 'speed', 'Slow'), visible: true, ...spanAtPlayhead(), rate: slowmoRate }]);
+  const addSpeedSegment = () => {
+    const id = uid('speed');
+    mutate((o) => [...o, { id, type: 'speed', name: nextName(o, 'speed', 'Slow'), visible: true, ...spanAtPlayhead(), rate: slowmoRate }]);
+    setSelectedOverlayId(id);
+  };
   const updateSpeed = (id: string, rate: number) =>
     setOverlays((o) => o.map((x) => (x.id === id && x.type === 'speed' ? { ...x, rate } : x)));
 
@@ -364,6 +367,7 @@ export default function App() {
     if (!calibration) return;
     const target = FEATURE_MODE[id as keyof typeof FEATURE_MODE];
     if (!target) return;
+    setSelectedOverlayId(null); // arming a placement tool clears the previous selection (add ≠ select)
     setMode((m) => (m === target ? 'idle' : target));
     setDraftZone([]);
     setPathDraft(null);
@@ -373,7 +377,9 @@ export default function App() {
   const finishDraft = () => {
     const pts = draftZone;
     if (mode === 'drawing-zone' && pts.length >= 3) {
-      mutate((o) => [...o, { id: uid('zone'), type: 'coverage-zone', name: nextName(o, 'coverage-zone', 'Zone'), visible: true, ...spanAtPlayhead(), points: pts, color: zoneParams.color, opacity: zoneParams.opacity }]);
+      const id = uid('zone');
+      mutate((o) => [...o, { id, type: 'coverage-zone', name: nextName(o, 'coverage-zone', 'Zone'), visible: true, ...spanAtPlayhead(), points: pts, color: zoneParams.color, opacity: zoneParams.opacity }]);
+      setSelectedOverlayId(id);
     }
     setDraftZone([]);
     setMode('idle');
@@ -489,12 +495,14 @@ export default function App() {
         const conv = (v: Pt) =>
           isScreen ? { x: v.x, y: v.y } : (() => { const c = unprojectToCourt(calibration!.inverseHomography, v.x, v.y); return { x: c.x, y: c.y }; })();
         const shape: 'line' | 'arc' = pathParams.shape === 'arc' ? 'arc' : 'line';
+        const id = uid('path');
         mutate((o) => [...o, {
-          id: uid('path'), type: 'path', name: nextName(o, 'path', 'Path'), visible: true, ...spanAtPlayhead(),
+          id, type: 'path', name: nextName(o, 'path', 'Path'), visible: true, ...spanAtPlayhead(),
           space: isScreen ? 'screen' : 'court', shape, points: [conv(pathDraft), conv(videoPt)],
           height: shape === 'arc' ? pathParams.height : 0, dashed: pathParams.dashed, color: pathParams.color,
         }]);
         setPathDraft(null);
+        setSelectedOverlayId(id);
         setMode('idle');
       } else {
         setPathDraft(videoPt);
@@ -505,27 +513,35 @@ export default function App() {
     const court = unprojectToCourt(calibration.inverseHomography, videoPt.x, videoPt.y);
     const cxy = { courtX: court.x, courtY: court.y };
     if (mode === 'placing-halo') {
-      mutate((o) => [...o, { id: uid('halo'), type: 'ground-halo', name: nextName(o, 'ground-halo', 'Circle'), visible: true, ...spanAtPlayhead(), courtX: court.x, courtY: court.y, radiusMeters: circleParams.radiusMeters, color: circleParams.color, opacity: circleParams.opacity }]);
+      const id = uid('halo');
+      mutate((o) => [...o, { id, type: 'ground-halo', name: nextName(o, 'ground-halo', 'Circle'), visible: true, ...spanAtPlayhead(), courtX: court.x, courtY: court.y, radiusMeters: circleParams.radiusMeters, color: circleParams.color, opacity: circleParams.opacity }]);
+      setSelectedOverlayId(id); setMode('idle');
     } else if (mode === 'placing-marker') {
-      mutate((o) => [...o, { id: uid('marker'), type: 'marker', name: nextName(o, 'marker', 'Marker'), visible: true, ...spanAtPlayhead(), ...cxy, color: FEATURE_COLORS.marker }]);
+      const id = uid('marker');
+      mutate((o) => [...o, { id, type: 'marker', name: nextName(o, 'marker', 'Marker'), visible: true, ...spanAtPlayhead(), ...cxy, color: FEATURE_COLORS.marker }]);
+      setSelectedOverlayId(id); setMode('idle');
     } else if (mode === 'placing-text') {
+      const id = uid('text');
       const text = textDraft.trim() || '텍스트';
       mutate((o) => [...o, {
-        id: uid('text'), type: 'text', name: nextName(o, 'text', 'Text'), visible: true, ...spanAtPlayhead(),
+        id, type: 'text', name: nextName(o, 'text', 'Text'), visible: true, ...spanAtPlayhead(),
         ...cxy, text, boxW: 180, boxH: 52,
         fontSize: textParams.fontSize, fontFamily: textParams.fontFamily, bold: textParams.bold, align: textParams.align,
         color: textParams.color, bg: textParams.bg, bgColor: textParams.bgColor, bgOpacity: textParams.bgOpacity,
       }]);
+      setSelectedOverlayId(id); setMode('idle');
     } else if (mode === 'placing-zoom') {
-      mutate((o) => [...o, { id: uid('zoom'), type: 'zoom-in', name: nextName(o, 'zoom-in', 'Zoom'), visible: true, ...spanAtPlayhead(), ...cxy, scale: zoomParams.scale }]);
+      const id = uid('zoom');
+      mutate((o) => [...o, { id, type: 'zoom-in', name: nextName(o, 'zoom-in', 'Zoom'), visible: true, ...spanAtPlayhead(), ...cxy, scale: zoomParams.scale }]);
+      setSelectedOverlayId(id); setMode('idle');
     } else if (mode === 'drawing-zone') {
       setDraftZone((z) => [...z, cxy]);
     } else if (mode === 'drawing-connector') {
       if (draftZone.length >= 1) {
         const p0 = draftZone[0];
-        mutate((o) => [...o, { id: uid('conn'), type: 'connector', name: nextName(o, 'connector', 'Connector'), visible: true, ...spanAtPlayhead(), points: [p0, cxy], color: FEATURE_COLORS.connector }]);
-        setDraftZone([]);
-        setMode('idle');
+        const id = uid('conn');
+        mutate((o) => [...o, { id, type: 'connector', name: nextName(o, 'connector', 'Connector'), visible: true, ...spanAtPlayhead(), points: [p0, cxy], color: FEATURE_COLORS.connector }]);
+        setDraftZone([]); setSelectedOverlayId(id); setMode('idle');
       } else {
         setDraftZone([cxy]);
       }
