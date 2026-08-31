@@ -395,6 +395,9 @@ export default function App() {
   // Live-edit a placed text box (content/style/size/position).
   const updateText = (id: string, patch: Partial<Extract<Overlay, { type: 'text' }>>) =>
     setOverlays((o) => o.map((x) => (x.id === id && x.type === 'text' ? { ...x, ...patch } : x)));
+  // Generic property patch (color/size/opacity) for the selected overlay — halo/marker/zone/connector.
+  const patchOverlay = (id: string, patch: object) =>
+    setOverlays((o) => o.map((x) => (x.id === id ? ({ ...x, ...patch } as Overlay) : x)));
   const cancelDraft = () => { setDraftZone([]); setPathDraft(null); setMode('idle'); };
 
   // Toggle a Circle bound to a tracked player. Its court position is derived
@@ -769,6 +772,8 @@ export default function App() {
             setSlowmoRate={setSlowmoRate}
             selectedSpeed={selectedOverlay?.type === 'speed' ? selectedOverlay : null}
             onUpdateSpeed={updateSpeed}
+            selectedOverlay={selectedOverlay}
+            onPatchOverlay={patchOverlay}
             onCreate={startFeature}
             onFinishDraft={finishDraft}
             onCancelDraft={cancelDraft}

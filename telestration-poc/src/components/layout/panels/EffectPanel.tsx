@@ -1,6 +1,6 @@
 import { FEATURES, FEATURE_GROUPS } from '../features';
 import { playersBySpan, posLabel } from '../../../geometry/tracking';
-import type { CircleParams, FeatureId, Mode, PathArrow, PathParams, Players, SpeedSegment, TextLabel, TextParams, ZoneParams, ZoomParams } from '../../../types';
+import type { CircleParams, FeatureId, Mode, Overlay, PathArrow, PathParams, Players, SpeedSegment, TextLabel, TextParams, ZoneParams, ZoomParams } from '../../../types';
 
 const FEATURE_MODE: Record<string, Mode> = {
   circle: 'placing-halo', marker: 'placing-marker', text: 'placing-text',
@@ -57,6 +57,8 @@ type Props = {
   setSlowmoRate: (r: number) => void;
   selectedSpeed: SpeedSegment | null;
   onUpdateSpeed: (id: string, rate: number) => void;
+  selectedOverlay: Overlay | null;
+  onPatchOverlay: (id: string, patch: object) => void;
   onCreate: (id: FeatureId) => void;
   onFinishDraft: () => void;
   onCancelDraft: () => void;
@@ -88,6 +90,16 @@ export function EffectPanel(p: Props) {
   const selText = p.selectedText;
   const t = selText ?? p.textParams;
   const tSet = (patch: Partial<TextParams>) => (selText ? p.onUpdateText(selText.id, patch) : p.setTextParams({ ...p.textParams, ...patch }));
+
+  // Circle / Zone / Marker / Connector: a selected overlay is edited live, else the defaults.
+  const selHalo = p.selectedOverlay?.type === 'ground-halo' ? p.selectedOverlay : null;
+  const selMarker = p.selectedOverlay?.type === 'marker' ? p.selectedOverlay : null;
+  const selZone = p.selectedOverlay?.type === 'coverage-zone' ? p.selectedOverlay : null;
+  const selConn = p.selectedOverlay?.type === 'connector' ? p.selectedOverlay : null;
+  const cVal = { radiusMeters: selHalo?.radiusMeters ?? p.circleParams.radiusMeters, color: selHalo?.color ?? p.circleParams.color, opacity: selHalo?.opacity ?? p.circleParams.opacity };
+  const cSet = (patch: Partial<CircleParams>) => (selHalo ? p.onPatchOverlay(selHalo.id, patch) : p.setCircleParams({ ...p.circleParams, ...patch }));
+  const zVal = { color: selZone?.color ?? p.zoneParams.color, opacity: selZone?.opacity ?? p.zoneParams.opacity };
+  const zSet = (patch: Partial<ZoneParams>) => (selZone ? p.onPatchOverlay(selZone.id, patch) : p.setZoneParams({ ...p.zoneParams, ...patch }));
 
   // Slow-mo: rate of a selected speed segment, or the default for new ones.
   const selSpeed = p.selectedSpeed;
@@ -140,11 +152,11 @@ export function EffectPanel(p: Props) {
           {p.selected === 'follow-circle' && (
             <>
               <div className="field"><label>반지름 (m)</label>
-                <input type="number" step="0.1" min="0.1" value={p.circleParams.radiusMeters}
-                  onChange={(e) => p.setCircleParams({ ...p.circleParams, radiusMeters: Number(e.target.value) || 0.1 })} /></div>
-              <div className="field"><label>투명도 {p.circleParams.opacity.toFixed(2)}</label>
-                <input type="range" min="0" max="1" step="0.05" value={p.circleParams.opacity}
-                  onChange={(e) => p.setCircleParams({ ...p.circleParams, opacity: Number(e.target.value) })} /></div>
+                <input type="number" step="0.1" min="0.1" value={cVal.radiusMeters}
+                  onChange={(e) => cSet({ radiusMeters: Number(e.target.value) || 0.1 })} /></div>
+              <div className="field"><label>투명도 {cVal.opacity.toFixed(2)}</label>
+                <input type="range" min="0" max="1" step="0.05" value={cVal.opacity}
+                  onChange={(e) => cSet({ opacity: Number(e.target.value) })} /></div>
             </>
           )}
 
@@ -195,23 +207,31 @@ export function EffectPanel(p: Props) {
           {p.selected === 'circle' && (
             <>
               <div className="field"><label>반지름 (m)</label>
-                <input type="number" step="0.1" min="0.1" value={p.circleParams.radiusMeters}
-                  onChange={(e) => p.setCircleParams({ ...p.circleParams, radiusMeters: Number(e.target.value) || 0.1 })} /></div>
+                <input type="number" step="0.1" min="0.1" value={cVal.radiusMeters}
+                  onChange={(e) => cSet({ radiusMeters: Number(e.target.value) || 0.1 })} /></div>
               <div className="field"><label>색상</label>
-                <input type="color" value={p.circleParams.color} onChange={(e) => p.setCircleParams({ ...p.circleParams, color: e.target.value })} /></div>
-              <div className="field"><label>투명도 {p.circleParams.opacity.toFixed(2)}</label>
-                <input type="range" min="0" max="1" step="0.05" value={p.circleParams.opacity}
-                  onChange={(e) => p.setCircleParams({ ...p.circleParams, opacity: Number(e.target.value) })} /></div>
+                <input type="color" value={cVal.color} onChange={(e) => cSet({ color: e.target.value })} /></div>
+              <div className="field"><label>투명도 {cVal.opacity.toFixed(2)}</label>
+                <input type="range" min="0" max="1" step="0.05" value={cVal.opacity}
+                  onChange={(e) => cSet({ opacity: Number(e.target.value) })} /></div>
             </>
           )}
           {p.selected === 'zone' && (
             <>
               <div className="field"><label>색상</label>
-                <input type="color" value={p.zoneParams.color} onChange={(e) => p.setZoneParams({ ...p.zoneParams, color: e.target.value })} /></div>
-              <div className="field"><label>투명도 {p.zoneParams.opacity.toFixed(2)}</label>
-                <input type="range" min="0" max="1" step="0.05" value={p.zoneParams.opacity}
-                  onChange={(e) => p.setZoneParams({ ...p.zoneParams, opacity: Number(e.target.value) })} /></div>
+                <input type="color" value={zVal.color} onChange={(e) => zSet({ color: e.target.value })} /></div>
+              <div className="field"><label>투명도 {zVal.opacity.toFixed(2)}</label>
+                <input type="range" min="0" max="1" step="0.05" value={zVal.opacity}
+                  onChange={(e) => zSet({ opacity: Number(e.target.value) })} /></div>
             </>
+          )}
+          {p.selected === 'marker' && selMarker && (
+            <div className="field"><label>색상</label>
+              <input type="color" value={selMarker.color ?? '#FF3B3B'} onChange={(e) => p.onPatchOverlay(selMarker.id, { color: e.target.value })} /></div>
+          )}
+          {p.selected === 'connector' && selConn && (
+            <div className="field"><label>색상</label>
+              <input type="color" value={selConn.color ?? '#00E5FF'} onChange={(e) => p.onPatchOverlay(selConn.id, { color: e.target.value })} /></div>
           )}
           {p.selected === 'zoom-in' && (
             <div className="field"><label>배율 {p.zoomParams.scale.toFixed(1)}×</label>
