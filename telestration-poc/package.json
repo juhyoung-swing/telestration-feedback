@@ -4,11 +4,35 @@
   "version": "0.1.0",
   "type": "module",
   "description": "Fixed-camera tennis telestration POC — court-coordinate graphics projected through a manual 4-point homography (SportsBuddy §4.2.2, arXiv:2502.08621).",
+  "author": "The Swing Co., Ltd. <juhyoung@theswing.co.kr>",
+  "main": "electron/main.cjs",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "verify": "tsx scripts/verify.ts"
+    "verify": "tsx scripts/verify.ts",
+    "electron:dev": "concurrently -k \"vite\" \"wait-on tcp:127.0.0.1:5173 && cross-env ELECTRON_DEV=1 electron .\"",
+    "electron:preview": "npm run build && electron .",
+    "electron:build": "npm run build && electron-builder"
+  },
+  "build": {
+    "appId": "co.theswing.tennistelestration",
+    "productName": "Tennis Telestration",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "package.json"
+    ],
+    "mac": {
+      "target": "dmg",
+      "category": "public.app-category.sports"
+    },
+    "win": {
+      "target": "nsis"
+    }
   },
   "dependencies": {
     "konva": "^9.3.16",
@@ -20,8 +44,13 @@
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.4",
+    "concurrently": "^10.0.5",
+    "cross-env": "^10.1.0",
+    "electron": "^44.1.0",
+    "electron-builder": "^26.15.3",
     "tsx": "^4.19.2",
     "typescript": "^5.6.3",
-    "vite": "^5.4.11"
+    "vite": "^5.4.11",
+    "wait-on": "^9.1.0"
   }
 }
