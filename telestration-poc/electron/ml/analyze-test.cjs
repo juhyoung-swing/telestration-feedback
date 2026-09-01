@@ -4,7 +4,7 @@
 const path = require('path');
 const { analyzeVideo } = require('./analyze.cjs');
 
-const MODEL = path.join(__dirname, '..', '..', 'resources', 'models', 'yolov8n.onnx');
+const MODEL = process.env.MODEL || path.join(__dirname, '..', '..', 'resources', 'models', 'yolov8n.onnx');
 const VIDEO = path.join(__dirname, '..', '..', 'public', 'court.mp4');
 const FFMPEG = require('ffmpeg-static');
 const FFPROBE = require('ffprobe-static').path;

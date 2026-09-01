@@ -20,8 +20,8 @@ const unpack = (p) => p.replace('app.asar' + path.sep, 'app.asar.unpacked' + pat
 function mlPaths() {
   return {
     modelPath: app.isPackaged
-      ? path.join(process.resourcesPath, 'resources', 'models', 'yolov8n.onnx')
-      : path.join(__dirname, '..', 'resources', 'models', 'yolov8n.onnx'),
+      ? path.join(process.resourcesPath, 'resources', 'models', 'yolov8x.onnx')
+      : path.join(__dirname, '..', 'resources', 'models', 'yolov8x.onnx'),
     ffmpegPath: unpack(require('ffmpeg-static')),
     ffprobePath: unpack(require('ffprobe-static').path),
   };

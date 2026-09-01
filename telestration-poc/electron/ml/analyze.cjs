@@ -88,6 +88,72 @@ function autoPlayers(tracks, K = 4) {
   return players;
 }
 
+// Motion-primary player assignment: track K fixed "player slots" frame-by-frame,
+// assigning each frame's detections to slots by nearest PREDICTED foot position
+// (color only as a tiebreaker for crossings). Robust when players wear similar
+// colors — position continuity keeps identities through occlusion/crossing, which
+// pure color clustering can't. This is what fixes "one player drops for N seconds".
+function assignPlayersByMotion(tracks) {
+  const byFrame = new Map();
+  for (const id in tracks) {
+    const feat = hsvFeat(tracks[id].desc);
+    for (const p of tracks[id].pts) {
+      if (!byFrame.has(p.f)) byFrame.set(p.f, []);
+      byFrame.get(p.f).push({ foot: p.foot, t: p.t, feat });
+    }
+  }
+  const frames = [...byFrame.keys()].sort((a, b) => a - b);
+  if (!frames.length) return {};
+
+  // K = most common per-frame detection count (the stable number of players)
+  const counts = {};
+  for (const f of frames) { const n = Math.min(6, byFrame.get(f).length); if (n) counts[n] = (counts[n] || 0) + 1; }
+  let K = 2, bestC = -1;
+  for (const n in counts) if (counts[n] > bestC) { bestC = counts[n]; K = +n; }
+
+  const COLORW = 140; // px-equivalent weight of one unit of color distance (position dominates)
+  const cdist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
+
+  // init slots from the first frame that has exactly K detections
+  let slots = null;
+  for (const f of frames) { const ds = byFrame.get(f); if (ds.length === K) { slots = ds.map((d) => ({ x: d.foot[0], y: d.foot[1], vx: 0, vy: 0, feat: d.feat.slice(), out: [] })); break; } }
+  if (!slots) { const ds = byFrame.get(frames[0]).slice(0, K); slots = ds.map((d) => ({ x: d.foot[0], y: d.foot[1], vx: 0, vy: 0, feat: d.feat.slice(), out: [] })); }
+
+  let prevF = null;
+  for (const f of frames) {
+    const dt = prevF == null ? 1 : (f - prevF);
+    const ds = byFrame.get(f);
+    const pred = slots.map((s) => ({ x: s.x + s.vx * dt, y: s.y + s.vy * dt }));
+    const pairs = [];
+    slots.forEach((s, si) => ds.forEach((d, di) => {
+      const pd = Math.hypot(pred[si].x - d.foot[0], pred[si].y - d.foot[1]);
+      pairs.push([pd + COLORW * cdist(s.feat, d.feat), si, di]);
+    }));
+    pairs.sort((a, b) => a[0] - b[0]);
+    const su = new Set(), du = new Set();
+    for (const [, si, di] of pairs) {
+      if (su.has(si) || du.has(di)) continue;
+      su.add(si); du.add(di);
+      const s = slots[si], d = ds[di];
+      s.vx = (d.foot[0] - s.x) / dt; s.vy = (d.foot[1] - s.y) / dt;
+      s.x = d.foot[0]; s.y = d.foot[1];
+      s.feat = s.feat.map((v, k) => v * 0.9 + d.feat[k] * 0.1); // slow color EMA
+      s.out.push({ f, t: d.t, foot: d.foot });
+    }
+    slots.forEach((s, si) => { if (!su.has(si)) { s.x = pred[si].x; s.y = pred[si].y; } }); // coast unmatched
+    prevF = f;
+  }
+
+  const groups = slots.map((s) => {
+    const ys = s.out.map((o) => o.foot[1]).sort((a, b) => a - b);
+    return { out: s.out.sort((a, b) => a.f - b.f), medY: ys.length ? ys[ys.length >> 1] : 0 };
+  }).filter((g) => g.out.length);
+  groups.sort((a, b) => b.medY - a.medY); // nearest (largest foot-y) = P1
+  const players = {};
+  groups.forEach((g, i) => { players[String(i + 1)] = g.out; });
+  return players;
+}
+
 // videoPath → { fragments, players } in the app's on-disk shape.
 async function analyzeVideo(videoPath, opts = {}) {
   const step = opts.step || 3;
@@ -155,7 +221,7 @@ async function analyzeVideo(videoPath, opts = {}) {
   }
 
   const tracks = tracker.finalize();
-  const players = autoPlayers(tracks);
+  const players = assignPlayersByMotion(tracks);
   const meta = { video: path.basename(videoPath), fps: +fps.toFixed(3), width: w, height: h, step };
   return {
     fragments: { ...meta, tracks },
