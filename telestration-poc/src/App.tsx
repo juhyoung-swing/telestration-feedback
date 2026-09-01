@@ -839,62 +839,65 @@ export default function App() {
     );
   }
 
+  const effectPanel = (section: 'tiles' | 'detail') => (
+    <EffectPanel
+      section={section}
+      hasCalibration={!!calibration}
+      players={players}
+      onFollow={followPlayer}
+      followedIds={followedIds}
+      onToggleSpotlight={toggleSpotlight}
+      spotlightIds={spotlightIds}
+      colors={PLAYER_COLORS}
+      hasFragments={!!fragments}
+      anchorCount={playerAnchors.length}
+      onStartPlayerCalib={startPlayerCalibration}
+      onFinishPlayerCalib={finishPlayerCalibration}
+      onCancelPlayerCalib={cancelPlayerCalibration}
+      selected={selectedFeature}
+      onSelect={setSelectedFeature}
+      mode={mode}
+      draftCount={mode === 'drawing-path' ? (pathDraft ? 1 : 0) : draftZone.length}
+      circleParams={circleParams}
+      setCircleParams={setCircleParams}
+      zoneParams={zoneParams}
+      setZoneParams={setZoneParams}
+      zoomParams={zoomParams}
+      setZoomParams={setZoomParams}
+      pathParams={pathParams}
+      setPathParams={setPathParams}
+      selectedPath={selectedOverlay?.type === 'path' ? selectedOverlay : null}
+      onUpdatePath={updatePath}
+      onEditPath={() => setMode('editing-path')}
+      editingPath={mode === 'editing-path'}
+      onFinishEditPath={() => setMode('idle')}
+      textDraft={textDraft}
+      setTextDraft={setTextDraft}
+      textParams={textParams}
+      setTextParams={setTextParams}
+      selectedText={selectedOverlay?.type === 'text' ? selectedOverlay : null}
+      onUpdateText={updateText}
+      onEditText={() => setMode('editing-text')}
+      editingText={mode === 'editing-text'}
+      onFinishEditText={() => setMode('idle')}
+      slowmoRate={slowmoRate}
+      setSlowmoRate={setSlowmoRate}
+      selectedSpeed={selectedOverlay?.type === 'speed' ? selectedOverlay : null}
+      onUpdateSpeed={updateSpeed}
+      selectedOverlay={selectedOverlay}
+      onPatchOverlay={patchOverlay}
+      onCreate={startFeature}
+      onFinishDraft={finishDraft}
+      onCancelDraft={cancelDraft}
+    />
+  );
+
   return (
-    <div className="editor">
+    <div className={`editor ${activeTab === 'effect' ? 'has-inspector' : ''}`}>
       <Rail active={activeTab} onSelect={setActiveTab} />
 
       <section className="left-panel">
-        {activeTab === 'effect' && (
-          <EffectPanel
-            hasCalibration={!!calibration}
-            players={players}
-            onFollow={followPlayer}
-            followedIds={followedIds}
-            onToggleSpotlight={toggleSpotlight}
-            spotlightIds={spotlightIds}
-            colors={PLAYER_COLORS}
-            hasFragments={!!fragments}
-            anchorCount={playerAnchors.length}
-            onStartPlayerCalib={startPlayerCalibration}
-            onFinishPlayerCalib={finishPlayerCalibration}
-            onCancelPlayerCalib={cancelPlayerCalibration}
-            selected={selectedFeature}
-            onSelect={setSelectedFeature}
-            mode={mode}
-            draftCount={mode === 'drawing-path' ? (pathDraft ? 1 : 0) : draftZone.length}
-            circleParams={circleParams}
-            setCircleParams={setCircleParams}
-            zoneParams={zoneParams}
-            setZoneParams={setZoneParams}
-            zoomParams={zoomParams}
-            setZoomParams={setZoomParams}
-            pathParams={pathParams}
-            setPathParams={setPathParams}
-            selectedPath={selectedOverlay?.type === 'path' ? selectedOverlay : null}
-            onUpdatePath={updatePath}
-            onEditPath={() => setMode('editing-path')}
-            editingPath={mode === 'editing-path'}
-            onFinishEditPath={() => setMode('idle')}
-            textDraft={textDraft}
-            setTextDraft={setTextDraft}
-            textParams={textParams}
-            setTextParams={setTextParams}
-            selectedText={selectedOverlay?.type === 'text' ? selectedOverlay : null}
-            onUpdateText={updateText}
-            onEditText={() => setMode('editing-text')}
-            editingText={mode === 'editing-text'}
-            onFinishEditText={() => setMode('idle')}
-            slowmoRate={slowmoRate}
-            setSlowmoRate={setSlowmoRate}
-            selectedSpeed={selectedOverlay?.type === 'speed' ? selectedOverlay : null}
-            onUpdateSpeed={updateSpeed}
-            selectedOverlay={selectedOverlay}
-            onPatchOverlay={patchOverlay}
-            onCreate={startFeature}
-            onFinishDraft={finishDraft}
-            onCancelDraft={cancelDraft}
-          />
-        )}
+        {activeTab === 'effect' && effectPanel('tiles')}
         {activeTab === 'narrative' && <NarrativePanel />}
       </section>
 
@@ -950,6 +953,10 @@ export default function App() {
           onChangeRange={changeRange}
         />
       </main>
+
+      {activeTab === 'effect' && (
+        <aside className="right-panel">{effectPanel('detail')}</aside>
+      )}
     </div>
   );
 }

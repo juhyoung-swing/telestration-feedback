@@ -59,6 +59,7 @@ type Props = {
   onCreate: (id: FeatureId) => void;
   onFinishDraft: () => void;
   onCancelDraft: () => void;
+  section?: 'tiles' | 'detail'; // render only the tile catalog (left) or the selected-item detail (right)
 };
 
 export function EffectPanel(p: Props) {
@@ -113,7 +114,9 @@ export function EffectPanel(p: Props) {
   }[p.selected as 'follow-circle' | 'spotlight'];
 
   return (
-    <div className="panel">
+    <div className={`panel ${p.section === 'detail' ? 'panel-inspector' : ''}`}>
+      {p.section !== 'detail' && (
+      <>
       <div className="panel-title">Effect · 효과</div>
       {!p.hasCalibration && <div className="warn-note">코트 보정이 필요합니다 — 상단 <b>재보정</b>을 누르세요. (화면 위 텍스트·직선·배속은 보정 없이도 가능)</div>}
 
@@ -137,8 +140,12 @@ export function EffectPanel(p: Props) {
           </div>
         </div>
       ))}
+      </>
+      )}
 
-      <div className="panel-divider" />
+      {p.section !== 'tiles' && (
+      <>
+      {!p.section && <div className="panel-divider" />}
       <div className="panel-subtitle">{def.label}</div>
       <div className="panel-desc" style={{ marginTop: 0 }}>{def.hint}</div>
 
@@ -349,6 +356,8 @@ export function EffectPanel(p: Props) {
             </div>
           ) : null}
         </>
+      )}
+      </>
       )}
     </div>
   );

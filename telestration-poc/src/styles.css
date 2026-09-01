@@ -30,6 +30,10 @@ body {
   grid-template-columns: 64px 300px minmax(0, 1fr);
   height: 100vh;
 }
+/* effect tab adds a right-side inspector for the selected item's settings */
+.editor.has-inspector { grid-template-columns: 64px 260px minmax(0, 1fr) 300px; }
+.right-panel { background: var(--panel); border-left: 1px solid var(--border); overflow-y: auto; }
+.right-panel .panel-inspector .panel-subtitle { margin-top: 0; }
 
 /* (a1) rail */
 .rail {
