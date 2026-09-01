@@ -279,3 +279,17 @@ body {
 .calibrate-body { flex: 1; min-height: 0; display: grid; grid-template-columns: 300px minmax(0, 1fr); }
 .calibrate-side { background: var(--panel); border-right: 1px solid var(--border); overflow-y: auto; }
 .calibrate-main { padding: 16px 20px; display: flex; align-items: center; justify-content: center; min-width: 0; }
+
+/* ── player-analysis step ── */
+.analyze-body { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 24px; }
+.analyze-card { width: min(520px, 100%); background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 32px 28px; text-align: center; }
+.analyze-icon { font-size: 46px; line-height: 1; }
+.analyze-card h2 { margin: 12px 0 6px; font-size: 20px; }
+.analyze-desc { color: var(--text-dim); font-size: 13.5px; line-height: 1.6; margin: 0 0 22px; }
+.analyze-progress { margin-top: 8px; }
+.analyze-bar { height: 10px; border-radius: 6px; background: var(--border); overflow: hidden; }
+.analyze-bar-fill { height: 100%; background: var(--accent); border-radius: 6px; transition: width 0.25s ease; }
+.analyze-pct { margin-top: 10px; font-size: 13px; color: var(--text-dim); }
+.analyze-error { margin-top: 8px; color: #ff8a8a; font-size: 13px; }
+.analyze-actions { display: flex; gap: 8px; justify-content: center; margin-top: 12px; }
+.analyze-note { margin-top: 22px; font-size: 12px; color: var(--text-dim); opacity: 0.8; }

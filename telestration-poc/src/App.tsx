@@ -8,7 +8,7 @@ import { EditingToolbar } from './components/EditingToolbar';
 import { Timeline } from './components/Timeline';
 import { ExportDropdown } from './components/ExportDropdown';
 import { ProjectList } from './components/ProjectList';
-import { listProjects, saveProject, deleteProject as deleteProjectRec, newProject, newVideoKey, saveVideoBlob, loadVideoBlob } from './lib/projects';
+import { listProjects, saveProject, deleteProject as deleteProjectRec, newProject, newVideoKey, saveVideoBlob, loadVideoBlob, saveAnalysis, loadAnalysis } from './lib/projects';
 import type { Project } from './lib/projects';
 import { getPerspectiveTransform, invert3x3, projectCourtPoint, unprojectToCourt } from './geometry/homography';
 import type { Pt } from './geometry/homography';
@@ -19,6 +19,20 @@ import type {
   CircleParams, CourtCalibration, DrawnLine, FeatureId, FragmentData, Fragments, Mode, Overlay,
   PathParams, PlayerAnchor, Players, RailTab, TextParams, TrackingData, ZoneParams, ZoomParams,
 } from './types';
+
+// Local ML bridge exposed by the Electron preload (absent in the plain web build).
+declare global {
+  interface Window {
+    ml?: {
+      analyze: (video: ArrayBuffer, options?: { step?: number }) => Promise<{
+        fragments: { tracks: Fragments; fps: number };
+        players: { players: Players };
+        stats?: { trackCount: number; playerCount: number; provider: string; framesProcessed: number };
+      }>;
+      onProgress: (cb: (p: number) => void) => () => void;
+    };
+  }
+}
 
 let idCounter = 0;
 const uid = (p: string) => `${p}-${++idCounter}`;
@@ -62,7 +76,7 @@ export default function App() {
   const blobUrlRef = useRef<string | null>(null);
 
   // project shell: 'projects' landing → 'calibrate' (import-time court setup) → 'editor'
-  const [view, setView] = useState<'projects' | 'calibrate' | 'editor'>('projects');
+  const [view, setView] = useState<'projects' | 'calibrate' | 'analyze' | 'editor'>('projects');
   const [projects, setProjects] = useState<Project[]>([]);
   const [projectId, setProjectId] = useState<string | null>(null);
   const [projectName, setProjectName] = useState('');
@@ -113,17 +127,30 @@ export default function App() {
   const [players, setPlayers] = useState<Players | null>(null);
   const [fragments, setFragments] = useState<Fragments | null>(null);
   const [trackFps, setTrackFps] = useState(30);
+  const [analyzed, setAnalyzed] = useState(false); // this project's player tracking has been run
+  const [analyzing, setAnalyzing] = useState<{ pct: number; error?: string } | null>(null);
+  const hasML = typeof window !== 'undefined' && !!window.ml; // Electron desktop build only
   const [playerAnchors, setPlayerAnchors] = useState<PlayerAnchor[]>([]);
-  useEffect(() => {
-    let alive = true;
-    fetch('/players.json').then((r) => (r.ok ? r.json() : null))
-      .then((d: TrackingData | null) => { if (alive && d?.players) { setPlayers(d.players); setTrackFps(d.fps || 30); } })
-      .catch(() => {});
-    fetch('/fragments.json').then((r) => (r.ok ? r.json() : null))
-      .then((d: FragmentData | null) => { if (alive && d?.tracks) setFragments(d.tracks); })
-      .catch(() => {});
-    return () => { alive = false; };
-  }, []);
+  // Load a project's player-tracking into state: prefer its own analysis (in
+  // IndexedDB); for the bundled sample (no uploaded video) fall back to the
+  // shipped court.mp4 JSON; otherwise leave empty (needs analysis).
+  const loadTracking = async (p: Project) => {
+    if (p.analyzed) {
+      const a = await loadAnalysis(p.id);
+      if (a) { setFragments(a.fragments); setPlayers(a.players); setTrackFps(a.fps || 30); return; }
+    }
+    if (!p.videoKey) {
+      try {
+        const [pj, fj] = await Promise.all([
+          fetch('/players.json').then((r) => (r.ok ? r.json() as Promise<TrackingData> : null)),
+          fetch('/fragments.json').then((r) => (r.ok ? r.json() as Promise<FragmentData> : null)),
+        ]);
+        setPlayers(pj?.players ?? null); setFragments(fj?.tracks ?? null); setTrackFps(pj?.fps || 30);
+        return;
+      } catch { /* ignore */ }
+    }
+    setFragments(null); setPlayers(null); setTrackFps(30);
+  };
 
   // ── projects ─────────────────────────────────────────────────────────────
   useEffect(() => { if (view === 'projects') setProjects(listProjects()); }, [view]);
@@ -187,6 +214,8 @@ export default function App() {
     setMode('idle');
     setActiveTab('effect');
     setProjectId(p.id); setProjectName(p.name);
+    setAnalyzed(!!p.analyzed); setAnalyzing(null);
+    await loadTracking(p);
     setView(toView);
   };
   const createProject = async (name: string, file: File | null) => {
@@ -207,6 +236,33 @@ export default function App() {
   };
   const backToProjects = () => { setView('projects'); };
 
+  // ── player analysis (Electron-only local ML) ───────────────────────────────
+  const currentVideoBytes = async (): Promise<ArrayBuffer | null> => {
+    if (videoKey) { const blob = await loadVideoBlob(videoKey); return blob ? await blob.arrayBuffer() : null; }
+    const r = await fetch(DEFAULT_SRC); return r.ok ? await r.arrayBuffer() : null;
+  };
+  const runAnalysis = async () => {
+    if (!window.ml || !projectId) { setView('editor'); return; }
+    setAnalyzing({ pct: 0 });
+    const off = window.ml.onProgress((p) => setAnalyzing({ pct: p }));
+    try {
+      const bytes = await currentVideoBytes();
+      if (!bytes) throw new Error('영상을 불러올 수 없습니다');
+      const res = await window.ml.analyze(bytes, { step: 3 });
+      const data = { fragments: res.fragments.tracks, players: res.players.players, fps: res.fragments.fps };
+      await saveAnalysis(projectId, data);
+      setFragments(data.fragments); setPlayers(data.players); setTrackFps(data.fps);
+      setAnalyzed(true); setAnalyzing(null); setView('editor');
+    } catch (e) {
+      setAnalyzing({ pct: 0, error: e instanceof Error ? e.message : String(e) });
+    } finally { off(); }
+  };
+  // after court calibration → analysis step (desktop, first time), else the editor
+  const goAfterCalibrate = () => {
+    captureThumb();
+    setView(hasML && !analyzed ? 'analyze' : 'editor');
+  };
+
   // re-apply user player-calibration once fragments load for an opened project
   useEffect(() => {
     if (view === 'editor' && fragments && playerAnchors.length >= 2) setPlayers(assignFragments(fragments, playerAnchors));
@@ -220,12 +276,12 @@ export default function App() {
       saveProject({
         id: projectId, name: projectName, updatedAt: Date.now(), videoName, videoKey,
         corners: calibration?.imagePoints ?? null, calibMethod, overlays, playerAnchors,
-        thumbnail: thumbnail ?? undefined,
+        thumbnail: thumbnail ?? undefined, analyzed, trackFps,
       });
     }, 500);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [view, projectId, projectName, videoName, videoKey, calibration, calibMethod, overlays, playerAnchors, thumbnail]);
+  }, [view, projectId, projectName, videoName, videoKey, calibration, calibMethod, overlays, playerAnchors, thumbnail, analyzed, trackFps]);
 
   useEffect(() => {
     const v = videoRef.current;
@@ -728,13 +784,56 @@ export default function App() {
         <header className="calibrate-head">
           <button className="btn ghost sm" onClick={backToProjects} title="프로젝트 목록으로">← 프로젝트</button>
           <span className="calibrate-title">🎾 코트 보정 · {projectName}</span>
-          <button className="btn primary sm" onClick={() => { captureThumb(); setView('editor'); }}>
-            {calibration ? '완료 · 에디터로 →' : '건너뛰고 에디터로 →'}
+          <button className="btn primary sm" onClick={goAfterCalibrate}>
+            {hasML && !analyzed ? (calibration ? '완료 · 선수 분석 →' : '건너뛰고 선수 분석 →') : (calibration ? '완료 · 에디터로 →' : '건너뛰고 에디터로 →')}
           </button>
         </header>
         <div className="calibrate-body">
           <aside className="calibrate-side">{courtPanel}</aside>
           <main className="calibrate-main">{videoStage}</main>
+        </div>
+      </div>
+    );
+  }
+
+  if (view === 'analyze') {
+    const pct = Math.round((analyzing?.pct ?? 0) * 100);
+    const running = !!analyzing && !analyzing.error;
+    return (
+      <div className="calibrate-view">
+        <header className="calibrate-head">
+          <button className="btn ghost sm" onClick={backToProjects} disabled={running} title="프로젝트 목록으로">← 프로젝트</button>
+          <span className="calibrate-title">🎾 선수 분석 · {projectName}</span>
+          <button className="btn sm" onClick={() => setView('editor')} disabled={running}>건너뛰고 에디터로 →</button>
+        </header>
+        <div className="analyze-body">
+          <div className="analyze-card">
+            <div className="analyze-icon">🏃‍➡️</div>
+            <h2>선수 자동 분석</h2>
+            <p className="analyze-desc">
+              영상에서 선수를 검출·추적해 <b>따라가기 원</b>과 <b>스포트라이트</b>를 쓸 수 있게 합니다.
+              이 컴퓨터에서 로컬로 처리하며(업로드 없음), 영상 길이에 따라 수십 초~몇 분 걸립니다.
+            </p>
+            {!analyzing && (
+              <button className="btn primary" onClick={() => void runAnalysis()}>선수 분석 시작</button>
+            )}
+            {running && (
+              <div className="analyze-progress">
+                <div className="analyze-bar"><div className="analyze-bar-fill" style={{ width: `${pct}%` }} /></div>
+                <div className="analyze-pct">{pct}% · 분석 중…</div>
+              </div>
+            )}
+            {analyzing?.error && (
+              <div className="analyze-error">
+                <div>분석 실패: {analyzing.error}</div>
+                <div className="analyze-actions">
+                  <button className="btn sm" onClick={() => setAnalyzing(null)}>다시 시도</button>
+                  <button className="btn sm" onClick={() => setView('editor')}>건너뛰기</button>
+                </div>
+              </div>
+            )}
+            <div className="analyze-note">나중에 에디터 상단 <b>선수 분석</b>에서 다시 실행할 수 있어요.</div>
+          </div>
         </div>
       </div>
     );
@@ -805,6 +904,7 @@ export default function App() {
             <button className="btn ghost sm back-projects" onClick={backToProjects} title="프로젝트 목록으로 (자동 저장됨)">← 프로젝트</button>
             <span className="center-title">{projectName || videoName}</span>
             <button className="btn ghost sm" onClick={() => setView('calibrate')} title="코트 재보정">재보정</button>
+            {hasML && <button className="btn ghost sm" onClick={() => setView('analyze')} title={analyzed ? '선수 재분석' : '선수 분석'}>{analyzed ? '재분석' : '선수 분석'}</button>}
           </div>
           <ExportDropdown videoName={videoName} />
         </div>

@@ -1,5 +1,5 @@
 import type { Pt } from '../geometry/homography';
-import type { Overlay, PlayerAnchor } from '../types';
+import type { Fragments, Overlay, PlayerAnchor, Players } from '../types';
 
 // A project is one self-contained work unit: a video + its court calibration + all effects.
 // Metadata lives in localStorage; the (large) video blob lives in IndexedDB, keyed by videoKey.
@@ -14,7 +14,12 @@ export type Project = {
   overlays: Overlay[];
   playerAnchors: PlayerAnchor[];
   thumbnail?: string;                 // small JPEG data URL captured from a video frame
+  analyzed?: boolean;                 // player tracking has been run (data in IndexedDB 'analysis')
+  trackFps?: number;                  // fps the tracking data was sampled at
 };
+
+// Player-tracking output for one project (produced in-app by the Electron ML pipeline).
+export type AnalysisData = { fragments: Fragments; players: Players; fps: number };
 
 const KEY = 'tele.projects.v1';
 
@@ -39,47 +44,61 @@ export function deleteProject(id: string): void {
   const p = listProjects().find((x) => x.id === id);
   localStorage.setItem(KEY, JSON.stringify(listProjects().filter((x) => x.id !== id)));
   if (p?.videoKey) void deleteVideoBlob(p.videoKey);
+  void deleteAnalysis(id);
 }
 
 export function newProject(name: string): Project {
   return { id: uid(), name: name.trim() || '제목 없음', updatedAt: Date.now(), videoName: 'court.mp4', videoKey: null, corners: null, calibMethod: null, overlays: [], playerAnchors: [] };
 }
 
-// ── video blobs in IndexedDB ────────────────────────────────────────────────
-const DB = 'tele', STORE = 'videos';
+// ── IndexedDB: large per-project blobs (video) + analysis JSON ───────────────
+const DB = 'tele', VIDEOS = 'videos', ANALYSIS = 'analysis';
 function idb(): Promise<IDBDatabase> {
   return new Promise((res, rej) => {
-    const r = indexedDB.open(DB, 1);
-    r.onupgradeneeded = () => { if (!r.result.objectStoreNames.contains(STORE)) r.result.createObjectStore(STORE); };
+    const r = indexedDB.open(DB, 2);
+    r.onupgradeneeded = () => {
+      const db = r.result;
+      if (!db.objectStoreNames.contains(VIDEOS)) db.createObjectStore(VIDEOS);
+      if (!db.objectStoreNames.contains(ANALYSIS)) db.createObjectStore(ANALYSIS);
+    };
     r.onsuccess = () => res(r.result);
     r.onerror = () => rej(r.error);
   });
 }
-export function newVideoKey(): string { return `v-${uid()}`; }
-export async function saveVideoBlob(key: string, blob: Blob): Promise<void> {
+async function idbPut(store: string, key: string, val: unknown): Promise<void> {
   const db = await idb();
   return new Promise((res, rej) => {
-    const tx = db.transaction(STORE, 'readwrite');
-    tx.objectStore(STORE).put(blob, key);
+    const tx = db.transaction(store, 'readwrite');
+    tx.objectStore(store).put(val, key);
     tx.oncomplete = () => res();
     tx.onerror = () => rej(tx.error);
   });
 }
-export async function loadVideoBlob(key: string): Promise<Blob | null> {
+async function idbGet<T>(store: string, key: string): Promise<T | null> {
   const db = await idb();
   return new Promise((res, rej) => {
-    const tx = db.transaction(STORE, 'readonly');
-    const rq = tx.objectStore(STORE).get(key);
-    rq.onsuccess = () => res((rq.result as Blob) ?? null);
+    const tx = db.transaction(store, 'readonly');
+    const rq = tx.objectStore(store).get(key);
+    rq.onsuccess = () => res((rq.result as T) ?? null);
     rq.onerror = () => rej(rq.error);
   });
 }
-export async function deleteVideoBlob(key: string): Promise<void> {
+async function idbDel(store: string, key: string): Promise<void> {
   const db = await idb();
   return new Promise((res) => {
-    const tx = db.transaction(STORE, 'readwrite');
-    tx.objectStore(STORE).delete(key);
+    const tx = db.transaction(store, 'readwrite');
+    tx.objectStore(store).delete(key);
     tx.oncomplete = () => res();
     tx.onerror = () => res();
   });
 }
+
+export function newVideoKey(): string { return `v-${uid()}`; }
+export const saveVideoBlob = (key: string, blob: Blob) => idbPut(VIDEOS, key, blob);
+export const loadVideoBlob = (key: string) => idbGet<Blob>(VIDEOS, key);
+export const deleteVideoBlob = (key: string) => idbDel(VIDEOS, key);
+
+// analysis keyed by project id (survives video re-uploads within a project)
+export const saveAnalysis = (id: string, data: AnalysisData) => idbPut(ANALYSIS, id, data);
+export const loadAnalysis = (id: string) => idbGet<AnalysisData>(ANALYSIS, id);
+export const deleteAnalysis = (id: string) => idbDel(ANALYSIS, id);

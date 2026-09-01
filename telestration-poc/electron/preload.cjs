@@ -4,8 +4,8 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('ml', {
-  // Analyze a video file path → { fragments, players, stats }.
-  analyze: (videoPath, options) => ipcRenderer.invoke('ml:analyze', { videoPath, options }),
+  // Analyze a video (ArrayBuffer of the file) → { fragments, players, stats }.
+  analyze: (video, options) => ipcRenderer.invoke('ml:analyze', { video, options }),
   // Subscribe to 0..1 progress; returns an unsubscribe fn.
   onProgress: (cb) => {
     const listener = (_e, p) => cb(p);

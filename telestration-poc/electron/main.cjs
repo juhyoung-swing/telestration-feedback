@@ -27,15 +27,26 @@ function mlPaths() {
   };
 }
 
-// Renderer → main: analyze a video file (path) into tracking JSON. Heavy work
-// (ONNX + ffmpeg) runs here in the main process; progress streams back by event.
-ipcMain.handle('ml:analyze', async (evt, { videoPath, options = {} }) => {
+// Renderer → main: analyze a video (raw bytes) into tracking JSON. Uploaded
+// videos live as blobs in the renderer's IndexedDB (no path), so we receive the
+// bytes, write a temp file, run the heavy ONNX+ffmpeg work here, then clean up.
+// Progress streams back by event.
+const os = require('os');
+const fs = require('fs');
+const crypto = require('crypto');
+ipcMain.handle('ml:analyze', async (evt, { video, options = {} }) => {
   const { analyzeVideo } = require('./ml/analyze.cjs'); // lazy: only load ORT when used
   const paths = mlPaths();
-  return analyzeVideo(videoPath, {
-    ...options, ...paths,
-    onProgress: (p) => { if (!evt.sender.isDestroyed()) evt.sender.send('ml:analyze:progress', p); },
-  });
+  const tmp = path.join(os.tmpdir(), `tele-${crypto.randomUUID()}.mp4`);
+  await fs.promises.writeFile(tmp, Buffer.from(video));
+  try {
+    return await analyzeVideo(tmp, {
+      ...options, ...paths,
+      onProgress: (p) => { if (!evt.sender.isDestroyed()) evt.sender.send('ml:analyze:progress', p); },
+    });
+  } finally {
+    fs.promises.unlink(tmp).catch(() => {});
+  }
 });
 
 async function createWindow() {
