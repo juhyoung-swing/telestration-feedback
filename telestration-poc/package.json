@@ -26,6 +26,15 @@
       "electron/**/*",
       "package.json"
     ],
+    "asarUnpack": [
+      "**/node_modules/onnxruntime-node/**"
+    ],
+    "extraResources": [
+      {
+        "from": "resources",
+        "to": "resources"
+      }
+    ],
     "mac": {
       "target": "dmg",
       "category": "public.app-category.sports"
@@ -36,6 +45,7 @@
   },
   "dependencies": {
     "konva": "^9.3.16",
+    "onnxruntime-node": "^1.29.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-konva": "^18.2.10"
