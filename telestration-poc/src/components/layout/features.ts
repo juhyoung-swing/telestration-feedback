@@ -21,6 +21,7 @@ export const FEATURES: FeatureDef[] = [
   { id: 'zone', label: 'Zone', group: 'Tactic', icon: '▰', implemented: true, hint: '코트를 3점 이상 클릭해 커버리지 존을 그립니다.' },
   { id: 'marker', label: 'Marker', group: 'Tactic', icon: '📍', implemented: true, hint: '코트를 클릭해 지점 마커를 놓습니다.' },
   { id: 'connector', label: 'Connector', group: 'Tactic', icon: '🔗', implemented: true, hint: '두 지점을 클릭해 잇는 선을 그립니다.' },
+  { id: 'sector', label: 'Sector', group: 'Tactic', icon: '🪭', implemented: true, hint: '중심을 클릭 → 방향·거리 점을 클릭해 부채꼴(방사형)을 그립니다.' },
   { id: 'text', label: 'Text', group: 'Action', icon: '🅣', implemented: true, hint: '코트를 클릭해 텍스트 라벨을 놓습니다.' },
   { id: 'zoom-in', label: 'Zoom In', group: 'Action', icon: '🔍', implemented: true, hint: '코트를 클릭한 지점을 중심으로 화면을 확대합니다 (재생 중 punch-in).' },
   { id: 'slowmo', label: 'Slow-mo', group: 'Action', icon: '🐢', implemented: true, hint: '현재 위치에 배속 구간을 추가합니다. 재생이 그 구간에 들어가면 지정 배속으로.' },

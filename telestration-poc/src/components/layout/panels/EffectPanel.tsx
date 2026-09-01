@@ -5,7 +5,7 @@ import type { CircleParams, FeatureId, Mode, Overlay, PathArrow, PathParams, Pla
 const FEATURE_MODE: Record<string, Mode> = {
   circle: 'placing-halo', marker: 'placing-marker', text: 'placing-text',
   zone: 'drawing-zone', path: 'drawing-path', connector: 'drawing-connector',
-  'zoom-in': 'placing-zoom',
+  sector: 'drawing-sector', 'zoom-in': 'placing-zoom',
 };
 const PLAYER_FEATURES: FeatureId[] = ['follow-circle', 'spotlight'];
 
@@ -67,7 +67,7 @@ export function EffectPanel(p: Props) {
   const myMode = FEATURE_MODE[p.selected];
   const active = p.mode === myMode;
   const isMulti = p.selected === 'zone';
-  const isTwoClick = p.selected === 'connector' || p.selected === 'path'; // start + end
+  const isTwoClick = p.selected === 'connector' || p.selected === 'path' || p.selected === 'sector'; // start + end
   const isPoint = p.selected === 'circle' || p.selected === 'marker' || p.selected === 'text' || p.selected === 'zoom-in';
   const isPlayer = PLAYER_FEATURES.includes(p.selected);
 
@@ -94,6 +94,7 @@ export function EffectPanel(p: Props) {
   const selMarker = p.selectedOverlay?.type === 'marker' ? p.selectedOverlay : null;
   const selZone = p.selectedOverlay?.type === 'coverage-zone' ? p.selectedOverlay : null;
   const selConn = p.selectedOverlay?.type === 'connector' ? p.selectedOverlay : null;
+  const selSector = p.selectedOverlay?.type === 'sector' ? p.selectedOverlay : null;
   const cVal = { radiusMeters: selHalo?.radiusMeters ?? p.circleParams.radiusMeters, color: selHalo?.color ?? p.circleParams.color, opacity: selHalo?.opacity ?? p.circleParams.opacity };
   const cSet = (patch: Partial<CircleParams>) => (selHalo ? p.onPatchOverlay(selHalo.id, patch) : p.setCircleParams({ ...p.circleParams, ...patch }));
   const zVal = { color: selZone?.color ?? p.zoneParams.color, opacity: selZone?.opacity ?? p.zoneParams.opacity };
@@ -117,7 +118,7 @@ export function EffectPanel(p: Props) {
     <div className={`panel ${p.section === 'detail' ? 'panel-inspector' : ''}`}>
       {p.section !== 'detail' && (
       <>
-      <div className="panel-title">Effect · 효과</div>
+      <div className="panel-title">Effect</div>
       {!p.hasCalibration && <div className="warn-note">코트 보정이 필요합니다 — 상단 <b>재보정</b>을 누르세요. (화면 위 텍스트·직선·배속은 보정 없이도 가능)</div>}
 
       {/* ── tile catalog: Player / Tactic / Action ── */}
@@ -235,6 +236,24 @@ export function EffectPanel(p: Props) {
           {p.selected === 'connector' && selConn && (
             <div className="field"><label>색상</label>
               <input type="color" value={selConn.color ?? '#00E5FF'} onChange={(e) => p.onPatchOverlay(selConn.id, { color: e.target.value })} /></div>
+          )}
+          {p.selected === 'sector' && selSector && (
+            <>
+              <div className="field"><label>반지름 {selSector.radiusM.toFixed(1)}m</label>
+                <input type="range" min="1" max="15" step="0.5" value={selSector.radiusM}
+                  onChange={(e) => p.onPatchOverlay(selSector.id, { radiusM: Number(e.target.value) })} /></div>
+              <div className="field"><label>방향 {Math.round(selSector.dir)}°</label>
+                <input type="range" min="-180" max="180" step="1" value={selSector.dir}
+                  onChange={(e) => p.onPatchOverlay(selSector.id, { dir: Number(e.target.value) })} /></div>
+              <div className="field"><label>각도 {Math.round(selSector.spread)}°</label>
+                <input type="range" min="10" max="180" step="1" value={selSector.spread}
+                  onChange={(e) => p.onPatchOverlay(selSector.id, { spread: Number(e.target.value) })} /></div>
+              <div className="field"><label>색상</label>
+                <input type="color" value={selSector.color ?? '#7C5CFF'} onChange={(e) => p.onPatchOverlay(selSector.id, { color: e.target.value })} /></div>
+              <div className="field"><label>투명도 {(selSector.opacity ?? 0.22).toFixed(2)}</label>
+                <input type="range" min="0" max="1" step="0.05" value={selSector.opacity ?? 0.22}
+                  onChange={(e) => p.onPatchOverlay(selSector.id, { opacity: Number(e.target.value) })} /></div>
+            </>
           )}
           {p.selected === 'zoom-in' && (
             <div className="field"><label>배율 {p.zoomParams.scale.toFixed(1)}×</label>

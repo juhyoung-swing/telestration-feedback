@@ -6,7 +6,7 @@ export type Mode =
   | 'idle' | 'calibrating' | 'line-calibrating' | 'player-calibrating'
   | 'placing-halo' | 'drawing-zone'
   | 'placing-marker' | 'placing-text' | 'drawing-path' | 'drawing-connector'
-  | 'placing-zoom' | 'editing-path' | 'editing-text';
+  | 'placing-zoom' | 'editing-path' | 'editing-text' | 'drawing-sector';
 
 /** One court line drawn during line-calibration: which line + the clicked points (video px). */
 export type DrawnLine = { id: string; points: Pt[] };
@@ -98,6 +98,17 @@ export type Connector = TimeSpan & {
   id: string; type: 'connector'; name: string; visible: boolean;
   points: { courtX: number; courtY: number }[]; color?: string;
 };
+// A filled radial sector (fan) on the court: from a centre, a wedge of `spread`
+// degrees pointing at `dir`, out to `radiusM` metres. Vertices are computed in
+// court metres and projected through H, so it conforms to the court perspective.
+export type Sector = TimeSpan & {
+  id: string; type: 'sector'; name: string; visible: boolean;
+  courtX: number; courtY: number; // centre (court metres)
+  radiusM: number;                // radius (metres)
+  dir: number;                    // direction angle (degrees) in the court plane
+  spread: number;                 // total arc angle (degrees)
+  color?: string; opacity?: number;
+};
 
 // Spotlight: dim the whole frame, reveal (light up) the tracked player.
 export type Spotlight = TimeSpan & {
@@ -118,7 +129,7 @@ export type ZoomIn = TimeSpan & {
   courtX: number; courtY: number; scale: number; trackId?: string;
 };
 
-export type Overlay = GroundHalo | CoverageZone | Marker | TextLabel | PathArrow | Connector | Spotlight | ZoomIn | SpeedSegment;
+export type Overlay = GroundHalo | CoverageZone | Marker | TextLabel | PathArrow | Connector | Sector | Spotlight | ZoomIn | SpeedSegment;
 
 // ── UI (SportsBuddy-style shell) ────────────────────────────────────────────
 // Media/Court were removed: video import + court calibration happen at project creation.
@@ -128,7 +139,7 @@ export type RailTab = 'effect' | 'narrative';
 // spotlight) apply to a player picked in the panel's lower section; the rest place on the court.
 export type FeatureId =
   | 'follow-circle' | 'spotlight'                     // Player group (apply to a selected player)
-  | 'circle' | 'path' | 'zone' | 'marker' | 'connector' // Tactic group (place on court)
+  | 'circle' | 'path' | 'zone' | 'marker' | 'connector' | 'sector' // Tactic group (place on court)
   | 'text' | 'zoom-in' | 'slowmo';                      // Action group
 
 export type CircleParams = { radiusMeters: number; color: string; opacity: number };

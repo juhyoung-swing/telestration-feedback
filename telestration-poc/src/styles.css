@@ -141,6 +141,8 @@ body {
 .center { display: flex; flex-direction: column; min-width: 0; padding: 12px 16px; gap: 10px; overflow: hidden; }
 .center-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .center-head-l { display: flex; align-items: baseline; gap: 10px; }
+.center-head-r { display: flex; align-items: center; gap: 8px; }
+.settings-pop { width: 200px; }
 .center-title { font-size: 14px; font-weight: 700; }
 .center-sub { font-size: 12px; color: var(--muted); }
 
@@ -203,6 +205,7 @@ body {
 .tl-bar.text { background: #d8dee9; color: #1b2027; }
 .tl-bar.path { background: #f08a5d; color: #2a1206; }
 .tl-bar.connector { background: #3fb6c4; color: #062227; }
+.tl-bar.sector { background: #7C5CFF; color: #f0ecff; }
 .tl-bar.spotlight { background: #f2c14e; color: #2a2206; }
 .tl-bar.zoom-in { background: #66d19e; color: #05271a; }
 .tl-bar.speed { background: #9b6dff; color: #f3eeff; }

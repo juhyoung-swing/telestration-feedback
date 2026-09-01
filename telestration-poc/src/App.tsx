@@ -7,6 +7,7 @@ import { NarrativePanel } from './components/layout/panels/NarrativePanel';
 import { EditingToolbar } from './components/EditingToolbar';
 import { Timeline } from './components/Timeline';
 import { ExportDropdown } from './components/ExportDropdown';
+import { SettingsDropdown } from './components/SettingsDropdown';
 import { ProjectList } from './components/ProjectList';
 import { listProjects, saveProject, deleteProject as deleteProjectRec, newProject, newVideoKey, saveVideoBlob, loadVideoBlob, saveAnalysis, loadAnalysis } from './lib/projects';
 import type { Project } from './lib/projects';
@@ -49,11 +50,11 @@ const DEFAULT_SRC = '/court.mp4';
 const DEFAULT_LEN = 5; // new static effects span this many seconds from the playhead
 const FOLLOW_LEN = 8;  // new player-follow effects span this many seconds from the playhead
 const clampT = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
-const FEATURE_COLORS: Record<string, string> = { marker: '#FF3B3B', text: '#FFFFFF', path: '#FF3B3B', connector: '#00E5FF' };
+const FEATURE_COLORS: Record<string, string> = { marker: '#FF3B3B', text: '#FFFFFF', path: '#FF3B3B', connector: '#00E5FF', sector: '#7C5CFF' };
 const FEATURE_MODE = {
   circle: 'placing-halo', marker: 'placing-marker', text: 'placing-text',
   zone: 'drawing-zone', path: 'drawing-path', connector: 'drawing-connector',
-  'zoom-in': 'placing-zoom',
+  sector: 'drawing-sector', 'zoom-in': 'placing-zoom',
 } as const;
 
 // Which Effect-tab feature owns an overlay (so selecting it opens the right editor).
@@ -64,6 +65,7 @@ function featureForOverlay(o: Overlay): FeatureId {
     case 'marker': return 'marker';
     case 'text': return 'text';
     case 'coverage-zone': return 'zone';
+    case 'sector': return 'sector';
     case 'path': return 'path';
     case 'connector': return 'connector';
     case 'zoom-in': return 'zoom-in';
@@ -629,6 +631,18 @@ export default function App() {
       } else {
         setDraftZone([cxy]);
       }
+    } else if (mode === 'drawing-sector') {
+      if (draftZone.length >= 1) {
+        const c = draftZone[0];
+        const dx = cxy.courtX - c.courtX, dy = cxy.courtY - c.courtY;
+        const radiusM = Math.max(0.5, Math.hypot(dx, dy));
+        const dir = (Math.atan2(dy, dx) * 180) / Math.PI;
+        const id = uid('sector');
+        mutate((o) => [...o, { id, type: 'sector', name: nextName(o, 'sector', 'Sector'), visible: true, ...spanAtPlayhead(), courtX: c.courtX, courtY: c.courtY, radiusM, dir, spread: 60, color: FEATURE_COLORS.sector, opacity: 0.22 }]);
+        setDraftZone([]); setMode('idle');
+      } else {
+        setDraftZone([cxy]);
+      }
     }
   };
 
@@ -643,7 +657,7 @@ export default function App() {
       const src = o.find((x) => x.id === id);
       if (!src) return o;
       const name = `${src.name} copy`, newId = uid('dup');
-      if (src.type === 'ground-halo' || src.type === 'marker' || src.type === 'text' || src.type === 'zoom-in') {
+      if (src.type === 'ground-halo' || src.type === 'marker' || src.type === 'text' || src.type === 'zoom-in' || src.type === 'sector') {
         return [...o, { ...src, id: newId, name, courtX: src.courtX + 0.6, courtY: src.courtY + 0.6 }];
       }
       if (src.type === 'spotlight' || src.type === 'speed') return [...o, { ...src, id: newId, name }];
@@ -750,6 +764,7 @@ export default function App() {
       case 'editing-path': return 'Path 끝점을 드래그해 이동 · Esc 완료';
       case 'editing-text': return '박스를 드래그해 이동 · 모서리 핸들로 크기 조절 · Esc 완료';
       case 'drawing-connector': return `Connector · ${n}/2점 클릭 · Esc 취소`;
+      case 'drawing-sector': return `부채꼴 · ${draftZone.length < 1 ? '중심 클릭' : '방향·거리 점 클릭'} (${draftZone.length}/2) · Esc 취소`;
       default: return null;
     }
   })();
@@ -906,10 +921,15 @@ export default function App() {
           <div className="center-head-l">
             <button className="btn ghost sm back-projects" onClick={backToProjects} title="프로젝트 목록으로 (자동 저장됨)">← 프로젝트</button>
             <span className="center-title">{projectName || videoName}</span>
-            <button className="btn ghost sm" onClick={() => setView('calibrate')} title="코트 재보정">재보정</button>
-            {hasML && <button className="btn ghost sm" onClick={() => setView('analyze')} title={analyzed ? '선수 재분석' : '선수 분석'}>{analyzed ? '재분석' : '선수 분석'}</button>}
           </div>
-          <ExportDropdown videoName={videoName} />
+          <div className="center-head-r">
+            <SettingsDropdown
+              onRecalibrate={() => setView('calibrate')}
+              onReanalyze={hasML ? () => setView('analyze') : undefined}
+              analyzed={analyzed}
+            />
+            <ExportDropdown videoName={videoName} />
+          </div>
         </div>
 
         {videoStage}

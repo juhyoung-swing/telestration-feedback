@@ -14,6 +14,7 @@ import { Marker } from './overlays/Marker';
 import { TextLabel } from './overlays/TextLabel';
 import { PathArrow } from './overlays/PathArrow';
 import { Connector } from './overlays/Connector';
+import { Sector } from './overlays/Sector';
 import { SpotlightDim } from './overlays/SpotlightDim';
 import { CalibrationPoints } from './overlays/CalibrationPoints';
 import { CalibLines } from './overlays/CalibLines';
@@ -169,6 +170,7 @@ export function VideoStage({
       case 'text': { const tl = project(o.courtX, o.courtY); return { x: tl.x + o.boxW / 2, y: tl.y + o.boxH / 2 }; }
       case 'path': return o.points[0] ? toDisplaySpace(o.space, o.points[0].x, o.points[0].y) : null;
       case 'coverage-zone': case 'connector': return o.points[0] ? project(o.points[0].courtX, o.points[0].courtY) : null;
+      case 'sector': return project(o.courtX, o.courtY);
       case 'spotlight': return atFoot(o.trackId);
       default: return null;
     }
@@ -200,6 +202,14 @@ export function VideoStage({
         }
         case 'coverage-zone': {
           const poly = o.points.flatMap((p) => { const d = project(p.courtX, p.courtY); return [d.x, d.y]; });
+          if (pointInPoly(pos.x, pos.y, poly)) return o.id;
+          break;
+        }
+        case 'sector': {
+          const a0 = ((o.dir - o.spread / 2) * Math.PI) / 180, a1 = ((o.dir + o.spread / 2) * Math.PI) / 180;
+          const c = project(o.courtX, o.courtY);
+          const poly = [c.x, c.y];
+          for (let i = 0; i <= 24; i++) { const a = a0 + ((a1 - a0) * i) / 24; const d = project(o.courtX + o.radiusM * Math.cos(a), o.courtY + o.radiusM * Math.sin(a)); poly.push(d.x, d.y); }
           if (pointInPoly(pos.x, pos.y, poly)) return o.id;
           break;
         }
@@ -295,6 +305,8 @@ export function VideoStage({
                     switch (o.type) {
                       case 'coverage-zone':
                         return <CoverageZone key={o.id} points={o.points} project={project} color={o.color} opacity={o.opacity} />;
+                      case 'sector':
+                        return <Sector key={o.id} courtX={o.courtX} courtY={o.courtY} radiusM={o.radiusM} dir={o.dir} spread={o.spread} project={project} color={o.color} opacity={o.opacity} />;
                       case 'marker':
                         return <Marker key={o.id} courtX={o.courtX} courtY={o.courtY} project={project} color={o.color} />;
                       case 'text':
@@ -334,8 +346,8 @@ export function VideoStage({
                 </>
               )}
 
-              {/* draft preview for zone / connector */}
-              {calibration && (mode === 'drawing-zone' || mode === 'drawing-connector') && draftZone.length > 0 && (
+              {/* draft preview for zone / connector / sector */}
+              {calibration && (mode === 'drawing-zone' || mode === 'drawing-connector' || mode === 'drawing-sector') && draftZone.length > 0 && (
                 <>
                   {mode === 'drawing-zone' && <CoverageZone points={draftZone} project={project} closed={draftZone.length >= 3} />}
                   {mode === 'drawing-connector' && <Connector points={draftZone} project={project} />}
