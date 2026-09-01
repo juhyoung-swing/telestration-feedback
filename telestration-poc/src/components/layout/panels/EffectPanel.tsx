@@ -41,6 +41,9 @@ type Props = {
   onEditPath: () => void;                       // enter endpoint-drag mode
   editingPath: boolean;
   onFinishEditPath: () => void;
+  onEditSector: () => void;                     // enter sector handle-drag mode
+  editingSector: boolean;
+  onFinishEditSector: () => void;
   textDraft: string;
   setTextDraft: (s: string) => void;
   textParams: TextParams;
@@ -110,8 +113,8 @@ export function EffectPanel(p: Props) {
 
   // which apply handler + on-state + enablement the player rows use, per selected player-effect
   const apply = {
-    'follow-circle': { fn: p.onFollow, set: p.followedIds, enabled: p.hasCalibration, why: '먼저 캘리브레이션이 필요합니다' },
-    spotlight: { fn: p.onToggleSpotlight, set: p.spotlightIds, enabled: p.hasCalibration, why: '먼저 캘리브레이션이 필요합니다' },
+    'follow-circle': { fn: p.onFollow, set: p.followedIds, enabled: p.hasCalibration, why: '먼저 캘리브레이션이 필요합니다', add: true },
+    spotlight: { fn: p.onToggleSpotlight, set: p.spotlightIds, enabled: p.hasCalibration, why: '먼저 캘리브레이션이 필요합니다', add: false },
   }[p.selected as 'follow-circle' | 'spotlight'];
 
   return (
@@ -158,6 +161,8 @@ export function EffectPanel(p: Props) {
               <div className="field"><label>반지름 (m)</label>
                 <input type="number" step="0.1" min="0.1" value={cVal.radiusMeters}
                   onChange={(e) => cSet({ radiusMeters: Number(e.target.value) || 0.1 })} /></div>
+              <div className="field"><label>색상{selHalo ? '' : ' (기본)'}</label>
+                <input type="color" value={cVal.color} onChange={(e) => cSet({ color: e.target.value })} /></div>
               <div className="field"><label>투명도 {cVal.opacity.toFixed(2)}</label>
                 <input type="range" min="0" max="1" step="0.05" value={cVal.opacity}
                   onChange={(e) => cSet({ opacity: Number(e.target.value) })} /></div>
@@ -182,10 +187,10 @@ export function EffectPanel(p: Props) {
             <div className="soon-note" style={{ marginTop: 8 }}>트래킹 데이터(players.json)를 불러오지 못했습니다.</div>
           ) : (
             <>
-              <div className="muted-note" style={{ marginTop: 8 }}>선수를 눌러 <b>{def.label}</b>을 적용/해제합니다.</div>
+              <div className="muted-note" style={{ marginTop: 8 }}>선수를 눌러 <b>{def.label}</b>을 {apply.add ? '타임라인에 추가합니다.' : '적용/해제합니다.'}</div>
               <div className="player-list">
                 {list.map((pl) => {
-                  const on = apply.set.has(pl.id);
+                  const on = !apply.add && apply.set.has(pl.id); // toggle effects (spotlight) show an on-state
                   const color = p.colors[(Number(pl.id) - 1) % p.colors.length];
                   return (
                     <div key={pl.id} className={`player-row ${on ? 'on' : ''}`}>
@@ -196,8 +201,8 @@ export function EffectPanel(p: Props) {
                         className={on ? 'btn sm active' : 'btn sm'}
                         onClick={() => apply.fn(pl.id)}
                         disabled={!apply.enabled}
-                        title={apply.enabled ? `${def.label} 적용/해제` : apply.why}
-                      >{on ? '해제' : '적용'}</button>
+                        title={apply.enabled ? (apply.add ? `${def.label} 추가` : `${def.label} 적용/해제`) : apply.why}
+                      >{apply.add ? '추가' : (on ? '해제' : '적용')}</button>
                     </div>
                   );
                 })}
@@ -253,6 +258,9 @@ export function EffectPanel(p: Props) {
               <div className="field"><label>투명도 {(selSector.opacity ?? 0.22).toFixed(2)}</label>
                 <input type="range" min="0" max="1" step="0.05" value={selSector.opacity ?? 0.22}
                   onChange={(e) => p.onPatchOverlay(selSector.id, { opacity: Number(e.target.value) })} /></div>
+              <button className={`btn sm block ${p.editingSector ? 'active' : ''}`} onClick={p.editingSector ? p.onFinishEditSector : p.onEditSector}>
+                {p.editingSector ? '편집 완료' : '위치·크기 편집 (드래그)'}
+              </button>
             </>
           )}
           {p.selected === 'zoom-in' && (

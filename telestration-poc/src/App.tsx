@@ -492,6 +492,9 @@ export default function App() {
   // Live-edit a placed text box (content/style/size/position).
   const updateText = (id: string, patch: Partial<Extract<Overlay, { type: 'text' }>>) =>
     setOverlays((o) => o.map((x) => (x.id === id && x.type === 'text' ? { ...x, ...patch } : x)));
+  // Live-edit a placed sector (centre/radius/direction) — drag handles + inspector.
+  const updateSector = (id: string, patch: Partial<Extract<Overlay, { type: 'sector' }>>) =>
+    setOverlays((o) => o.map((x) => (x.id === id && x.type === 'sector' ? { ...x, ...patch } : x)));
   // Generic property patch (color/size/opacity) for the selected overlay — halo/marker/zone/connector.
   const patchOverlay = (id: string, patch: object) =>
     setOverlays((o) => o.map((x) => (x.id === id ? ({ ...x, ...patch } as Overlay) : x)));
@@ -500,10 +503,10 @@ export default function App() {
   // Toggle a Circle bound to a tracked player. Its court position is derived
   // per-frame (foot → H⁻¹ → court); span = the player's tracked span; each player
   // gets a distinct color.
+  // Add a follow-circle for a player (not a toggle) — each click adds a circle to
+  // the timeline, like any other effect; remove it via the timeline / delete.
   const followPlayer = (playerId: string) => {
     if (!calibration || !players) return;
-    const existing = overlays.find((o) => o.type === 'ground-halo' && o.trackId === playerId);
-    if (existing) { removeOverlay(existing.id); return; }
     const pts = players[playerId];
     if (!pts || pts.length === 0) return;
     const t0 = pts[0].t, t1 = pts[pts.length - 1].t;
@@ -765,6 +768,7 @@ export default function App() {
       case 'editing-text': return '박스를 드래그해 이동 · 모서리 핸들로 크기 조절 · Esc 완료';
       case 'drawing-connector': return `Connector · ${n}/2점 클릭 · Esc 취소`;
       case 'drawing-sector': return `부채꼴 · ${draftZone.length < 1 ? '중심 클릭' : '방향·거리 점 클릭'} (${draftZone.length}/2) · Esc 취소`;
+      case 'editing-sector': return '중심 드래그로 이동 · 끝점 드래그로 반지름·방향 · Esc 완료';
       default: return null;
     }
   })();
@@ -784,7 +788,8 @@ export default function App() {
       showGrid={showGrid} currentTime={cur} hint={stageHint} selectedId={selectedOverlayId} onSelectOverlay={setSelectedOverlayId}
       players={players} fragments={fragments} playerAnchors={playerAnchors} fps={trackFps}
       draftCalib={draftCalib} draftZone={draftZone} pathDraft={pathDraft}
-      onUpdatePathPoints={(id, points) => updatePath(id, { points })} onUpdateText={updateText}
+      onUpdatePathPoints={(id, points) => updatePath(id, { points })} onUpdateText={updateText} onUpdateSector={updateSector}
+      showCalibration={view === 'calibrate'}
       drawnLines={drawnLines} lineDraft={lineDraft} activeLineId={activeLineId} onStageClick={onStageClick} onDimensions={(w, h) => setDims({ w, h })}
     />
   );
@@ -886,6 +891,9 @@ export default function App() {
       onEditPath={() => setMode('editing-path')}
       editingPath={mode === 'editing-path'}
       onFinishEditPath={() => setMode('idle')}
+      onEditSector={() => setMode('editing-sector')}
+      editingSector={mode === 'editing-sector'}
+      onFinishEditSector={() => setMode('idle')}
       textDraft={textDraft}
       setTextDraft={setTextDraft}
       textParams={textParams}

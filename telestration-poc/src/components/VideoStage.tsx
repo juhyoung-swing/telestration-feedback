@@ -57,6 +57,8 @@ type Props = {
   pathDraft: Pt | null; // path drawing: first click (video px)
   onUpdatePathPoints: (id: string, points: { x: number; y: number }[]) => void; // endpoint drag
   onUpdateText: (id: string, patch: Partial<Extract<Overlay, { type: 'text' }>>) => void; // text box move/resize
+  onUpdateSector: (id: string, patch: Partial<Extract<Overlay, { type: 'sector' }>>) => void; // sector handle drag
+  showCalibration?: boolean; // draw the committed court corners (calibrate view only)
   drawnLines: DrawnLine[]; // line-calibration: committed lines (video px)
   lineDraft: Pt[]; // line-calibration: active line points (video px)
   activeLineId: string | null;
@@ -84,6 +86,8 @@ export function VideoStage({
   pathDraft,
   onUpdatePathPoints,
   onUpdateText,
+  onUpdateSector,
+  showCalibration,
   drawnLines,
   lineDraft,
   activeLineId,
@@ -379,8 +383,8 @@ export function VideoStage({
 
               {/* corners being collected */}
               <CalibrationPoints points={draftCalib} toDisplay={vToD} />
-              {/* committed corners (faint cyan) when not actively recalibrating */}
-              {calibration && mode !== 'calibrating' && (
+              {/* committed corners (faint cyan) — only in the calibrate view, not the editor */}
+              {calibration && mode !== 'calibrating' && showCalibration && (
                 <CalibrationPoints points={calibration.imagePoints} toDisplay={vToD} committed />
               )}
             </Layer>
@@ -423,6 +427,27 @@ export function VideoStage({
                     x={tl.x + o.boxW} y={tl.y + o.boxH} radius={8} fill="#fff" stroke="#FF3B3B" strokeWidth={2.5} draggable
                     onDragMove={(e) => onUpdateText(o.id, { boxW: Math.max(40, e.target.x() - tl.x), boxH: Math.max(24, e.target.y() - tl.y) })}
                   />
+                </Layer>
+              );
+            })()}
+
+            {/* editing-sector: drag centre to move, drag arc tip to set radius+direction */}
+            {mode === 'editing-sector' && view && calibration && (() => {
+              const o = overlays.find((x) => x.id === selectedId);
+              if (!o || o.type !== 'sector') return null;
+              const center = project(o.courtX, o.courtY);
+              const rad = (o.dir * Math.PI) / 180;
+              const tip = project(o.courtX + o.radiusM * Math.cos(rad), o.courtY + o.radiusM * Math.sin(rad));
+              const toCourt = (node: { x(): number; y(): number }) => {
+                const vid = displayToVideo({ x: node.x(), y: node.y() }, view);
+                return unprojectToCourt(calibration.inverseHomography, vid.x, vid.y);
+              };
+              return (
+                <Layer>
+                  <Circle x={center.x} y={center.y} radius={9} fill="#fff" stroke="#7C5CFF" strokeWidth={3} draggable
+                    onDragMove={(e) => { const c = toCourt(e.target); onUpdateSector(o.id, { courtX: c.x, courtY: c.y }); }} />
+                  <Circle x={tip.x} y={tip.y} radius={9} fill="#7C5CFF" stroke="#fff" strokeWidth={3} draggable
+                    onDragMove={(e) => { const c = toCourt(e.target); const dx = c.x - o.courtX, dy = c.y - o.courtY; onUpdateSector(o.id, { radiusM: Math.max(0.5, Math.hypot(dx, dy)), dir: (Math.atan2(dy, dx) * 180) / Math.PI }); }} />
                 </Layer>
               );
             })()}
