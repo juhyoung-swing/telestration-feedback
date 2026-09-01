@@ -99,11 +99,6 @@ export type Connector = TimeSpan & {
   points: { courtX: number; courtY: number }[]; color?: string;
 };
 
-// A person cutout: the outline follows a tracked player's per-frame silhouette.
-export type Cutout = TimeSpan & {
-  id: string; type: 'cutout'; name: string; visible: boolean;
-  trackId: string; color?: string;
-};
 // Spotlight: dim the whole frame, reveal (light up) the tracked player.
 export type Spotlight = TimeSpan & {
   id: string; type: 'spotlight'; name: string; visible: boolean;
@@ -123,21 +118,16 @@ export type ZoomIn = TimeSpan & {
   courtX: number; courtY: number; scale: number; trackId?: string;
 };
 
-export type Overlay = GroundHalo | CoverageZone | Marker | TextLabel | PathArrow | Connector | Cutout | Spotlight | ZoomIn | SpeedSegment;
-
-// Per-player silhouette polygons (video px), from scripts/seg_players.py.
-export type CutoutSample = { f: number; poly: [number, number][] };
-export type PlayerCutouts = Record<string, CutoutSample[]>;
-export type CutoutData = { video: string; fps: number; width: number; height: number; step: number; players: PlayerCutouts };
+export type Overlay = GroundHalo | CoverageZone | Marker | TextLabel | PathArrow | Connector | Spotlight | ZoomIn | SpeedSegment;
 
 // ── UI (SportsBuddy-style shell) ────────────────────────────────────────────
 // Media/Court were removed: video import + court calibration happen at project creation.
 export type RailTab = 'effect' | 'narrative';
 
-// SportsBuddy feature set as Effect-tab tiles. Player-group tiles (follow-circle / cutout /
+// SportsBuddy feature set as Effect-tab tiles. Player-group tiles (follow-circle /
 // spotlight) apply to a player picked in the panel's lower section; the rest place on the court.
 export type FeatureId =
-  | 'follow-circle' | 'cutout' | 'spotlight'          // Player group (apply to a selected player)
+  | 'follow-circle' | 'spotlight'                     // Player group (apply to a selected player)
   | 'circle' | 'path' | 'zone' | 'marker' | 'connector' // Tactic group (place on court)
   | 'text' | 'zoom-in' | 'slowmo';                      // Action group
 

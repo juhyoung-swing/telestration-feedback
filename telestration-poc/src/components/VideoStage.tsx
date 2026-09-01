@@ -6,7 +6,7 @@ import { projectCourtPoint, unprojectToCourt, circleInCourt } from '../geometry/
 import type { Pt } from '../geometry/homography';
 import { videoToDisplay, displayToVideo } from '../geometry/coords';
 import type { ViewTransform } from '../geometry/coords';
-import { footAt, polyAt } from '../geometry/tracking';
+import { footAt } from '../geometry/tracking';
 import { CourtGrid } from './overlays/CourtGrid';
 import { GroundHalo } from './overlays/GroundHalo';
 import { CoverageZone } from './overlays/CoverageZone';
@@ -14,12 +14,11 @@ import { Marker } from './overlays/Marker';
 import { TextLabel } from './overlays/TextLabel';
 import { PathArrow } from './overlays/PathArrow';
 import { Connector } from './overlays/Connector';
-import { PersonCutout } from './overlays/PersonCutout';
 import { SpotlightDim } from './overlays/SpotlightDim';
 import { CalibrationPoints } from './overlays/CalibrationPoints';
 import { CalibLines } from './overlays/CalibLines';
 import { CalibBoxes } from './overlays/CalibBoxes';
-import type { CourtCalibration, Overlay, Mode, DrawnLine, Players, Fragments, PlayerAnchor, PlayerCutouts, Spotlight, ZoomIn } from '../types';
+import type { CourtCalibration, Overlay, Mode, DrawnLine, Players, Fragments, PlayerAnchor, Spotlight, ZoomIn } from '../types';
 
 // hit-test helpers (display px)
 const pointInPoly = (px: number, py: number, poly: number[]): boolean => {
@@ -49,7 +48,6 @@ type Props = {
   selectedId: string | null; // timeline-selected overlay → highlighted on the canvas
   onSelectOverlay: (id: string | null) => void; // click an overlay on the canvas → select it
   players: Players | null; // tracked player trajectories (foot points in video px)
-  cutouts: PlayerCutouts | null; // per-player silhouette polygons (video px)
   fragments: Fragments | null; // raw fragments (for player-calibration hit-testing)
   playerAnchors: PlayerAnchor[]; // clicked player anchors during player-calibration
   fps: number;
@@ -77,7 +75,6 @@ export function VideoStage({
   selectedId,
   onSelectOverlay,
   players,
-  cutouts,
   fragments,
   playerAnchors,
   fps,
@@ -172,7 +169,7 @@ export function VideoStage({
       case 'text': { const tl = project(o.courtX, o.courtY); return { x: tl.x + o.boxW / 2, y: tl.y + o.boxH / 2 }; }
       case 'path': return o.points[0] ? toDisplaySpace(o.space, o.points[0].x, o.points[0].y) : null;
       case 'coverage-zone': case 'connector': return o.points[0] ? project(o.points[0].courtX, o.points[0].courtY) : null;
-      case 'cutout': case 'spotlight': return atFoot(o.trackId);
+      case 'spotlight': return atFoot(o.trackId);
       default: return null;
     }
   })();
@@ -220,14 +217,6 @@ export function VideoStage({
             pts = []; for (let i = 0; i <= 16; i++) { const t = i / 16, u = 1 - t; pts.push({ x: u * u * a.x + 2 * u * t * mx + t * t * b.x, y: u * u * a.y + 2 * u * t * cy + t * t * b.y }); }
           }
           for (let i = 0; i < pts.length - 1; i++) if (distToSeg(pos.x, pos.y, pts[i].x, pts[i].y, pts[i + 1].x, pts[i + 1].y) < 12) return o.id;
-          break;
-        }
-        case 'cutout': {
-          if (!cutouts) break;
-          const poly = polyAt(cutouts[o.trackId] ?? [], Math.round(currentTime * fps));
-          if (!poly) break;
-          const flat = poly.flatMap((p) => { const d = vToD({ x: p[0], y: p[1] }); return [d.x, d.y]; });
-          if (pointInPoly(pos.x, pos.y, flat)) return o.id;
           break;
         }
       }
@@ -322,12 +311,6 @@ export function VideoStage({
                         return null; // applied as a CSS transform on the whole stage
                       case 'speed':
                         return null; // playback-rate modifier, no canvas shape
-                      case 'cutout': {
-                        if (!cutouts) return null;
-                        const poly = polyAt(cutouts[o.trackId] ?? [], Math.round(currentTime * fps));
-                        if (!poly) return null;
-                        return <PersonCutout key={o.id} poly={poly} toDisplay={vToD} color={o.color} />;
-                      }
                       case 'ground-halo': {
                         // a tracked halo derives its court position from the player's
                         // foot at the current time (foot → H⁻¹ → court meters).

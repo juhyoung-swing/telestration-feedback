@@ -16,8 +16,8 @@ import { COURT_CORNERS } from './geometry/court';
 import { courtLineDef, fitImageLine, homographyFromLines, familiesCovered } from './geometry/lineCalib';
 import { PLAYER_COLORS, playerColor, hitTestFragment, assignFragments } from './geometry/tracking';
 import type {
-  CircleParams, CourtCalibration, CutoutData, DrawnLine, FeatureId, FragmentData, Fragments, Mode, Overlay,
-  PathParams, PlayerAnchor, PlayerCutouts, Players, RailTab, TextParams, TrackingData, ZoneParams, ZoomParams,
+  CircleParams, CourtCalibration, DrawnLine, FeatureId, FragmentData, Fragments, Mode, Overlay,
+  PathParams, PlayerAnchor, Players, RailTab, TextParams, TrackingData, ZoneParams, ZoomParams,
 } from './types';
 
 let idCounter = 0;
@@ -46,7 +46,6 @@ const FEATURE_MODE = {
 function featureForOverlay(o: Overlay): FeatureId {
   switch (o.type) {
     case 'ground-halo': return o.trackId ? 'follow-circle' : 'circle';
-    case 'cutout': return 'cutout';
     case 'spotlight': return 'spotlight';
     case 'marker': return 'marker';
     case 'text': return 'text';
@@ -113,7 +112,6 @@ export default function App() {
   // tracking (players.json auto-4, and fragments.json for user-anchored re-ID)
   const [players, setPlayers] = useState<Players | null>(null);
   const [fragments, setFragments] = useState<Fragments | null>(null);
-  const [cutouts, setCutouts] = useState<PlayerCutouts | null>(null);
   const [trackFps, setTrackFps] = useState(30);
   const [playerAnchors, setPlayerAnchors] = useState<PlayerAnchor[]>([]);
   useEffect(() => {
@@ -123,9 +121,6 @@ export default function App() {
       .catch(() => {});
     fetch('/fragments.json').then((r) => (r.ok ? r.json() : null))
       .then((d: FragmentData | null) => { if (alive && d?.tracks) setFragments(d.tracks); })
-      .catch(() => {});
-    fetch('/cutouts.json').then((r) => (r.ok ? r.json() : null))
-      .then((d: CutoutData | null) => { if (alive && d?.players) setCutouts(d.players); })
       .catch(() => {});
     return () => { alive = false; };
   }, []);
@@ -468,24 +463,6 @@ export default function App() {
     overlays.filter((o) => o.type === 'ground-halo' && o.trackId).map((o) => (o as { trackId?: string }).trackId!),
   );
 
-  // Toggle a person cutout (silhouette outline) bound to a tracked player.
-  const toggleCutout = (playerId: string) => {
-    if (!players) return;
-    const existing = overlays.find((o) => o.type === 'cutout' && o.trackId === playerId);
-    if (existing) { removeOverlay(existing.id); return; }
-    const pts = players[playerId];
-    if (!pts || pts.length === 0) return;
-    const t0 = pts[0].t, t1 = pts[pts.length - 1].t;
-    const span = followSpan(t0, t1);
-    mutate((o) => [...o, {
-      id: uid('cut'), type: 'cutout', name: `Cutout ${playerId}`, visible: true,
-      ...span, trackId: playerId, color: playerColor(playerId),
-    }]);
-    if (cur < span.startTime || cur > span.endTime) seek(span.startTime);
-  };
-  const cutoutIds = new Set(
-    overlays.filter((o) => o.type === 'cutout').map((o) => (o as { trackId: string }).trackId),
-  );
 
   // Toggle a spotlight (dim frame + light up player) bound to a tracked player.
   const toggleSpotlight = (playerId: string) => {
@@ -613,7 +590,7 @@ export default function App() {
       if (src.type === 'ground-halo' || src.type === 'marker' || src.type === 'text' || src.type === 'zoom-in') {
         return [...o, { ...src, id: newId, name, courtX: src.courtX + 0.6, courtY: src.courtY + 0.6 }];
       }
-      if (src.type === 'cutout' || src.type === 'spotlight' || src.type === 'speed') return [...o, { ...src, id: newId, name }];
+      if (src.type === 'spotlight' || src.type === 'speed') return [...o, { ...src, id: newId, name }];
       if (src.type === 'path') {
         const off = src.space === 'screen' ? 24 : 0.4;
         return [...o, { ...src, id: newId, name, points: src.points.map((p) => ({ x: p.x + off, y: p.y + off })) }];
@@ -734,7 +711,7 @@ export default function App() {
     <VideoStage
       src={src} videoRef={videoRef} calibration={calibration} overlays={overlays} mode={mode}
       showGrid={showGrid} currentTime={cur} hint={stageHint} selectedId={selectedOverlayId} onSelectOverlay={setSelectedOverlayId}
-      players={players} cutouts={cutouts} fragments={fragments} playerAnchors={playerAnchors} fps={trackFps}
+      players={players} fragments={fragments} playerAnchors={playerAnchors} fps={trackFps}
       draftCalib={draftCalib} draftZone={draftZone} pathDraft={pathDraft}
       onUpdatePathPoints={(id, points) => updatePath(id, { points })} onUpdateText={updateText}
       drawnLines={drawnLines} lineDraft={lineDraft} activeLineId={activeLineId} onStageClick={onStageClick} onDimensions={(w, h) => setDims({ w, h })}
@@ -774,9 +751,6 @@ export default function App() {
             players={players}
             onFollow={followPlayer}
             followedIds={followedIds}
-            onToggleCutout={toggleCutout}
-            cutoutIds={cutoutIds}
-            hasCutouts={!!cutouts}
             onToggleSpotlight={toggleSpotlight}
             spotlightIds={spotlightIds}
             colors={PLAYER_COLORS}

@@ -7,7 +7,7 @@ const FEATURE_MODE: Record<string, Mode> = {
   zone: 'drawing-zone', path: 'drawing-path', connector: 'drawing-connector',
   'zoom-in': 'placing-zoom',
 };
-const PLAYER_FEATURES: FeatureId[] = ['follow-circle', 'cutout', 'spotlight'];
+const PLAYER_FEATURES: FeatureId[] = ['follow-circle', 'spotlight'];
 
 type Props = {
   hasCalibration: boolean;
@@ -15,9 +15,6 @@ type Props = {
   players: Players | null;
   onFollow: (id: string) => void;
   followedIds: Set<string>;
-  onToggleCutout: (id: string) => void;
-  cutoutIds: Set<string>;
-  hasCutouts: boolean;
   onToggleSpotlight: (id: string) => void;
   spotlightIds: Set<string>;
   colors: string[];
@@ -112,9 +109,8 @@ export function EffectPanel(p: Props) {
   // which apply handler + on-state + enablement the player rows use, per selected player-effect
   const apply = {
     'follow-circle': { fn: p.onFollow, set: p.followedIds, enabled: p.hasCalibration, why: '먼저 캘리브레이션이 필요합니다' },
-    cutout: { fn: p.onToggleCutout, set: p.cutoutIds, enabled: p.hasCutouts, why: 'cutouts.json(실루엣)이 없습니다' },
     spotlight: { fn: p.onToggleSpotlight, set: p.spotlightIds, enabled: p.hasCalibration, why: '먼저 캘리브레이션이 필요합니다' },
-  }[p.selected as 'follow-circle' | 'cutout' | 'spotlight'];
+  }[p.selected as 'follow-circle' | 'spotlight'];
 
   return (
     <div className="panel">
