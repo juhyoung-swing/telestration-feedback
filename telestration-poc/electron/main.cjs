@@ -3,7 +3,7 @@
 // Dev (ELECTRON_DEV=1): load the Vite dev server (HMR). Packaged/preview: serve
 // the built dist/ via an internal loopback http server (static-server.cjs) so
 // the app's absolute paths & fetch() work unchanged.
-const { app, BrowserWindow, shell } = require('electron');
+const { app, BrowserWindow, shell, ipcMain } = require('electron');
 const path = require('path');
 const { startServer } = require('./static-server.cjs');
 
@@ -12,6 +12,31 @@ const DEV_URL = 'http://localhost:5173';
 const DIST = path.join(__dirname, '..', 'dist');
 
 let serverRef = null;
+
+// Bundled binaries/models: in the packaged app onnxruntime-node/ffmpeg live under
+// app.asar.unpacked, and require('ffmpeg-static') hands back an in-asar path we must
+// remap. The model is shipped via extraResources next to the app.
+const unpack = (p) => p.replace('app.asar' + path.sep, 'app.asar.unpacked' + path.sep).replace('app.asar/', 'app.asar.unpacked/');
+function mlPaths() {
+  return {
+    modelPath: app.isPackaged
+      ? path.join(process.resourcesPath, 'resources', 'models', 'yolov8n.onnx')
+      : path.join(__dirname, '..', 'resources', 'models', 'yolov8n.onnx'),
+    ffmpegPath: unpack(require('ffmpeg-static')),
+    ffprobePath: unpack(require('ffprobe-static').path),
+  };
+}
+
+// Renderer → main: analyze a video file (path) into tracking JSON. Heavy work
+// (ONNX + ffmpeg) runs here in the main process; progress streams back by event.
+ipcMain.handle('ml:analyze', async (evt, { videoPath, options = {} }) => {
+  const { analyzeVideo } = require('./ml/analyze.cjs'); // lazy: only load ORT when used
+  const paths = mlPaths();
+  return analyzeVideo(videoPath, {
+    ...options, ...paths,
+    onProgress: (p) => { if (!evt.sender.isDestroyed()) evt.sender.send('ml:analyze:progress', p); },
+  });
+});
 
 async function createWindow() {
   const win = new BrowserWindow({
