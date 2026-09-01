@@ -104,7 +104,13 @@ export function VideoStage({
   // click-select on the press-time mode instead.
   const downModeRef = useRef<Mode>('idle');
 
-  const interactive = mode !== 'idle';
+  // A selected sector is editable in place while idle — its drag handles show on
+  // selection (no separate edit mode / button), so it's draggable the moment you
+  // click it. This makes the overlay interactive so the handles receive drags.
+  const editSector = mode === 'idle' && selectedId
+    ? overlays.find((o): o is Extract<Overlay, { type: 'sector' }> => o.id === selectedId && o.type === 'sector')
+    : undefined;
+  const interactive = mode !== 'idle' || !!editSector;
 
   // ①⇄② scale. Container aspect == video aspect, so this is a uniform scale and
   // the overlay stays pixel-aligned with the video content at any size.
@@ -174,7 +180,7 @@ export function VideoStage({
       case 'text': { const tl = project(o.courtX, o.courtY); return { x: tl.x + o.boxW / 2, y: tl.y + o.boxH / 2 }; }
       case 'path': return o.points[0] ? toDisplaySpace(o.space, o.points[0].x, o.points[0].y) : null;
       case 'coverage-zone': case 'connector': return o.points[0] ? project(o.points[0].courtX, o.points[0].courtY) : null;
-      case 'sector': return project(o.courtX, o.courtY);
+      case 'sector': { const r = (o.dir * Math.PI) / 180; return project(o.courtX + 0.5 * o.radiusM * Math.cos(r), o.courtY + 0.5 * o.radiusM * Math.sin(r)); } // ring at the fan's middle, not the apex
       case 'spotlight': return atFoot(o.trackId);
       default: return null;
     }
@@ -431,10 +437,9 @@ export function VideoStage({
               );
             })()}
 
-            {/* editing-sector: drag centre to move, drag arc tip to set radius+direction */}
-            {mode === 'editing-sector' && view && calibration && (() => {
-              const o = overlays.find((x) => x.id === selectedId);
-              if (!o || o.type !== 'sector') return null;
+            {/* selected sector: drag centre to move, drag arc tip to set radius+direction */}
+            {editSector && view && calibration && (() => {
+              const o = editSector;
               const center = project(o.courtX, o.courtY);
               const rad = (o.dir * Math.PI) / 180;
               const tip = project(o.courtX + o.radiusM * Math.cos(rad), o.courtY + o.radiusM * Math.sin(rad));

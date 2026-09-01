@@ -891,9 +891,6 @@ export default function App() {
       onEditPath={() => setMode('editing-path')}
       editingPath={mode === 'editing-path'}
       onFinishEditPath={() => setMode('idle')}
-      onEditSector={() => setMode('editing-sector')}
-      editingSector={mode === 'editing-sector'}
-      onFinishEditSector={() => setMode('idle')}
       textDraft={textDraft}
       setTextDraft={setTextDraft}
       textParams={textParams}

@@ -41,9 +41,6 @@ type Props = {
   onEditPath: () => void;                       // enter endpoint-drag mode
   editingPath: boolean;
   onFinishEditPath: () => void;
-  onEditSector: () => void;                     // enter sector handle-drag mode
-  editingSector: boolean;
-  onFinishEditSector: () => void;
   textDraft: string;
   setTextDraft: (s: string) => void;
   textParams: TextParams;
@@ -258,9 +255,7 @@ export function EffectPanel(p: Props) {
               <div className="field"><label>투명도 {(selSector.opacity ?? 0.22).toFixed(2)}</label>
                 <input type="range" min="0" max="1" step="0.05" value={selSector.opacity ?? 0.22}
                   onChange={(e) => p.onPatchOverlay(selSector.id, { opacity: Number(e.target.value) })} /></div>
-              <button className={`btn sm block ${p.editingSector ? 'active' : ''}`} onClick={p.editingSector ? p.onFinishEditSector : p.onEditSector}>
-                {p.editingSector ? '편집 완료' : '위치·크기 편집 (드래그)'}
-              </button>
+              <div className="muted-note">화면에서 중심을 드래그해 이동, 끝점을 드래그해 반지름·방향 조절.</div>
             </>
           )}
           {p.selected === 'zoom-in' && (
