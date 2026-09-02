@@ -3,11 +3,12 @@ import { useEffect, useRef, useState } from 'react';
 // Top-right Export button → screenshot (PNG) and video (MP4) export.
 export function ExportDropdown({ onScreenshot, onExportVideo }: {
   onScreenshot: () => Promise<void> | void;
-  onExportVideo: (onProgress: (t: number, dur: number) => void) => Promise<void>;
+  onExportVideo: (onProgress: (t: number, dur: number) => void, height: number) => Promise<void>;
 }) {
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState<null | 'shot' | 'video'>(null);
   const [prog, setProg] = useState({ t: 0, dur: 0 });
+  const [quality, setQuality] = useState(720); // export height (720p by default)
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -27,7 +28,7 @@ export function ExportDropdown({ onScreenshot, onExportVideo }: {
   const runVideo = async () => {
     setBusy('video');
     setProg({ t: 0, dur: 0 });
-    try { await onExportVideo((t, dur) => setProg({ t, dur })); } finally { setBusy(null); }
+    try { await onExportVideo((t, dur) => setProg({ t, dur }), quality); } finally { setBusy(null); }
   };
 
   const pct = prog.dur ? Math.min(100, Math.round((prog.t / prog.dur) * 100)) : 0;
@@ -39,6 +40,12 @@ export function ExportDropdown({ onScreenshot, onExportVideo }: {
         <div className="export-pop">
           <div className="panel-subtitle">내보내기</div>
           <button className="btn block" disabled={!!busy} onClick={runShot}>📷 스크린샷 저장 (PNG)</button>
+          <div className="field"><label>영상 화질</label>
+            <select value={quality} disabled={!!busy} onChange={(e) => setQuality(Number(e.target.value))}>
+              <option value={1080}>1080p (원본)</option>
+              <option value={720}>720p</option>
+              <option value={480}>480p (가벼움)</option>
+            </select></div>
           <button className="btn primary block" disabled={!!busy} onClick={runVideo}>🎬 영상 내보내기 (MP4)</button>
           {busy === 'video' && (
             <div className="analyze-progress">
@@ -47,7 +54,6 @@ export function ExportDropdown({ onScreenshot, onExportVideo }: {
             </div>
           )}
           {busy === 'shot' && <div className="muted-note">저장 중…</div>}
-          <div className="muted-note">오버레이·줌·슬로모가 그대로 반영됩니다.</div>
         </div>
       )}
     </div>

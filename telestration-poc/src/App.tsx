@@ -736,13 +736,13 @@ export default function App() {
     else downloadBlob(blob, name);
   };
 
-  const exportVideo = async (onProgress: (t: number, dur: number) => void) => {
+  const exportVideo = async (onProgress: (t: number, dur: number) => void, height = 720) => {
     const v = videoRef.current;
     if (!v) return;
     const wasPlaying = !v.paused;
     setSelectedOverlayId(null);
     await nextFrame();
-    const webm = await recordCompositeWebM(v, onProgress);
+    const webm = await recordCompositeWebM(v, onProgress, height);
     if (window.exportApi?.saveMp4) await window.exportApi.saveMp4(await webm.arrayBuffer(), `${exportBaseName()}.mp4`);
     else downloadBlob(webm, `${exportBaseName()}.webm`); // web has no ffmpeg → WebM
     if (wasPlaying) void v.play().catch(() => {});
