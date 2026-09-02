@@ -49,6 +49,47 @@ ipcMain.handle('ml:analyze', async (evt, { video, options = {} }) => {
   }
 });
 
+// ── Export: save screenshot / transcode recorded WebM → MP4 ────────────────
+const { dialog } = require('electron');
+const { execFile } = require('child_process');
+
+ipcMain.handle('export:save-png', async (evt, { buf, suggestedName }) => {
+  const win = BrowserWindow.fromWebContents(evt.sender);
+  const { canceled, filePath } = await dialog.showSaveDialog(win, {
+    defaultPath: suggestedName || 'telestration.png',
+    filters: [{ name: 'PNG 이미지', extensions: ['png'] }],
+  });
+  if (canceled || !filePath) return null;
+  await fs.promises.writeFile(filePath, Buffer.from(buf));
+  return filePath;
+});
+
+ipcMain.handle('export:save-mp4', async (evt, { webm, suggestedName }) => {
+  const win = BrowserWindow.fromWebContents(evt.sender);
+  const { canceled, filePath } = await dialog.showSaveDialog(win, {
+    defaultPath: suggestedName || 'telestration.mp4',
+    filters: [{ name: 'MP4 영상', extensions: ['mp4'] }],
+  });
+  if (canceled || !filePath) return null;
+  const tmp = path.join(os.tmpdir(), `tele-export-${crypto.randomUUID()}.webm`);
+  await fs.promises.writeFile(tmp, Buffer.from(webm));
+  try {
+    const ffmpeg = mlPaths().ffmpegPath;
+    await new Promise((resolve, reject) => {
+      execFile(ffmpeg, [
+        '-y', '-i', tmp,
+        '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-preset', 'veryfast', '-crf', '20',
+        '-c:a', 'aac', '-b:a', '192k',
+        '-movflags', '+faststart',
+        filePath,
+      ], (err, _stdout, stderr) => (err ? reject(new Error(String(stderr || err))) : resolve(null)));
+    });
+    return filePath;
+  } finally {
+    fs.promises.unlink(tmp).catch(() => {});
+  }
+});
+
 async function createWindow() {
   const win = new BrowserWindow({
     width: 1400,

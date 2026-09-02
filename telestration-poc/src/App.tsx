@@ -10,6 +10,7 @@ import { ExportDropdown } from './components/ExportDropdown';
 import { SettingsDropdown } from './components/SettingsDropdown';
 import { ProjectList } from './components/ProjectList';
 import { listProjects, saveProject, deleteProject as deleteProjectRec, newProject, newVideoKey, saveVideoBlob, loadVideoBlob, saveAnalysis, loadAnalysis } from './lib/projects';
+import { screenshotCanvas, canvasToBlob, downloadBlob, recordCompositeWebM } from './lib/exportMedia';
 import type { Project } from './lib/projects';
 import { getPerspectiveTransform, invert3x3, projectCourtPoint, unprojectToCourt } from './geometry/homography';
 import type { Pt } from './geometry/homography';
@@ -31,6 +32,11 @@ declare global {
         stats?: { trackCount: number; playerCount: number; provider: string; framesProcessed: number };
       }>;
       onProgress: (cb: (p: number) => void) => () => void;
+    };
+    // Export bridge exposed by the Electron preload (absent on the web → download fallback).
+    exportApi?: {
+      savePng: (buf: ArrayBuffer, suggestedName: string) => Promise<string | null>;
+      saveMp4: (webm: ArrayBuffer, suggestedName: string) => Promise<string | null>;
     };
   }
 }
@@ -75,6 +81,7 @@ function featureForOverlay(o: Overlay): FeatureId {
 
 export default function App() {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const stageRef = useRef<{ toCanvas: (c?: { pixelRatio?: number }) => HTMLCanvasElement } | null>(null);
   const blobUrlRef = useRef<string | null>(null);
 
   // project shell: 'projects' landing → 'calibrate' (import-time court setup) → 'editor'
@@ -713,6 +720,34 @@ export default function App() {
     else v.pause();
   };
 
+  // ── export (screenshot / video) ─────────────────────────────────────────
+  const exportBaseName = () => (projectName || videoName || 'telestration').replace(/\.[^.]+$/, '');
+  const nextFrame = () => new Promise((r) => requestAnimationFrame(() => r(null)));
+
+  const exportScreenshot = async () => {
+    const v = videoRef.current;
+    if (!v) return;
+    setSelectedOverlayId(null); // drop selection so edit-handles aren't baked in
+    await nextFrame();
+    const canvas = screenshotCanvas(v, stageRef.current);
+    const blob = await canvasToBlob(canvas, 'image/png');
+    const name = `${exportBaseName()}_${Math.round(v.currentTime)}s.png`;
+    if (window.exportApi?.savePng) await window.exportApi.savePng(await blob.arrayBuffer(), name);
+    else downloadBlob(blob, name);
+  };
+
+  const exportVideo = async (onProgress: (t: number, dur: number) => void) => {
+    const v = videoRef.current;
+    if (!v) return;
+    const wasPlaying = !v.paused;
+    setSelectedOverlayId(null);
+    await nextFrame();
+    const webm = await recordCompositeWebM(v, onProgress);
+    if (window.exportApi?.saveMp4) await window.exportApi.saveMp4(await webm.arrayBuffer(), `${exportBaseName()}.mp4`);
+    else downloadBlob(webm, `${exportBaseName()}.webm`); // web has no ffmpeg → WebM
+    if (wasPlaying) void v.play().catch(() => {});
+  };
+
   // Esc leaves interactive mode; Enter finishes a zone/line.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -822,6 +857,7 @@ export default function App() {
       onPatchOverlay={patchOverlay}
       showCalibration={view === 'calibrate'}
       drawnLines={drawnLines} lineDraft={lineDraft} activeLineId={activeLineId} onStageClick={onStageClick} onDimensions={(w, h) => setDims({ w, h })}
+      stageRef={stageRef}
     />
   );
 
@@ -980,7 +1016,7 @@ export default function App() {
               onReanalyze={hasML ? () => setView('analyze') : undefined}
               analyzed={analyzed}
             />
-            <ExportDropdown videoName={videoName} />
+            <ExportDropdown onScreenshot={exportScreenshot} onExportVideo={exportVideo} />
           </div>
         </div>
 

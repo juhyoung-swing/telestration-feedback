@@ -13,3 +13,10 @@ contextBridge.exposeInMainWorld('ml', {
     return () => ipcRenderer.removeListener('ml:analyze:progress', listener);
   },
 });
+
+// Export bridge: save a screenshot (PNG bytes) or transcode a recorded WebM → MP4 via the
+// bundled ffmpeg, each behind a native Save dialog. Returns the saved path, or null if cancelled.
+contextBridge.exposeInMainWorld('exportApi', {
+  savePng: (buf, suggestedName) => ipcRenderer.invoke('export:save-png', { buf, suggestedName }),
+  saveMp4: (webm, suggestedName) => ipcRenderer.invoke('export:save-mp4', { webm, suggestedName }),
+});

@@ -63,6 +63,7 @@ type Props = {
   activeLineId: string | null;
   onStageClick: (videoPt: Pt) => void;
   onDimensions: (w: number, h: number) => void;
+  stageRef?: RefObject<any>; // Konva Stage → crisp overlay capture for export (stage.toCanvas)
 };
 
 export function VideoStage({
@@ -92,6 +93,7 @@ export function VideoStage({
   activeLineId,
   onStageClick,
   onDimensions,
+  stageRef,
 }: Props) {
   const { ref: boxRef, size } = useElementSize<HTMLDivElement>();
   const [dims, setDims] = useState<{ w: number; h: number } | null>(null);
@@ -307,7 +309,7 @@ export function VideoStage({
             cursor: mode !== 'idle' ? 'crosshair' : 'default', // placement uses crosshair; selection-edit uses default (handles show move)
           }}
         >
-          <Stage width={size.width} height={size.height}
+          <Stage ref={stageRef} width={size.width} height={size.height}
             onDragMove={() => { dragGuardRef.current = Date.now(); }}
             onDragEnd={() => { dragGuardRef.current = Date.now(); }}>
             <Layer listening={false}>
