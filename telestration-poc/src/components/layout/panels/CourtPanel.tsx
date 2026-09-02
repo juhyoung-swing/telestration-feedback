@@ -1,5 +1,5 @@
 import { CORNER_LABELS } from '../../../geometry/court';
-import { COURT_LINE_DEFS, courtLineDef } from '../../../geometry/lineCalib';
+import { COURT_LINE_DEFS } from '../../../geometry/lineCalib';
 import type { Mode } from '../../../types';
 
 type Props = {
@@ -24,7 +24,10 @@ type Props = {
 export function CourtPanel(p: Props) {
   return (
     <div className="panel">
-      <div className="panel-title">바닥면 보정</div>
+      <div className="panel-head">
+        <div className="panel-title">바닥면 보정</div>
+        <div className="panel-desc">화면 속 바닥을 실제 코트 좌표에 맞춰, 원·존·따라가기 효과가 바닥에 딱 붙어 움직이게 합니다.</div>
+      </div>
 
       <div className="field-label">보정 방식</div>
       <div className="btn-row">
@@ -63,23 +66,22 @@ export function CourtPanel(p: Props) {
         const requiredDone = required.filter((d) => isLineDone(d.id)).length;
         return (
           <div className="calib-hint">
-            그릴 선을 고르고 그 선 위를 <b>2점+</b> 클릭. 끝점(코너)은 안 찍어도 됩니다.
-
-            <div className="line-group-label">필수 · 바깥 사각형 4선 <span className="lg-count">{requiredDone}/4</span></div>
-            <div className="chip-wrap">{required.map(renderChip)}</div>
-
-            <div className="line-group-label muted">추가 · 있으면 더 정확 <span className="lg-opt">선택</span></div>
-            <div className="chip-wrap">{extra.map(renderChip)}</div>
-
-            <div className="btn-row">
-              <button className="btn primary" onClick={p.onFinishLine} disabled={!p.canFinishLines}>
-                완료 · H 계산 ({p.currentLineIds.length}선)
-              </button>
-              <button className="btn" onClick={p.onCancelLine}>취소</button>
+            <div className="line-section">
+              <div className="line-group-label">필수 <span className="lg-count">{requiredDone}/4</span></div>
+              <div className="chip-wrap">{required.map(renderChip)}</div>
             </div>
-            <div className="muted-note">
-              가로 {p.lineCoverage.horizontal} · 세로 {p.lineCoverage.vertical}
-              {p.activeLineId ? ` · 지금 ${courtLineDef(p.activeLineId).label} (${p.lineDraftCount}점)` : ' · 선을 고르세요'}
+
+            <div className="line-section-sep" />
+
+            <div className="line-section">
+              <div className="line-group-label muted">추가</div>
+              <div className="chip-wrap">{extra.map(renderChip)}</div>
+              <div className="line-group-desc">더 찍을수록 정확하게 그릴 수 있습니다.</div>
+            </div>
+
+            <div className="btn-row line-actions">
+              <button className="btn primary" onClick={p.onFinishLine} disabled={!p.canFinishLines}>완료</button>
+              <button className="btn" onClick={p.onCancelLine}>취소</button>
             </div>
           </div>
         );
