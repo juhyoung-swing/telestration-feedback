@@ -98,8 +98,12 @@ export type PathArrow = TimeSpan & {
   height: number; // arc peak as a fraction of chord length; 0 for a line
   dashed: boolean;
   color?: string;
-  drawOn?: boolean;  // animate the arrow drawing itself over the first `drawSec` of its span
-  drawSec?: number;  // draw-on duration (seconds)
+  drawOn?: boolean;      // animate the arrow drawing itself
+  drawSec?: number;      // draw-on duration (seconds)
+  drawDelay?: number;    // start drawing this many seconds after the overlay appears
+  drawEase?: 'linear' | 'inout'; // constant speed vs ease-in-out
+  drawReverse?: boolean; // reveal end→start instead of start→end
+  drawLoop?: boolean;    // keep re-drawing (draw, hold, repeat)
 };
 export type Connector = TimeSpan & {
   id: string; type: 'connector'; name: string; visible: boolean;
@@ -152,5 +156,5 @@ export type FeatureId =
 export type CircleParams = { radiusMeters: number; color: string; opacity: number; dashed: boolean };
 export type ZoneParams = { color: string; opacity: number; fillStyle: ZoneFill; dashed: boolean; strokeWidth: number };
 export type ZoomParams = { scale: number };
-export type PathParams = { shape: 'court-line' | 'screen-line' | 'arc'; height: number; color: string; dashed: boolean; drawOn: boolean; drawSec: number };
+export type PathParams = { shape: 'court-line' | 'screen-line' | 'arc'; height: number; color: string; dashed: boolean; drawOn: boolean; drawSec: number; drawDelay: number; drawEase: 'linear' | 'inout'; drawReverse: boolean; drawLoop: boolean };
 export type TextParams = { fontSize: number; fontFamily: string; bold: boolean; align: 'left' | 'center' | 'right'; color: string; bg: boolean; bgColor: string; bgOpacity: number };

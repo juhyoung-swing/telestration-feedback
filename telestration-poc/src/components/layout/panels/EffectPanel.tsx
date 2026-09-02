@@ -41,7 +41,7 @@ type Props = {
   pathParams: PathParams;
   setPathParams: (p: PathParams) => void;
   selectedPath: PathArrow | null;             // a selected Path overlay → editable live
-  onUpdatePath: (id: string, patch: Partial<{ shape: 'line' | 'arc'; height: number; dashed: boolean; color: string; drawOn: boolean; drawSec: number }>) => void;
+  onUpdatePath: (id: string, patch: Partial<{ shape: 'line' | 'arc'; height: number; dashed: boolean; color: string; drawOn: boolean; drawSec: number; drawDelay: number; drawEase: 'linear' | 'inout'; drawReverse: boolean; drawLoop: boolean }>) => void;
   textDraft: string;
   setTextDraft: (s: string) => void;
   textParams: TextParams;
@@ -85,8 +85,13 @@ export function EffectPanel(p: Props) {
   const setPathDashed = (d: boolean) => (selPath ? p.onUpdatePath(selPath.id, { dashed: d }) : p.setPathParams({ ...p.pathParams, dashed: d }));
   const pathDrawOn = selPath?.drawOn ?? p.pathParams.drawOn;
   const pathDrawSec = selPath?.drawSec ?? p.pathParams.drawSec;
-  const setPathDrawOn = (v: boolean) => (selPath ? p.onUpdatePath(selPath.id, { drawOn: v }) : p.setPathParams({ ...p.pathParams, drawOn: v }));
-  const setPathDrawSec = (v: number) => (selPath ? p.onUpdatePath(selPath.id, { drawSec: v }) : p.setPathParams({ ...p.pathParams, drawSec: v }));
+  const pathDelay = selPath?.drawDelay ?? p.pathParams.drawDelay;
+  const pathEase = selPath?.drawEase ?? p.pathParams.drawEase;
+  const pathReverse = selPath?.drawReverse ?? p.pathParams.drawReverse;
+  const pathLoop = selPath?.drawLoop ?? p.pathParams.drawLoop;
+  // set a path-animation field on the selected path, else the defaults for new paths
+  const setPathAnim = (patch: Partial<{ drawOn: boolean; drawSec: number; drawDelay: number; drawEase: 'linear' | 'inout'; drawReverse: boolean; drawLoop: boolean }>) =>
+    (selPath ? p.onUpdatePath(selPath.id, patch) : p.setPathParams({ ...p.pathParams, ...patch }));
 
   // Text: a selected text box is edited live; otherwise the controls set defaults for new text.
   const selText = p.selectedText;
@@ -424,16 +429,36 @@ export function EffectPanel(p: Props) {
                   <button className={`btn sm ${pathDashed ? 'active' : ''}`} onClick={() => setPathDashed(true)}>대시</button>
                 </div>
               </div>
-              <div className="field"><label>그려지기</label>
+              <div className="field-label" style={{ marginTop: 4 }}>애니메이션</div>
+              <div className="field"><label>종류</label>
                 <div className="btn-row">
-                  <button className={`btn sm ${!pathDrawOn ? 'active' : ''}`} onClick={() => setPathDrawOn(false)}>끄기</button>
-                  <button className={`btn sm ${pathDrawOn ? 'active' : ''}`} onClick={() => setPathDrawOn(true)}>켜기</button>
-                </div>
-              </div>
+                  <button className={`btn sm ${!pathDrawOn ? 'active' : ''}`} onClick={() => setPathAnim({ drawOn: false })}>없음</button>
+                  <button className={`btn sm ${pathDrawOn ? 'active' : ''}`} onClick={() => setPathAnim({ drawOn: true })}>그려지기</button>
+                </div></div>
               {pathDrawOn && (
-                <div className="field"><label>그리는 시간 {pathDrawSec.toFixed(1)}s</label>
-                  <input type="range" min="0.3" max="3" step="0.1" value={pathDrawSec}
-                    onChange={(e) => setPathDrawSec(Number(e.target.value))} /></div>
+                <>
+                  <div className="field"><label>그리는 시간 {pathDrawSec.toFixed(1)}s</label>
+                    <input type="range" min="0.3" max="3" step="0.1" value={pathDrawSec}
+                      onChange={(e) => setPathAnim({ drawSec: Number(e.target.value) })} /></div>
+                  <div className="field"><label>지연 {pathDelay.toFixed(1)}s</label>
+                    <input type="range" min="0" max="5" step="0.1" value={pathDelay}
+                      onChange={(e) => setPathAnim({ drawDelay: Number(e.target.value) })} /></div>
+                  <div className="field"><label>속도 곡선</label>
+                    <div className="btn-row">
+                      <button className={`btn sm ${pathEase === 'linear' ? 'active' : ''}`} onClick={() => setPathAnim({ drawEase: 'linear' })}>등속</button>
+                      <button className={`btn sm ${pathEase === 'inout' ? 'active' : ''}`} onClick={() => setPathAnim({ drawEase: 'inout' })}>부드럽게</button>
+                    </div></div>
+                  <div className="field"><label>방향</label>
+                    <div className="btn-row">
+                      <button className={`btn sm ${!pathReverse ? 'active' : ''}`} onClick={() => setPathAnim({ drawReverse: false })}>시작→끝</button>
+                      <button className={`btn sm ${pathReverse ? 'active' : ''}`} onClick={() => setPathAnim({ drawReverse: true })}>끝→시작</button>
+                    </div></div>
+                  <div className="field"><label>반복</label>
+                    <div className="btn-row">
+                      <button className={`btn sm ${!pathLoop ? 'active' : ''}`} onClick={() => setPathAnim({ drawLoop: false })}>끄기</button>
+                      <button className={`btn sm ${pathLoop ? 'active' : ''}`} onClick={() => setPathAnim({ drawLoop: true })}>켜기</button>
+                    </div></div>
+                </>
               )}
             </>
           )}

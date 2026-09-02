@@ -4,6 +4,13 @@ import type { Pt } from '../../geometry/homography';
 // Keep only the first `progress` (0..1) of a flat [x,y,x,y,…] polyline by arc length,
 // interpolating the cut on the final segment. Konva's <Arrow> puts its head on the LAST
 // point, so a truncated polyline draws the line growing with the arrowhead riding the tip.
+// Reverse a flat [x,y,x,y,…] polyline point order.
+function reverseFlat(flat: number[]): number[] {
+  const out: number[] = [];
+  for (let i = flat.length - 2; i >= 0; i -= 2) out.push(flat[i], flat[i + 1]);
+  return out;
+}
+
 function truncatePolyline(flat: number[], progress: number): number[] {
   const n = flat.length / 2;
   if (progress >= 1 || n < 2) return flat;
@@ -42,6 +49,7 @@ export function PathArrow({
   color = '#FF3B3B',
   arrow = true,
   drawProgress = 1,
+  drawReverse = false,
 }: {
   space: 'court' | 'screen';
   shape: 'line' | 'arc';
@@ -52,6 +60,7 @@ export function PathArrow({
   color?: string;
   arrow?: boolean;
   drawProgress?: number; // 0..1 draw-on reveal (1 = fully drawn)
+  drawReverse?: boolean; // reveal end→start (head rides toward the start)
 }) {
   if (points.length < 2) return null;
   const a = toDisplay(space, points[0].x, points[0].y);
@@ -72,7 +81,9 @@ export function PathArrow({
     flat = [a.x, a.y, b.x, b.y];
   }
 
-  const drawn = truncatePolyline(flat, drawProgress);
+  // reverse → reveal from the end; flip the polyline so the head rides toward the start
+  const src = drawReverse ? reverseFlat(flat) : flat;
+  const drawn = truncatePolyline(src, drawProgress);
   if (drawn.length < 4) return null; // not yet started / too short to draw
 
   return (

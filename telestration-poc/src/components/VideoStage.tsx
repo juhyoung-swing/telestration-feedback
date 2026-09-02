@@ -7,6 +7,7 @@ import type { Pt } from '../geometry/homography';
 import { videoToDisplay, displayToVideo } from '../geometry/coords';
 import type { ViewTransform } from '../geometry/coords';
 import { footAt } from '../geometry/tracking';
+import { drawOnProgress } from '../lib/anim';
 import { GroundHalo } from './overlays/GroundHalo';
 import { CoverageZone } from './overlays/CoverageZone';
 import { Marker } from './overlays/Marker';
@@ -340,7 +341,7 @@ export function VideoStage({
                           bg={o.bg} bgColor={o.bgColor} bgOpacity={o.bgOpacity} />;
                       case 'path':
                         return <PathArrow key={o.id} space={o.space} shape={o.shape} points={o.points} height={o.height} dashed={o.dashed} toDisplay={toDisplaySpace} color={o.color}
-                          drawProgress={o.drawOn && o.drawSec && o.drawSec > 0 ? Math.max(0, Math.min(1, (currentTime - o.startTime) / o.drawSec)) : 1} />;
+                          drawProgress={drawOnProgress(o, currentTime)} drawReverse={o.drawReverse} />;
                       case 'connector':
                         return <Connector key={o.id} points={o.points} project={project} color={o.color} />;
                       case 'spotlight':
