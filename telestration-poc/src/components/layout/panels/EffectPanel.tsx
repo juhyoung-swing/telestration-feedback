@@ -23,6 +23,7 @@ type Props = {
   onStartPlayerCalib: () => void;
   onFinishPlayerCalib: () => void;
   onCancelPlayerCalib: () => void;
+  onGoAnalyze?: () => void; // desktop only: jump to the 선수 분석 step (undefined when local ML unavailable)
   // ── Effect catalog / court effects ──
   selected: FeatureId;
   onSelect: (id: FeatureId) => void;
@@ -70,6 +71,7 @@ export function EffectPanel(p: Props) {
   const isTwoClick = p.selected === 'connector' || p.selected === 'path' || p.selected === 'sector'; // start + end
   const isPoint = p.selected === 'circle' || p.selected === 'marker' || p.selected === 'text' || p.selected === 'zoom-in';
   const isPlayer = PLAYER_FEATURES.includes(p.selected);
+  const playersReady = !!p.players; // false when 선수 분석 was skipped / not run → player effects are locked
 
   // Path: a selected path is edited live; otherwise the buttons/slider set defaults for new paths.
   const selPath = p.selectedPath;
@@ -126,19 +128,26 @@ export function EffectPanel(p: Props) {
         <div key={g} className="feature-group">
           <div className="field-label">{g}</div>
           <div className="feature-grid">
-            {FEATURES.filter((f) => f.group === g).map((f) => (
-              <button
-                key={f.id}
-                className={`feature-tile ${p.selected === f.id ? 'active' : ''} ${f.implemented ? '' : 'soon'}`}
-                onClick={() => { p.onSelect(f.id); if (!PLAYER_FEATURES.includes(f.id)) p.onCreate(f.id); }}
-                title={f.hint}
-              >
-                <span className="feature-icon">{f.icon}</span>
-                <span className="feature-name">{f.label}</span>
-                {!f.implemented && <span className="soon-tag">곧</span>}
-              </button>
-            ))}
+            {FEATURES.filter((f) => f.group === g).map((f) => {
+              const locked = PLAYER_FEATURES.includes(f.id) && !playersReady;
+              return (
+                <button
+                  key={f.id}
+                  className={`feature-tile ${p.selected === f.id ? 'active' : ''} ${f.implemented ? '' : 'soon'} ${locked ? 'locked' : ''}`}
+                  onClick={() => { p.onSelect(f.id); if (!PLAYER_FEATURES.includes(f.id)) p.onCreate(f.id); }}
+                  title={locked ? '선수 분석을 실행해야 사용할 수 있어요' : f.hint}
+                >
+                  <span className="feature-icon">{f.icon}</span>
+                  <span className="feature-name">{f.label}</span>
+                  {!f.implemented && <span className="soon-tag">곧</span>}
+                  {locked && <span className="lock-tag">🔒</span>}
+                </button>
+              );
+            })}
           </div>
+          {g === 'Player' && !playersReady && (
+            <div className="lock-note">🔒 선수 분석을 실행하면 사용할 수 있어요{p.onGoAnalyze ? ' — 상단 ⚙ 설정 → 선수 분석' : ''}.</div>
+          )}
         </div>
       ))}
       </>
@@ -152,6 +161,17 @@ export function EffectPanel(p: Props) {
 
       {/* ── lower section ── player-effect → pick a player (+선수 지정); court effect → settings/Create */}
       {isPlayer ? (
+        !playersReady ? (
+          <div className="warn-note">
+            <b>{def.label}</b>는 선수 추적 데이터가 필요합니다.{' '}
+            {p.onGoAnalyze ? (<>상단 <b>⚙ 설정 → 선수 분석</b>에서 실행하세요.</>) : (<>선수 분석을 먼저 실행하세요.</>)}
+            {p.onGoAnalyze && (
+              <div className="btn-row" style={{ marginTop: 8 }}>
+                <button className="btn sm primary" onClick={p.onGoAnalyze}>선수 분석 실행</button>
+              </div>
+            )}
+          </div>
+        ) : (
         <>
           {p.selected === 'follow-circle' && (
             <>
@@ -180,33 +200,28 @@ export function EffectPanel(p: Props) {
             </div>
           )}
 
-          {!p.players ? (
-            <div className="soon-note" style={{ marginTop: 8 }}>트래킹 데이터(players.json)를 불러오지 못했습니다.</div>
-          ) : (
-            <>
-              <div className="muted-note" style={{ marginTop: 8 }}>선수를 눌러 <b>{def.label}</b>을 {apply.add ? '타임라인에 추가합니다.' : '적용/해제합니다.'}</div>
-              <div className="player-list">
-                {list.map((pl) => {
-                  const on = !apply.add && apply.set.has(pl.id); // toggle effects (spotlight) show an on-state
-                  const color = p.colors[(Number(pl.id) - 1) % p.colors.length];
-                  return (
-                    <div key={pl.id} className={`player-row ${on ? 'on' : ''}`}>
-                      <span className="player-dot" style={{ background: color }} />
-                      <span className="player-tag">P{pl.id}</span>
-                      <span className="player-span">{posLabel(pl.medY)} <span className="muted">· {pl.t0.toFixed(0)}–{pl.t1.toFixed(0)}s</span></span>
-                      <button
-                        className={on ? 'btn sm active' : 'btn sm'}
-                        onClick={() => apply.fn(pl.id)}
-                        disabled={!apply.enabled}
-                        title={apply.enabled ? (apply.add ? `${def.label} 추가` : `${def.label} 적용/해제`) : apply.why}
-                      >{apply.add ? '추가' : (on ? '해제' : '적용')}</button>
-                    </div>
-                  );
-                })}
-              </div>
-            </>
-          )}
+          <div className="muted-note" style={{ marginTop: 8 }}>선수를 눌러 <b>{def.label}</b>을 {apply.add ? '타임라인에 추가합니다.' : '적용/해제합니다.'}</div>
+          <div className="player-list">
+            {list.map((pl) => {
+              const on = !apply.add && apply.set.has(pl.id); // toggle effects (spotlight) show an on-state
+              const color = p.colors[(Number(pl.id) - 1) % p.colors.length];
+              return (
+                <div key={pl.id} className={`player-row ${on ? 'on' : ''}`}>
+                  <span className="player-dot" style={{ background: color }} />
+                  <span className="player-tag">P{pl.id}</span>
+                  <span className="player-span">{posLabel(pl.medY)} <span className="muted">· {pl.t0.toFixed(0)}–{pl.t1.toFixed(0)}s</span></span>
+                  <button
+                    className={on ? 'btn sm active' : 'btn sm'}
+                    onClick={() => apply.fn(pl.id)}
+                    disabled={!apply.enabled}
+                    title={apply.enabled ? (apply.add ? `${def.label} 추가` : `${def.label} 적용/해제`) : apply.why}
+                  >{apply.add ? '추가' : (on ? '해제' : '적용')}</button>
+                </div>
+              );
+            })}
+          </div>
         </>
+        )
       ) : (
         <>
           {/* per-feature settings (court effects) */}

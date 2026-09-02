@@ -141,9 +141,14 @@ body {
 .feature-tile:hover { background: var(--panel-3); }
 .feature-tile.active { border-color: var(--accent); background: var(--accent-weak); color: var(--accent); }
 .feature-tile.soon { opacity: .7; }
+.feature-tile.locked { opacity: .5; }
+.feature-tile.locked:not(.active) { border-style: dashed; }
+.feature-tile.locked .feature-icon { filter: grayscale(1); }
 .feature-icon { font-size: 20px; line-height: 1; }
 .feature-name { font-size: 12px; }
 .soon-tag { position: absolute; top: 5px; right: 6px; font-size: 9px; color: var(--muted); background: var(--panel); border: 1px solid var(--border); border-radius: 6px; padding: 1px 4px; }
+.lock-tag { position: absolute; top: 5px; right: 6px; font-size: 10px; line-height: 1; }
+.lock-note { font-size: 11px; color: var(--muted); background: var(--panel-2); border: 1px dashed var(--border); border-radius: 8px; padding: 7px 9px; margin-top: 2px; }
 
 /* ── center ────────────────────────────────────────────────────────────── */
 .center { display: flex; flex-direction: column; min-width: 0; padding: 12px 16px; gap: 10px; overflow: hidden; }
@@ -290,6 +295,7 @@ body {
 /* import-time court calibration step */
 .calibrate-view { display: flex; flex-direction: column; height: 100vh; background: var(--bg); }
 .calibrate-head { display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-bottom: 1px solid var(--border); background: var(--panel); }
+.calib-head-spacer { width: 84px; flex: none; } /* balances the ← 프로젝트 button so wizard steps stay centered */
 .calibrate-title { font-size: 15px; font-weight: 700; flex: 1; }
 /* new-project wizard step indicator */
 .wizard-steps { flex: 1; display: flex; align-items: center; justify-content: center; gap: 18px; }

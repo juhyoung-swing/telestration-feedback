@@ -842,18 +842,21 @@ export default function App() {
         <header className="calibrate-head">
           <button className="btn ghost sm" onClick={backToProjects} disabled={running} title="프로젝트 목록으로">← 프로젝트</button>
           {wizardSteps('analyze')}
-          <button className="btn sm" onClick={() => setView('editor')} disabled={running}>건너뛰고 에디터로 →</button>
+          <span className="calib-head-spacer" />
         </header>
         <div className="analyze-body">
           <div className="analyze-card">
             <div className="analyze-icon">🏃‍➡️</div>
-            <h2>선수 자동 분석</h2>
+            <h2>AI 선수 추적</h2>
             <p className="analyze-desc">
-              영상에서 선수를 검출·추적해 <b>따라가기 원</b>과 <b>스포트라이트</b>를 쓸 수 있게 합니다.
-              이 컴퓨터에서 로컬로 처리하며(업로드 없음), 영상 길이에 따라 수십 초~몇 분 걸립니다.
+              영상에서 선수를 추적하는 <b>따라가기</b> 기능들을 사용할 수 있습니다.<br />
+              영상 길이에 따라 처리에 수십 초~몇 분 걸립니다.
             </p>
             {!analyzing && (
-              <button className="btn primary" onClick={() => void runAnalysis()}>선수 분석 시작</button>
+              <div className="btn-row analyze-actions">
+                <button className="btn primary" onClick={() => void runAnalysis()}>선수 분석 시작</button>
+                <button className="btn" onClick={() => setView('editor')}>건너뛰기</button>
+              </div>
             )}
             {running && (
               <div className="analyze-progress">
@@ -870,7 +873,7 @@ export default function App() {
                 </div>
               </div>
             )}
-            <div className="analyze-note">나중에 에디터 상단 <b>선수 분석</b>에서 다시 실행할 수 있어요.</div>
+            <div className="analyze-note">나중에 에디터 상단 <b>선수 분석</b>에서 다시 실행할 수 있습니다.</div>
           </div>
         </div>
       </div>
@@ -892,6 +895,7 @@ export default function App() {
       onStartPlayerCalib={startPlayerCalibration}
       onFinishPlayerCalib={finishPlayerCalibration}
       onCancelPlayerCalib={cancelPlayerCalibration}
+      onGoAnalyze={hasML ? () => setView('analyze') : undefined}
       selected={selectedFeature}
       onSelect={setSelectedFeature}
       mode={mode}
