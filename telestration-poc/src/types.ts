@@ -6,7 +6,7 @@ export type Mode =
   | 'idle' | 'calibrating' | 'line-calibrating' | 'player-calibrating'
   | 'placing-halo' | 'drawing-zone'
   | 'placing-marker' | 'placing-text' | 'drawing-path' | 'drawing-connector'
-  | 'placing-zoom' | 'editing-path' | 'editing-text' | 'drawing-sector' | 'editing-sector';
+  | 'placing-zoom' | 'drawing-sector';
 
 /** One court line drawn during line-calibration: which line + the clicked points (video px). */
 export type DrawnLine = { id: string; points: Pt[] };

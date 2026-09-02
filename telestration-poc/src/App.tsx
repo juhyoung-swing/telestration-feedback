@@ -717,6 +717,7 @@ export default function App() {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
       if (e.key === 'Escape') {
         setMode('idle');
+        setSelectedOverlayId(null); // deselect → hides the selection drag-handles
         setDraftZone([]);
         setPathDraft(null);
         setDraftCalib([]);
@@ -776,6 +777,14 @@ export default function App() {
   // On-canvas guidance for whatever placement/drawing mode is active.
   const stageHint: string | null = (() => {
     const n = draftZone.length;
+    // idle + a selected editable overlay → drag-handles are showing
+    if (mode === 'idle' && selectedOverlayId) {
+      const o = overlays.find((x) => x.id === selectedOverlayId);
+      const editable = o && (o.type === 'path' || o.type === 'text' || o.type === 'marker'
+        || o.type === 'coverage-zone' || o.type === 'connector' || o.type === 'sector'
+        || (o.type === 'ground-halo' && !o.trackId));
+      if (editable) return '핸들을 드래그해 편집 · Esc로 선택 해제';
+    }
     switch (mode) {
       case 'calibrating': return `바닥면 네 점을 순서대로 클릭 · ${draftCalib.length}/4 · Esc 취소`;
       case 'line-calibrating': return '선을 클릭해 그리세요 · Enter 완료 · Esc 취소';
@@ -786,11 +795,8 @@ export default function App() {
       case 'placing-zoom': return '코트를 클릭 → 확대 중심 지정 · Esc 종료';
       case 'drawing-zone': return `Zone 영역 · ${n}점 (3점 이상) · Enter 완료 · Esc 취소`;
       case 'drawing-path': return `Path · 시작·끝 2점 클릭 (${pathDraft ? 1 : 0}/2) · Esc 취소`;
-      case 'editing-path': return 'Path 끝점을 드래그해 이동 · Esc 완료';
-      case 'editing-text': return '박스를 드래그해 이동 · 모서리 핸들로 크기 조절 · Esc 완료';
       case 'drawing-connector': return `Connector · ${n}/2점 클릭 · Esc 취소`;
       case 'drawing-sector': return `부채꼴 · ${draftZone.length < 1 ? '중심 클릭' : '방향·거리 점 클릭'} (${draftZone.length}/2) · Esc 취소`;
-      case 'editing-sector': return '중심 드래그로 이동 · 끝점 드래그로 반지름·방향 · Esc 완료';
       default: return null;
     }
   })();
@@ -811,6 +817,7 @@ export default function App() {
       players={players} fragments={fragments} playerAnchors={playerAnchors} fps={trackFps}
       draftCalib={draftCalib} draftZone={draftZone} pathDraft={pathDraft}
       onUpdatePathPoints={(id, points) => updatePath(id, { points })} onUpdateText={updateText} onUpdateSector={updateSector}
+      onPatchOverlay={patchOverlay}
       showCalibration={view === 'calibrate'}
       drawnLines={drawnLines} lineDraft={lineDraft} activeLineId={activeLineId} onStageClick={onStageClick} onDimensions={(w, h) => setDims({ w, h })}
     />
@@ -932,18 +939,12 @@ export default function App() {
       setPathParams={setPathParams}
       selectedPath={selectedOverlay?.type === 'path' ? selectedOverlay : null}
       onUpdatePath={updatePath}
-      onEditPath={() => setMode('editing-path')}
-      editingPath={mode === 'editing-path'}
-      onFinishEditPath={() => setMode('idle')}
       textDraft={textDraft}
       setTextDraft={setTextDraft}
       textParams={textParams}
       setTextParams={setTextParams}
       selectedText={selectedOverlay?.type === 'text' ? selectedOverlay : null}
       onUpdateText={updateText}
-      onEditText={() => setMode('editing-text')}
-      editingText={mode === 'editing-text'}
-      onFinishEditText={() => setMode('idle')}
       slowmoRate={slowmoRate}
       setSlowmoRate={setSlowmoRate}
       selectedSpeed={selectedOverlay?.type === 'speed' ? selectedOverlay : null}

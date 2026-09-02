@@ -42,18 +42,12 @@ type Props = {
   setPathParams: (p: PathParams) => void;
   selectedPath: PathArrow | null;             // a selected Path overlay → editable live
   onUpdatePath: (id: string, patch: Partial<{ shape: 'line' | 'arc'; height: number; dashed: boolean; color: string }>) => void;
-  onEditPath: () => void;                       // enter endpoint-drag mode
-  editingPath: boolean;
-  onFinishEditPath: () => void;
   textDraft: string;
   setTextDraft: (s: string) => void;
   textParams: TextParams;
   setTextParams: (p: TextParams) => void;
   selectedText: TextLabel | null;
   onUpdateText: (id: string, patch: Partial<TextLabel>) => void;
-  onEditText: () => void;
-  editingText: boolean;
-  onFinishEditText: () => void;
   slowmoRate: number;
   setSlowmoRate: (r: number) => void;
   selectedSpeed: SpeedSegment | null;
@@ -363,11 +357,7 @@ export function EffectPanel(p: Props) {
                     <input type="range" min="0" max="1" step="0.05" value={t.bgOpacity} onChange={(e) => tSet({ bgOpacity: Number(e.target.value) })} /></div>
                 </>
               )}
-              {selText && (
-                <button className={`btn sm block ${p.editingText ? 'active' : ''}`} onClick={p.editingText ? p.onFinishEditText : p.onEditText}>
-                  {p.editingText ? '박스 편집 완료' : '박스 편집 (드래그로 이동·크기)'}
-                </button>
-              )}
+              {selText && <div className="muted-note">화면에서 박스를 드래그해 이동, 모서리 핸들로 크기 조절.</div>}
             </>
           )}
           {p.selected === 'path' && !selPath && (
@@ -390,9 +380,7 @@ export function EffectPanel(p: Props) {
                   </div>
                 </div>
               )}
-              <button className={`btn sm block ${p.editingPath ? 'active' : ''}`} onClick={p.editingPath ? p.onFinishEditPath : p.onEditPath}>
-                {p.editingPath ? '이동 완료' : '위치 편집 (끝점 드래그)'}
-              </button>
+              <div className="muted-note">화면에서 양 끝점을 드래그해 이동.</div>
             </>
           )}
           {p.selected === 'path' && showHeight && (

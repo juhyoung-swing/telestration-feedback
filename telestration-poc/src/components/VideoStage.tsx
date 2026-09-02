@@ -56,6 +56,7 @@ type Props = {
   onUpdatePathPoints: (id: string, points: { x: number; y: number }[]) => void; // endpoint drag
   onUpdateText: (id: string, patch: Partial<Extract<Overlay, { type: 'text' }>>) => void; // text box move/resize
   onUpdateSector: (id: string, patch: Partial<Extract<Overlay, { type: 'sector' }>>) => void; // sector handle drag
+  onPatchOverlay: (id: string, patch: object) => void; // generic move/resize for marker/halo/zone/connector handles
   showCalibration?: boolean; // draw the committed court corners (calibrate view only)
   drawnLines: DrawnLine[]; // line-calibration: committed lines (video px)
   lineDraft: Pt[]; // line-calibration: active line points (video px)
@@ -84,6 +85,7 @@ export function VideoStage({
   onUpdatePathPoints,
   onUpdateText,
   onUpdateSector,
+  onPatchOverlay,
   showCalibration,
   drawnLines,
   lineDraft,
@@ -100,14 +102,25 @@ export function VideoStage({
   // mode would read 'idle' and wrongly select the just-placed overlay. Gate the
   // click-select on the press-time mode instead.
   const downModeRef = useRef<Mode>('idle');
+  // Timestamp of the last handle drag. A drag's trailing 'click' must not
+  // deselect the overlay, so the capture click handler ignores clicks right after one.
+  const dragGuardRef = useRef(0);
 
-  // A selected sector is editable in place while idle — its drag handles show on
+  // Any selected overlay is editable in place while idle — its drag handles show on
   // selection (no separate edit mode / button), so it's draggable the moment you
-  // click it. This makes the overlay interactive so the handles receive drags.
-  const editSector = mode === 'idle' && selectedId
-    ? overlays.find((o): o is Extract<Overlay, { type: 'sector' }> => o.id === selectedId && o.type === 'sector')
+  // click it (Figma-like). Player effects (tracked halo / spotlight) follow the
+  // player, and zoom/speed have no shape, so they get no handles.
+  const isDragEditable = (o: Overlay): boolean => {
+    switch (o.type) {
+      case 'path': case 'text': case 'marker': case 'coverage-zone': case 'connector': case 'sector': return true;
+      case 'ground-halo': return !o.trackId; // static circle only; a tracked one follows the player
+      default: return false; // spotlight / zoom-in / speed
+    }
+  };
+  const editTarget = mode === 'idle' && selectedId
+    ? overlays.find((o) => o.id === selectedId && isDragEditable(o))
     : undefined;
-  const interactive = mode !== 'idle' || !!editSector;
+  const interactive = mode !== 'idle' || !!editTarget;
 
   // ①⇄② scale. Container aspect == video aspect, so this is a uniform scale and
   // the overlay stays pixel-aligned with the video content at any size.
@@ -252,6 +265,7 @@ export function VideoStage({
       // Skip when this click began in a placement/drawing mode — that click just
       // placed an overlay (which set mode→idle); it must not also select it.
       if (!s || s.mode !== 'idle' || downModeRef.current !== 'idle' || !ov) return;
+      if (Date.now() - dragGuardRef.current < 250) return; // swallow a drag's trailing click (keep selection)
       const rect = ov.getBoundingClientRect();
       if (!rect.width || !rect.height) return;
       const pos = { x: (e.clientX - rect.left) * (s.w / rect.width), y: (e.clientY - rect.top) * (s.h / rect.height) };
@@ -290,10 +304,12 @@ export function VideoStage({
           onMouseDown={handleClick}
           style={{
             pointerEvents: interactive ? 'auto' : 'none', // idle → native video controls stay usable
-            cursor: interactive ? 'crosshair' : 'default',
+            cursor: mode !== 'idle' ? 'crosshair' : 'default', // placement uses crosshair; selection-edit uses default (handles show move)
           }}
         >
-          <Stage width={size.width} height={size.height}>
+          <Stage width={size.width} height={size.height}
+            onDragMove={() => { dragGuardRef.current = Date.now(); }}
+            onDragEnd={() => { dragGuardRef.current = Date.now(); }}>
             <Layer listening={false}>
               {/* spotlight: dim the frame + reveal players (must be first so it only dims the video) */}
               {calibration && (() => {
@@ -344,8 +360,8 @@ export function VideoStage({
                     }
                   })}
 
-              {/* selection ring (synced from the timeline) */}
-              {selAnchor && (
+              {/* selection ring — for selected overlays without drag handles (tracked halo / spotlight) */}
+              {selAnchor && !editTarget && (
                 <>
                   <Circle x={selAnchor.x} y={selAnchor.y} radius={26} stroke="#ffffff" strokeWidth={2} dash={[6, 5]} listening={false} shadowColor="#000" shadowBlur={4} shadowOpacity={0.6} />
                   <Circle x={selAnchor.x} y={selAnchor.y} radius={3.5} fill="#ffffff" listening={false} />
@@ -391,66 +407,112 @@ export function VideoStage({
               )}
             </Layer>
 
-            {/* editing-path: draggable endpoint handles on a listening layer */}
-            {mode === 'editing-path' && view && (() => {
-              const o = overlays.find((x) => x.id === selectedId);
-              if (!o || o.type !== 'path') return null;
-              if (o.space === 'court' && !calibration) return null;
-              const drag = (idx: number, node: { x(): number; y(): number }) => {
-                const vid = displayToVideo({ x: node.x(), y: node.y() }, view);
-                const np = o.space === 'court'
-                  ? (() => { const c = unprojectToCourt(calibration!.inverseHomography, vid.x, vid.y); return { x: c.x, y: c.y }; })()
-                  : { x: vid.x, y: vid.y };
-                onUpdatePathPoints(o.id, o.points.map((pp, i) => (i === idx ? np : pp)));
-              };
-              return (
-                <Layer>
-                  {o.points.map((pp, i) => {
-                    const d = toDisplaySpace(o.space, pp.x, pp.y);
-                    return <Circle key={i} x={d.x} y={d.y} radius={9} fill="#fff" stroke="#FF3B3B" strokeWidth={3} draggable onDragMove={(e) => drag(i, e.target)} />;
-                  })}
-                </Layer>
-              );
-            })()}
-
-            {/* editing-text: drag the box to move, corner handle to resize */}
-            {mode === 'editing-text' && view && calibration && (() => {
-              const o = overlays.find((x) => x.id === selectedId);
-              if (!o || o.type !== 'text') return null;
-              const tl = project(o.courtX, o.courtY);
-              return (
-                <Layer>
-                  <Rect
-                    x={tl.x} y={tl.y} width={o.boxW} height={o.boxH}
-                    fill="rgba(255,59,59,0.08)" stroke="#FF3B3B" strokeWidth={1.5} dash={[5, 4]} draggable
-                    onDragMove={(e) => { const vid = displayToVideo({ x: e.target.x(), y: e.target.y() }, view); const c = unprojectToCourt(calibration.inverseHomography, vid.x, vid.y); onUpdateText(o.id, { courtX: c.x, courtY: c.y }); }}
-                  />
-                  <Circle
-                    x={tl.x + o.boxW} y={tl.y + o.boxH} radius={8} fill="#fff" stroke="#FF3B3B" strokeWidth={2.5} draggable
-                    onDragMove={(e) => onUpdateText(o.id, { boxW: Math.max(40, e.target.x() - tl.x), boxH: Math.max(24, e.target.y() - tl.y) })}
-                  />
-                </Layer>
-              );
-            })()}
-
-            {/* selected sector: drag centre to move, drag arc tip to set radius+direction */}
-            {editSector && view && calibration && (() => {
-              const o = editSector;
-              const center = project(o.courtX, o.courtY);
-              const rad = (o.dir * Math.PI) / 180;
-              const tip = project(o.courtX + o.radiusM * Math.cos(rad), o.courtY + o.radiusM * Math.sin(rad));
+            {/* selection handles — every selected overlay is draggable in place (no edit mode/button) */}
+            {editTarget && view && (() => {
+              const o = editTarget;
+              const hc = '#FF3B3B'; // handle accent
+              // display px → court metres (for court-space handles)
               const toCourt = (node: { x(): number; y(): number }) => {
                 const vid = displayToVideo({ x: node.x(), y: node.y() }, view);
-                return unprojectToCourt(calibration.inverseHomography, vid.x, vid.y);
+                return unprojectToCourt(calibration!.inverseHomography, vid.x, vid.y);
               };
-              return (
-                <Layer>
-                  <Circle x={center.x} y={center.y} radius={9} fill="#fff" stroke="#7C5CFF" strokeWidth={3} draggable
-                    onDragMove={(e) => { const c = toCourt(e.target); onUpdateSector(o.id, { courtX: c.x, courtY: c.y }); }} />
-                  <Circle x={tip.x} y={tip.y} radius={9} fill="#7C5CFF" stroke="#fff" strokeWidth={3} draggable
-                    onDragMove={(e) => { const c = toCourt(e.target); const dx = c.x - o.courtX, dy = c.y - o.courtY; onUpdateSector(o.id, { radiusM: Math.max(0.5, Math.hypot(dx, dy)), dir: (Math.atan2(dy, dx) * 180) / Math.PI }); }} />
-                </Layer>
-              );
+
+              if (o.type === 'path') { // endpoints — court or screen space
+                if (o.space === 'court' && !calibration) return null;
+                const drag = (idx: number, node: { x(): number; y(): number }) => {
+                  const vid = displayToVideo({ x: node.x(), y: node.y() }, view);
+                  const np = o.space === 'court'
+                    ? (() => { const c = unprojectToCourt(calibration!.inverseHomography, vid.x, vid.y); return { x: c.x, y: c.y }; })()
+                    : { x: vid.x, y: vid.y };
+                  onUpdatePathPoints(o.id, o.points.map((pp, i) => (i === idx ? np : pp)));
+                };
+                return (
+                  <Layer>
+                    {o.points.map((pp, i) => {
+                      const d = toDisplaySpace(o.space, pp.x, pp.y);
+                      return <Circle key={i} x={d.x} y={d.y} radius={9} fill="#fff" stroke={hc} strokeWidth={3} draggable onDragMove={(e) => drag(i, e.target)} />;
+                    })}
+                  </Layer>
+                );
+              }
+
+              if (!calibration) return null; // the remaining types live in court space
+
+              if (o.type === 'text') { // drag box to move, corner handle to resize
+                const tl = project(o.courtX, o.courtY);
+                return (
+                  <Layer>
+                    <Rect x={tl.x} y={tl.y} width={o.boxW} height={o.boxH}
+                      fill="rgba(255,59,59,0.08)" stroke={hc} strokeWidth={1.5} dash={[5, 4]} draggable
+                      onDragMove={(e) => { const c = toCourt(e.target); onUpdateText(o.id, { courtX: c.x, courtY: c.y }); }} />
+                    <Circle x={tl.x + o.boxW} y={tl.y + o.boxH} radius={8} fill="#fff" stroke={hc} strokeWidth={2.5} draggable
+                      onDragMove={(e) => onUpdateText(o.id, { boxW: Math.max(40, e.target.x() - tl.x), boxH: Math.max(24, e.target.y() - tl.y) })} />
+                  </Layer>
+                );
+              }
+
+              if (o.type === 'sector') { // centre = move, arc tip = radius + direction
+                const center = project(o.courtX, o.courtY);
+                const rad = (o.dir * Math.PI) / 180;
+                const tip = project(o.courtX + o.radiusM * Math.cos(rad), o.courtY + o.radiusM * Math.sin(rad));
+                return (
+                  <Layer>
+                    <Circle x={center.x} y={center.y} radius={9} fill="#fff" stroke="#7C5CFF" strokeWidth={3} draggable
+                      onDragMove={(e) => { const c = toCourt(e.target); onUpdateSector(o.id, { courtX: c.x, courtY: c.y }); }} />
+                    <Circle x={tip.x} y={tip.y} radius={9} fill="#7C5CFF" stroke="#fff" strokeWidth={3} draggable
+                      onDragMove={(e) => { const c = toCourt(e.target); const dx = c.x - o.courtX, dy = c.y - o.courtY; onUpdateSector(o.id, { radiusM: Math.max(0.5, Math.hypot(dx, dy)), dir: (Math.atan2(dy, dx) * 180) / Math.PI }); }} />
+                  </Layer>
+                );
+              }
+
+              if (o.type === 'marker') { // single point
+                const d = project(o.courtX, o.courtY);
+                return (
+                  <Layer>
+                    <Circle x={d.x} y={d.y} radius={9} fill="#fff" stroke={hc} strokeWidth={3} draggable
+                      onDragMove={(e) => { const c = toCourt(e.target); onPatchOverlay(o.id, { courtX: c.x, courtY: c.y }); }} />
+                  </Layer>
+                );
+              }
+
+              if (o.type === 'ground-halo') { // static circle: centre = move, edge = radius
+                const center = project(o.courtX, o.courtY);
+                const edge = project(o.courtX + o.radiusMeters, o.courtY);
+                return (
+                  <Layer>
+                    <Circle x={center.x} y={center.y} radius={9} fill="#fff" stroke={hc} strokeWidth={3} draggable
+                      onDragMove={(e) => { const c = toCourt(e.target); onPatchOverlay(o.id, { courtX: c.x, courtY: c.y }); }} />
+                    <Circle x={edge.x} y={edge.y} radius={8} fill={hc} stroke="#fff" strokeWidth={2.5} draggable
+                      onDragMove={(e) => { const c = toCourt(e.target); onPatchOverlay(o.id, { radiusMeters: Math.max(0.2, Math.hypot(c.x - o.courtX, c.y - o.courtY)) }); }} />
+                  </Layer>
+                );
+              }
+
+              if (o.type === 'connector') { // two endpoints
+                return (
+                  <Layer>
+                    {o.points.map((pp, i) => {
+                      const d = project(pp.courtX, pp.courtY);
+                      return <Circle key={i} x={d.x} y={d.y} radius={9} fill="#fff" stroke={hc} strokeWidth={3} draggable
+                        onDragMove={(e) => { const c = toCourt(e.target); onPatchOverlay(o.id, { points: o.points.map((q, j) => (j === i ? { courtX: c.x, courtY: c.y } : q)) }); }} />;
+                    })}
+                  </Layer>
+                );
+              }
+
+              if (o.type === 'coverage-zone') { // per-vertex drag
+                return (
+                  <Layer>
+                    {o.points.map((pp, i) => {
+                      const d = project(pp.courtX, pp.courtY);
+                      return <Circle key={i} x={d.x} y={d.y} radius={7} fill="#fff" stroke={hc} strokeWidth={2.5} draggable
+                        onDragMove={(e) => { const c = toCourt(e.target); onPatchOverlay(o.id, { points: o.points.map((q, j) => (j === i ? { courtX: c.x, courtY: c.y } : q)) }); }} />;
+                    })}
+                  </Layer>
+                );
+              }
+
+              return null;
             })()}
           </Stage>
         </div>
