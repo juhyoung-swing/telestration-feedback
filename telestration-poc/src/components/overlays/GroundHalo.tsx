@@ -61,14 +61,20 @@ export function GroundHalo({
       flat[i + 1] = cy + (flat[i + 1] - cy) * s;
     }
   }
-  // Draw-on: reveal the ring outline growing around (stroke only, no fill); full closed ring at ≥1.
+  // Draw-on: the outline grows around while the fill fades in with progress (so the interior
+  // is never just transparent). At ≥1 it becomes the plain full ring below.
   if (drawProgress < 1) {
+    if (drawProgress <= 0) return null;
     const loop = drawReverse ? reverseFlat(flat) : flat;
     const arc = truncatePolyline([...loop, loop[0], loop[1]], drawProgress); // close the ring for the reveal
-    if (arc.length < 4) return null;
     return (
-      <Line points={arc} stroke={color} strokeWidth={4} dash={dashed ? [16, 11] : undefined}
-        lineJoin="round" lineCap="round" listening={false} />
+      <>
+        <Line points={flat} closed fill={hexToRgba(color, opacity * drawProgress)} listening={false} />
+        {arc.length >= 4 && (
+          <Line points={arc} stroke={color} strokeWidth={4} dash={dashed ? [16, 11] : undefined}
+            lineJoin="round" lineCap="round" listening={false} />
+        )}
+      </>
     );
   }
 
