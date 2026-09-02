@@ -120,7 +120,7 @@ export default function App() {
   const [playerStyles, setPlayerStyles] = useState<Record<string, { color: string; dashed: boolean }>>({});
   const [zoneParams, setZoneParams] = useState<ZoneParams>({ color: '#17335F', opacity: 0.18, fillStyle: 'solid', dashed: false, strokeWidth: 4 });
   const [zoomParams, setZoomParams] = useState<ZoomParams>({ scale: 2.2 });
-  const [pathParams, setPathParams] = useState<PathParams>({ shape: 'court-line', height: 0.4, color: FEATURE_COLORS.path, dashed: false });
+  const [pathParams, setPathParams] = useState<PathParams>({ shape: 'court-line', height: 0.4, color: FEATURE_COLORS.path, dashed: false, drawOn: false, drawSec: 1.2 });
   const [pathDraft, setPathDraft] = useState<Pt | null>(null); // first click (video px) while drawing a path
   const [textDraft, setTextDraft] = useState('텍스트'); // Text feature: content typed in the panel
   const [textParams, setTextParams] = useState<TextParams>({ fontSize: 22, fontFamily: 'sans-serif', bold: true, align: 'center', color: '#FFFFFF', bg: true, bgColor: '#000000', bgOpacity: 0.55 });
@@ -502,7 +502,7 @@ export default function App() {
     setMode('idle');
   };
   // Live-edit a placed path (shape/height/points) — no history churn per slider tick.
-  const updatePath = (id: string, patch: Partial<{ shape: 'line' | 'arc'; height: number; dashed: boolean; color: string; points: { x: number; y: number }[] }>) =>
+  const updatePath = (id: string, patch: Partial<{ shape: 'line' | 'arc'; height: number; dashed: boolean; color: string; points: { x: number; y: number }[]; drawOn: boolean; drawSec: number }>) =>
     setOverlays((o) => o.map((x) => (x.id === id && x.type === 'path' ? { ...x, ...patch } : x)));
   // Live-edit a placed text box (content/style/size/position).
   const updateText = (id: string, patch: Partial<Extract<Overlay, { type: 'text' }>>) =>
@@ -621,6 +621,7 @@ export default function App() {
           id, type: 'path', name: nextName(o, 'path', 'Path'), visible: true, ...spanAtPlayhead(),
           space: isScreen ? 'screen' : 'court', shape, points: [conv(pathDraft), conv(videoPt)],
           height: shape === 'arc' ? pathParams.height : 0, dashed: pathParams.dashed, color: pathParams.color,
+          drawOn: pathParams.drawOn, drawSec: pathParams.drawSec,
         }]);
         setPathDraft(null);
         setMode('idle');

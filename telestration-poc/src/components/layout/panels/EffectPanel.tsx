@@ -41,7 +41,7 @@ type Props = {
   pathParams: PathParams;
   setPathParams: (p: PathParams) => void;
   selectedPath: PathArrow | null;             // a selected Path overlay → editable live
-  onUpdatePath: (id: string, patch: Partial<{ shape: 'line' | 'arc'; height: number; dashed: boolean; color: string }>) => void;
+  onUpdatePath: (id: string, patch: Partial<{ shape: 'line' | 'arc'; height: number; dashed: boolean; color: string; drawOn: boolean; drawSec: number }>) => void;
   textDraft: string;
   setTextDraft: (s: string) => void;
   textParams: TextParams;
@@ -83,6 +83,10 @@ export function EffectPanel(p: Props) {
   const pathDashed = selPath?.dashed ?? p.pathParams.dashed;
   const setPathColor = (c: string) => (selPath ? p.onUpdatePath(selPath.id, { color: c }) : p.setPathParams({ ...p.pathParams, color: c }));
   const setPathDashed = (d: boolean) => (selPath ? p.onUpdatePath(selPath.id, { dashed: d }) : p.setPathParams({ ...p.pathParams, dashed: d }));
+  const pathDrawOn = selPath?.drawOn ?? p.pathParams.drawOn;
+  const pathDrawSec = selPath?.drawSec ?? p.pathParams.drawSec;
+  const setPathDrawOn = (v: boolean) => (selPath ? p.onUpdatePath(selPath.id, { drawOn: v }) : p.setPathParams({ ...p.pathParams, drawOn: v }));
+  const setPathDrawSec = (v: number) => (selPath ? p.onUpdatePath(selPath.id, { drawSec: v }) : p.setPathParams({ ...p.pathParams, drawSec: v }));
 
   // Text: a selected text box is edited live; otherwise the controls set defaults for new text.
   const selText = p.selectedText;
@@ -420,6 +424,17 @@ export function EffectPanel(p: Props) {
                   <button className={`btn sm ${pathDashed ? 'active' : ''}`} onClick={() => setPathDashed(true)}>대시</button>
                 </div>
               </div>
+              <div className="field"><label>그려지기</label>
+                <div className="btn-row">
+                  <button className={`btn sm ${!pathDrawOn ? 'active' : ''}`} onClick={() => setPathDrawOn(false)}>끄기</button>
+                  <button className={`btn sm ${pathDrawOn ? 'active' : ''}`} onClick={() => setPathDrawOn(true)}>켜기</button>
+                </div>
+              </div>
+              {pathDrawOn && (
+                <div className="field"><label>그리는 시간 {pathDrawSec.toFixed(1)}s</label>
+                  <input type="range" min="0.3" max="3" step="0.1" value={pathDrawSec}
+                    onChange={(e) => setPathDrawSec(Number(e.target.value))} /></div>
+              )}
             </>
           )}
 

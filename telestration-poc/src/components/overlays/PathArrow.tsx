@@ -1,6 +1,31 @@
 import { Arrow } from 'react-konva';
 import type { Pt } from '../../geometry/homography';
 
+// Keep only the first `progress` (0..1) of a flat [x,y,x,y,…] polyline by arc length,
+// interpolating the cut on the final segment. Konva's <Arrow> puts its head on the LAST
+// point, so a truncated polyline draws the line growing with the arrowhead riding the tip.
+function truncatePolyline(flat: number[], progress: number): number[] {
+  const n = flat.length / 2;
+  if (progress >= 1 || n < 2) return flat;
+  if (progress <= 0) return [];
+  let total = 0;
+  for (let i = 0; i < n - 1; i++) total += Math.hypot(flat[2 * i + 2] - flat[2 * i], flat[2 * i + 3] - flat[2 * i + 1]);
+  const target = total * progress;
+  const out = [flat[0], flat[1]];
+  let acc = 0;
+  for (let i = 0; i < n - 1; i++) {
+    const x0 = flat[2 * i], y0 = flat[2 * i + 1], x1 = flat[2 * i + 2], y1 = flat[2 * i + 3];
+    const l = Math.hypot(x1 - x0, y1 - y0);
+    if (acc + l >= target) {
+      const t = l > 0 ? (target - acc) / l : 1;
+      out.push(x0 + (x1 - x0) * t, y0 + (y1 - y0) * t);
+      return out;
+    }
+    acc += l; out.push(x1, y1);
+  }
+  return out;
+}
+
 /**
  * A directional path. `space` decides where the two endpoints live and how they map to the
  * display: 'court' projects court metres onto the floor (perspective); 'screen' maps video px
@@ -16,6 +41,7 @@ export function PathArrow({
   toDisplay,
   color = '#FF3B3B',
   arrow = true,
+  drawProgress = 1,
 }: {
   space: 'court' | 'screen';
   shape: 'line' | 'arc';
@@ -25,6 +51,7 @@ export function PathArrow({
   toDisplay: (space: 'court' | 'screen', x: number, y: number) => Pt; // → display px
   color?: string;
   arrow?: boolean;
+  drawProgress?: number; // 0..1 draw-on reveal (1 = fully drawn)
 }) {
   if (points.length < 2) return null;
   const a = toDisplay(space, points[0].x, points[0].y);
@@ -45,9 +72,12 @@ export function PathArrow({
     flat = [a.x, a.y, b.x, b.y];
   }
 
+  const drawn = truncatePolyline(flat, drawProgress);
+  if (drawn.length < 4) return null; // not yet started / too short to draw
+
   return (
     <Arrow
-      points={flat}
+      points={drawn}
       stroke={color}
       fill={color}
       strokeWidth={4}

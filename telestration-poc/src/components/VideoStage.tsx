@@ -339,7 +339,8 @@ export function VideoStage({
                           fontSize={o.fontSize} fontFamily={o.fontFamily} bold={o.bold} align={o.align} boxW={o.boxW} boxH={o.boxH}
                           bg={o.bg} bgColor={o.bgColor} bgOpacity={o.bgOpacity} />;
                       case 'path':
-                        return <PathArrow key={o.id} space={o.space} shape={o.shape} points={o.points} height={o.height} dashed={o.dashed} toDisplay={toDisplaySpace} color={o.color} />;
+                        return <PathArrow key={o.id} space={o.space} shape={o.shape} points={o.points} height={o.height} dashed={o.dashed} toDisplay={toDisplaySpace} color={o.color}
+                          drawProgress={o.drawOn && o.drawSec && o.drawSec > 0 ? Math.max(0, Math.min(1, (currentTime - o.startTime) / o.drawSec)) : 1} />;
                       case 'connector':
                         return <Connector key={o.id} points={o.points} project={project} color={o.color} />;
                       case 'spotlight':
