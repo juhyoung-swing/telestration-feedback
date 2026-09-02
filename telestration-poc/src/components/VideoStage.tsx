@@ -7,7 +7,6 @@ import type { Pt } from '../geometry/homography';
 import { videoToDisplay, displayToVideo } from '../geometry/coords';
 import type { ViewTransform } from '../geometry/coords';
 import { footAt } from '../geometry/tracking';
-import { CourtGrid } from './overlays/CourtGrid';
 import { GroundHalo } from './overlays/GroundHalo';
 import { CoverageZone } from './overlays/CoverageZone';
 import { Marker } from './overlays/Marker';
@@ -43,7 +42,6 @@ type Props = {
   calibration: CourtCalibration | null;
   overlays: Overlay[];
   mode: Mode;
-  showGrid: boolean;
   currentTime: number; // seconds — overlays render only within their [start,end]
   hint: string | null; // on-canvas guidance for the active placement/drawing mode
   selectedId: string | null; // timeline-selected overlay → highlighted on the canvas
@@ -72,7 +70,6 @@ export function VideoStage({
   calibration,
   overlays,
   mode,
-  showGrid,
   currentTime,
   hint,
   selectedId,
@@ -306,7 +303,6 @@ export function VideoStage({
                 ) : null;
               })()}
 
-              {calibration && showGrid && <CourtGrid project={project} />}
 
               {calibration &&
                 overlays

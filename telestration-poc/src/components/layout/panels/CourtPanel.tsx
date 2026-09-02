@@ -6,7 +6,6 @@ type Props = {
   mode: Mode;
   hasCalibration: boolean;
   method: 'corner' | 'line' | null; // how the current calibration was made
-  showGrid: boolean;
   draftCalibCount: number;
   // line calibration
   activeLineId: string | null;
@@ -17,7 +16,6 @@ type Props = {
   onStartCorner: () => void;
   onStartLine: () => void;
   onReset: () => void;
-  onToggleGrid: () => void;
   onSelectLine: (id: string) => void;
   onFinishLine: () => void;
   onCancelLine: () => void;
@@ -29,21 +27,20 @@ export function CourtPanel(p: Props) {
   return (
     <div className="panel">
       <div className="panel-title">Court · 코트 보정</div>
-      <p className="panel-desc">코트 4개 점 또는 선으로 호모그래피를 만듭니다. 그래픽은 코트 좌표(m)로 저장됩니다.</p>
 
-      <div className="field-label">방식</div>
+      <div className="field-label">보정 방식</div>
       <div className="btn-row">
         <button className={`btn ${p.mode === 'calibrating' ? 'active' : ''}`} onClick={p.onStartCorner}>
-          {p.mode === 'calibrating' ? `모서리 클릭… (${p.draftCalibCount}/4)` : '모서리 4점'}
+          {p.mode === 'calibrating' ? `꼭짓점 클릭… (${p.draftCalibCount}/4)` : '꼭짓점 4개'}
         </button>
         <button className={`btn ${p.mode === 'line-calibrating' ? 'active' : ''}`} onClick={p.onStartLine}>
-          {p.mode === 'line-calibrating' ? '선 그리는 중…' : '선으로'}
+          {p.mode === 'line-calibrating' ? '라인 그리는 중…' : '코트 라인'}
         </button>
       </div>
 
       {p.mode === 'calibrating' && (
         <div className="calib-hint">
-          더블스 모서리를 순서대로 클릭 — 다음 <b className="accent">{nextCorner}</b>
+          코트 네 꼭짓점을 순서대로 클릭 — 다음 <b className="accent">{nextCorner}</b>
           <div className="chip-wrap">
             {CORNER_LABELS.map((l, i) => (
               <span key={i} className={`mini-chip ${i < p.draftCalibCount ? 'done' : i === p.draftCalibCount ? 'now' : ''}`}>{l}</span>
@@ -81,17 +78,12 @@ export function CourtPanel(p: Props) {
 
       <div className="panel-divider" />
 
-      <label className="switch-row">
-        <input type="checkbox" checked={p.showGrid} onChange={p.onToggleGrid} disabled={!p.hasCalibration} />
-        <span>코트 그리드 (디버그)</span>
-      </label>
-
       <button className="btn subtle" onClick={p.onReset} disabled={!p.hasCalibration && p.mode !== 'calibrating' && p.mode !== 'line-calibrating'}>
-        캘리브레이션 리셋
+        보정 초기화
       </button>
 
       <div className={`status-pill ${p.hasCalibration ? 'ok' : ''}`}>
-        {p.hasCalibration ? `캘리브레이션 완료 ✓ (${p.method === 'line' ? '선' : '모서리'})` : '캘리브레이션 없음'}
+        {p.hasCalibration ? `보정 완료 ✓ (${p.method === 'line' ? '라인' : '꼭짓점'})` : '아직 보정 안 됨'}
       </div>
     </div>
   );

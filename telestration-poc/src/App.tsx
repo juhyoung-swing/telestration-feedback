@@ -95,7 +95,6 @@ export default function App() {
   const [past, setPast] = useState<Overlay[][]>([]);   // undo stack (snapshots before each edit)
   const [future, setFuture] = useState<Overlay[][]>([]); // redo stack
   const [mode, setMode] = useState<Mode>('idle');
-  const [showGrid, setShowGrid] = useState(false);
 
   // calibration drafts
   const [draftCalib, setDraftCalib] = useState<Pt[]>([]);
@@ -775,17 +774,17 @@ export default function App() {
 
   const courtPanel = (
     <CourtPanel
-      mode={mode} hasCalibration={!!calibration} method={calibMethod} showGrid={showGrid}
+      mode={mode} hasCalibration={!!calibration} method={calibMethod}
       draftCalibCount={draftCalib.length} activeLineId={activeLineId} lineDraftCount={lineDraft.length}
       currentLineIds={currentLineIds} lineCoverage={lineCoverage} canFinishLines={canFinishLines}
       onStartCorner={startCalibration} onStartLine={startLineCalibration} onReset={resetCalibration}
-      onToggleGrid={() => setShowGrid((s) => !s)} onSelectLine={selectLine} onFinishLine={finishLineCalibration} onCancelLine={cancelLineCalibration}
+      onSelectLine={selectLine} onFinishLine={finishLineCalibration} onCancelLine={cancelLineCalibration}
     />
   );
   const videoStage = (
     <VideoStage
       src={src} videoRef={videoRef} calibration={calibration} overlays={overlays} mode={mode}
-      showGrid={showGrid} currentTime={cur} hint={stageHint} selectedId={selectedOverlayId} onSelectOverlay={setSelectedOverlayId}
+      currentTime={cur} hint={stageHint} selectedId={selectedOverlayId} onSelectOverlay={setSelectedOverlayId}
       players={players} fragments={fragments} playerAnchors={playerAnchors} fps={trackFps}
       draftCalib={draftCalib} draftZone={draftZone} pathDraft={pathDraft}
       onUpdatePathPoints={(id, points) => updatePath(id, { points })} onUpdateText={updateText} onUpdateSector={updateSector}
