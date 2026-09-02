@@ -37,6 +37,12 @@ export type GroundHalo = TimeSpan & {
   opacity?: number;
   dashed?: boolean;    // dashed ring instead of solid
   trackId?: string;    // if set, courtX/courtY are derived per-frame from this player's foot
+  drawOn?: boolean;    // animate the ring drawing itself around
+  drawSec?: number;
+  drawDelay?: number;
+  drawEase?: 'linear' | 'inout';
+  drawReverse?: boolean;
+  drawLoop?: boolean;
 };
 
 // ── tracking (from scripts/track_players.py → stitch_tracks.py) ──────────────
@@ -153,7 +159,7 @@ export type FeatureId =
   | 'circle' | 'path' | 'zone' | 'marker' | 'connector' | 'sector' // Tactic group (place on court)
   | 'text' | 'zoom-in' | 'slowmo';                      // Action group
 
-export type CircleParams = { radiusMeters: number; color: string; opacity: number; dashed: boolean };
+export type CircleParams = { radiusMeters: number; color: string; opacity: number; dashed: boolean; drawOn: boolean; drawSec: number; drawDelay: number; drawEase: 'linear' | 'inout'; drawReverse: boolean; drawLoop: boolean };
 export type ZoneParams = { color: string; opacity: number; fillStyle: ZoneFill; dashed: boolean; strokeWidth: number };
 export type ZoomParams = { scale: number };
 export type PathParams = { shape: 'court-line' | 'screen-line' | 'arc'; height: number; color: string; dashed: boolean; drawOn: boolean; drawSec: number; drawDelay: number; drawEase: 'linear' | 'inout'; drawReverse: boolean; drawLoop: boolean };

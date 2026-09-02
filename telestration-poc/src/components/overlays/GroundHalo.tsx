@@ -2,6 +2,7 @@ import { Line } from 'react-konva';
 import { circleInCourt } from '../../geometry/homography';
 import type { Pt } from '../../geometry/homography';
 import { hexToRgba } from '../../utils/color';
+import { truncatePolyline, reverseFlat } from '../../lib/polyline';
 
 /**
  * A halo lying on the court floor.
@@ -26,6 +27,8 @@ export function GroundHalo({
   color = '#E4EF3D',
   opacity = 0.2,
   dashed = false,
+  drawProgress = 1,
+  drawReverse = false,
   minScreenRadius = 20,
 }: {
   courtX: number;
@@ -35,6 +38,8 @@ export function GroundHalo({
   color?: string;
   opacity?: number;
   dashed?: boolean;
+  drawProgress?: number; // 0..1 draw-on reveal of the ring outline (1 = full ring)
+  drawReverse?: boolean; // draw the ring the other way around
   minScreenRadius?: number;
 }) {
   const flat: number[] = [];
@@ -56,6 +61,17 @@ export function GroundHalo({
       flat[i + 1] = cy + (flat[i + 1] - cy) * s;
     }
   }
+  // Draw-on: reveal the ring outline growing around (stroke only, no fill); full closed ring at ≥1.
+  if (drawProgress < 1) {
+    const loop = drawReverse ? reverseFlat(flat) : flat;
+    const arc = truncatePolyline([...loop, loop[0], loop[1]], drawProgress); // close the ring for the reveal
+    if (arc.length < 4) return null;
+    return (
+      <Line points={arc} stroke={color} strokeWidth={4} dash={dashed ? [16, 11] : undefined}
+        lineJoin="round" lineCap="round" listening={false} />
+    );
+  }
+
   return (
     <Line
       points={flat}

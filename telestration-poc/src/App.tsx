@@ -114,7 +114,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<RailTab>('effect');
   const [selectedFeature, setSelectedFeature] = useState<FeatureId>('follow-circle');
   const [selectedOverlayId, setSelectedOverlayId] = useState<string | null>(null);
-  const [circleParams, setCircleParams] = useState<CircleParams>({ radiusMeters: 0.8, color: '#E4EF3D', opacity: 0.2, dashed: false });
+  const [circleParams, setCircleParams] = useState<CircleParams>({ radiusMeters: 0.8, color: '#E4EF3D', opacity: 0.2, dashed: false, drawOn: false, drawSec: 1.2, drawDelay: 0, drawEase: 'linear', drawReverse: false, drawLoop: false });
   // Per-player follow-circle style (color + solid/dashed). Transient: on reload it
   // re-derives from each player's existing circle overlay (which persists its own color/dash).
   const [playerStyles, setPlayerStyles] = useState<Record<string, { color: string; dashed: boolean }>>({});
@@ -636,7 +636,7 @@ export default function App() {
     const cxy = { courtX: court.x, courtY: court.y };
     if (mode === 'placing-halo') {
       const id = uid('halo');
-      mutate((o) => [...o, { id, type: 'ground-halo', name: nextName(o, 'ground-halo', 'Circle'), visible: true, ...spanAtPlayhead(), courtX: court.x, courtY: court.y, radiusMeters: circleParams.radiusMeters, color: circleParams.color, opacity: circleParams.opacity, dashed: circleParams.dashed }]);
+      mutate((o) => [...o, { id, type: 'ground-halo', name: nextName(o, 'ground-halo', 'Circle'), visible: true, ...spanAtPlayhead(), courtX: court.x, courtY: court.y, radiusMeters: circleParams.radiusMeters, color: circleParams.color, opacity: circleParams.opacity, dashed: circleParams.dashed, drawOn: circleParams.drawOn, drawSec: circleParams.drawSec, drawDelay: circleParams.drawDelay, drawEase: circleParams.drawEase, drawReverse: circleParams.drawReverse, drawLoop: circleParams.drawLoop }]);
       setMode('idle');
     } else if (mode === 'placing-marker') {
       const id = uid('marker');

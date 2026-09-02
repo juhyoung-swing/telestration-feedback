@@ -60,6 +60,45 @@ type Props = {
   section?: 'tiles' | 'detail'; // render only the tile catalog (left) or the selected-item detail (right)
 };
 
+// Shared draw-on animation section (Path, Circle, …). `set` patches the selected overlay or defaults.
+type AnimPatch = Partial<{ drawOn: boolean; drawSec: number; drawDelay: number; drawEase: 'linear' | 'inout'; drawReverse: boolean; drawLoop: boolean }>;
+function AnimationControls({ on, sec, delay, ease, reverse, loop, set }: {
+  on: boolean; sec: number; delay: number; ease: 'linear' | 'inout'; reverse: boolean; loop: boolean; set: (patch: AnimPatch) => void;
+}) {
+  return (
+    <>
+      <div className="field-label" style={{ marginTop: 4 }}>애니메이션</div>
+      <div className="anim-grid">
+        <button className={`anim-card ${!on ? 'active' : ''}`} onClick={() => set({ drawOn: false })}><span className="anim-icon">—</span><span className="anim-name">없음</span></button>
+        <button className={`anim-card ${on ? 'active' : ''}`} onClick={() => set({ drawOn: true })}><span className="anim-icon">✏️</span><span className="anim-name">그리기</span></button>
+      </div>
+      {on && (
+        <>
+          <div className="field"><label>그리는 시간 {sec.toFixed(1)}s</label>
+            <input type="range" min="0.3" max="3" step="0.1" value={sec} onChange={(e) => set({ drawSec: Number(e.target.value) })} /></div>
+          <div className="field"><label>지연 {delay.toFixed(1)}s</label>
+            <input type="range" min="0" max="5" step="0.1" value={delay} onChange={(e) => set({ drawDelay: Number(e.target.value) })} /></div>
+          <div className="field"><label>속도 곡선</label>
+            <div className="btn-row">
+              <button className={`btn sm ${ease === 'linear' ? 'active' : ''}`} onClick={() => set({ drawEase: 'linear' })}>등속</button>
+              <button className={`btn sm ${ease === 'inout' ? 'active' : ''}`} onClick={() => set({ drawEase: 'inout' })}>부드럽게</button>
+            </div></div>
+          <div className="field"><label>방향</label>
+            <div className="btn-row">
+              <button className={`btn sm ${!reverse ? 'active' : ''}`} onClick={() => set({ drawReverse: false })}>정방향</button>
+              <button className={`btn sm ${reverse ? 'active' : ''}`} onClick={() => set({ drawReverse: true })}>역방향</button>
+            </div></div>
+          <div className="field"><label>반복</label>
+            <div className="btn-row">
+              <button className={`btn sm ${!loop ? 'active' : ''}`} onClick={() => set({ drawLoop: false })}>끄기</button>
+              <button className={`btn sm ${loop ? 'active' : ''}`} onClick={() => set({ drawLoop: true })}>켜기</button>
+            </div></div>
+        </>
+      )}
+    </>
+  );
+}
+
 export function EffectPanel(p: Props) {
   const [expandedPlayer, setExpandedPlayer] = useState<string | null>(null); // per-player accordion (follow-circle)
   const def = FEATURES.find((f) => f.id === p.selected)!;
@@ -284,6 +323,15 @@ export function EffectPanel(p: Props) {
               <div className="field"><label>투명도 {cVal.opacity.toFixed(2)}</label>
                 <input type="range" min="0" max="1" step="0.05" value={cVal.opacity}
                   onChange={(e) => cSet({ opacity: Number(e.target.value) })} /></div>
+              <AnimationControls
+                on={selHalo?.drawOn ?? p.circleParams.drawOn}
+                sec={selHalo?.drawSec ?? p.circleParams.drawSec}
+                delay={selHalo?.drawDelay ?? p.circleParams.drawDelay}
+                ease={selHalo?.drawEase ?? p.circleParams.drawEase}
+                reverse={selHalo?.drawReverse ?? p.circleParams.drawReverse}
+                loop={selHalo?.drawLoop ?? p.circleParams.drawLoop}
+                set={cSet}
+              />
             </>
           )}
           {p.selected === 'zone' && (
@@ -429,40 +477,7 @@ export function EffectPanel(p: Props) {
                   <button className={`btn sm ${pathDashed ? 'active' : ''}`} onClick={() => setPathDashed(true)}>대시</button>
                 </div>
               </div>
-              <div className="field-label" style={{ marginTop: 4 }}>애니메이션</div>
-              <div className="anim-grid">
-                <button className={`anim-card ${!pathDrawOn ? 'active' : ''}`} onClick={() => setPathAnim({ drawOn: false })}>
-                  <span className="anim-icon">—</span><span className="anim-name">없음</span>
-                </button>
-                <button className={`anim-card ${pathDrawOn ? 'active' : ''}`} onClick={() => setPathAnim({ drawOn: true })}>
-                  <span className="anim-icon">✏️</span><span className="anim-name">그리기</span>
-                </button>
-              </div>
-              {pathDrawOn && (
-                <>
-                  <div className="field"><label>그리는 시간 {pathDrawSec.toFixed(1)}s</label>
-                    <input type="range" min="0.3" max="3" step="0.1" value={pathDrawSec}
-                      onChange={(e) => setPathAnim({ drawSec: Number(e.target.value) })} /></div>
-                  <div className="field"><label>지연 {pathDelay.toFixed(1)}s</label>
-                    <input type="range" min="0" max="5" step="0.1" value={pathDelay}
-                      onChange={(e) => setPathAnim({ drawDelay: Number(e.target.value) })} /></div>
-                  <div className="field"><label>속도 곡선</label>
-                    <div className="btn-row">
-                      <button className={`btn sm ${pathEase === 'linear' ? 'active' : ''}`} onClick={() => setPathAnim({ drawEase: 'linear' })}>등속</button>
-                      <button className={`btn sm ${pathEase === 'inout' ? 'active' : ''}`} onClick={() => setPathAnim({ drawEase: 'inout' })}>부드럽게</button>
-                    </div></div>
-                  <div className="field"><label>방향</label>
-                    <div className="btn-row">
-                      <button className={`btn sm ${!pathReverse ? 'active' : ''}`} onClick={() => setPathAnim({ drawReverse: false })}>시작→끝</button>
-                      <button className={`btn sm ${pathReverse ? 'active' : ''}`} onClick={() => setPathAnim({ drawReverse: true })}>끝→시작</button>
-                    </div></div>
-                  <div className="field"><label>반복</label>
-                    <div className="btn-row">
-                      <button className={`btn sm ${!pathLoop ? 'active' : ''}`} onClick={() => setPathAnim({ drawLoop: false })}>끄기</button>
-                      <button className={`btn sm ${pathLoop ? 'active' : ''}`} onClick={() => setPathAnim({ drawLoop: true })}>켜기</button>
-                    </div></div>
-                </>
-              )}
+              <AnimationControls on={pathDrawOn} sec={pathDrawSec} delay={pathDelay} ease={pathEase} reverse={pathReverse} loop={pathLoop} set={setPathAnim} />
             </>
           )}
 
