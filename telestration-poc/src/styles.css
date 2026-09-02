@@ -122,6 +122,7 @@ body {
 .player-color::-webkit-color-swatch { border: none; border-radius: 50%; }
 .player-tag { font-size: 12px; font-weight: 700; width: 22px; flex-shrink: 0; }
 .player-span { flex: 1; min-width: 0; font-size: 12px; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.player-spacer { flex: 1; }
 .dash-toggle { flex-shrink: 0; width: 30px; padding: 4px 0; font-size: 13px; line-height: 1; letter-spacing: 1px; }
 
 .field { display: flex; flex-direction: column; gap: 4px; }

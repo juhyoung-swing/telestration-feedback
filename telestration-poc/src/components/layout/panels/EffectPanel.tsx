@@ -1,5 +1,5 @@
 import { FEATURES, FEATURE_GROUPS } from '../features';
-import { playersBySpan, posLabel } from '../../../geometry/tracking';
+import { playersBySpan } from '../../../geometry/tracking';
 import type { CircleParams, FeatureId, Mode, Overlay, PathArrow, PathParams, Players, SpeedSegment, TextLabel, TextParams, ZoneParams, ZoomParams } from '../../../types';
 
 const FEATURE_MODE: Record<string, Mode> = {
@@ -177,31 +177,20 @@ export function EffectPanel(p: Props) {
         <>
           {p.selected === 'follow-circle' && (
             <>
+              <div className="field-label">공통 설정</div>
               <div className="field"><label>반지름 (m)</label>
                 <input type="number" step="0.1" min="0.1" value={cVal.radiusMeters}
                   onChange={(e) => cSet({ radiusMeters: Number(e.target.value) || 0.1 })} /></div>
               <div className="field"><label>투명도 {cVal.opacity.toFixed(2)}</label>
                 <input type="range" min="0" max="1" step="0.05" value={cVal.opacity}
                   onChange={(e) => cSet({ opacity: Number(e.target.value) })} /></div>
-              <div className="muted-note">색상·선(실선/대시)은 아래 선수별로 지정합니다.</div>
             </>
           )}
 
-          <div className="field-label">선수 지정 (유저 캘리브레이션)</div>
-          {!calibrating ? (
-            <button className="btn" onClick={p.onStartPlayerCalib} disabled={!p.hasFragments}>선수 지정 시작</button>
-          ) : (
-            <div className="calib-hint">
-              영상에서 각 선수를 순서대로 클릭 — 다음 <b className="accent">P{p.anchorCount + 1}</b> ({p.anchorCount}/4 지정됨).
-              <div className="btn-row">
-                <button className="btn primary" onClick={p.onFinishPlayerCalib} disabled={p.anchorCount < 2}>완료 ({p.anchorCount})</button>
-                <button className="btn" onClick={p.onCancelPlayerCalib}>취소</button>
-              </div>
-              <div className="muted-note">클릭한 선수의 옷 색을 기준으로 나머지 조각을 자동 배정합니다.</div>
-            </div>
-          )}
-
-          <div className="muted-note" style={{ marginTop: 8 }}>선수를 눌러 <b>{def.label}</b>을 {apply.add ? '타임라인에 추가합니다.' : '적용/해제합니다.'}</div>
+          <div className="field-label" style={{ marginTop: 4 }}>{p.selected === 'follow-circle' ? '선수별 설정' : '선수'}</div>
+          <div className="muted-note">
+            {apply.add ? '선수별로 색·선(실선/대시)을 정하고, 눌러서 타임라인에 추가합니다.' : '선수를 눌러 적용/해제합니다.'}
+          </div>
           <div className="player-list">
             {list.map((pl) => {
               const on = !apply.add && apply.set.has(pl.id); // toggle effects (spotlight) show an on-state
@@ -216,7 +205,7 @@ export function EffectPanel(p: Props) {
                     <span className="player-dot" style={{ background: paletteColor }} />
                   )}
                   <span className="player-tag">P{pl.id}</span>
-                  <span className="player-span">{posLabel(pl.medY)} <span className="muted">· {pl.t0.toFixed(0)}–{pl.t1.toFixed(0)}s</span></span>
+                  <span className="player-spacer" />
                   {style && (
                     <button className={`btn sm dash-toggle ${style.dashed ? 'active' : ''}`}
                       onClick={() => p.onSetPlayerStyle(pl.id, { dashed: !style.dashed })}
@@ -232,6 +221,20 @@ export function EffectPanel(p: Props) {
               );
             })}
           </div>
+
+          {/* 선수 재지정 (user-anchored re-ID) — advanced, kept at the bottom */}
+          {!calibrating ? (
+            <button className="btn subtle sm" onClick={p.onStartPlayerCalib} disabled={!p.hasFragments} title="옷 색 기준으로 P1~P4를 다시 지정">선수 재지정</button>
+          ) : (
+            <div className="calib-hint">
+              영상에서 각 선수를 순서대로 클릭 — 다음 <b className="accent">P{p.anchorCount + 1}</b> ({p.anchorCount}/4 지정됨).
+              <div className="btn-row">
+                <button className="btn primary" onClick={p.onFinishPlayerCalib} disabled={p.anchorCount < 2}>완료 ({p.anchorCount})</button>
+                <button className="btn" onClick={p.onCancelPlayerCalib}>취소</button>
+              </div>
+              <div className="muted-note">클릭한 선수의 옷 색을 기준으로 나머지 조각을 자동 배정합니다.</div>
+            </div>
+          )}
         </>
         )
       ) : (
