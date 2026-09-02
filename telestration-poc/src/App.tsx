@@ -217,7 +217,10 @@ export default function App() {
     setProjectId(p.id); setProjectName(p.name);
     setAnalyzed(!!p.analyzed); setAnalyzing(null);
     await loadTracking(p);
-    setView(toView);
+    // Calibration is required — an un-calibrated project always opens into the wizard's
+    // calibration step, never straight into the editor.
+    const calibrated = !!(p.corners && p.corners.length === 4);
+    setView(toView === 'editor' && !calibrated ? 'calibrate' : toView);
   };
   const createProject = async (name: string, file: File | null) => {
     let p = newProject(name);
@@ -793,6 +796,21 @@ export default function App() {
     />
   );
 
+  // new-project wizard step indicator (영상 → 코트 보정 → 선수 분석)
+  const wizardSteps = (current: 'calibrate' | 'analyze') => {
+    const steps = hasML ? ['영상', '코트 보정', '선수 분석'] : ['영상', '코트 보정'];
+    const cur = current === 'calibrate' ? 1 : 2;
+    return (
+      <div className="wizard-steps">
+        {steps.map((s, i) => (
+          <span key={i} className={`wizard-step ${i < cur ? 'done' : i === cur ? 'now' : ''}`}>
+            <span className="wizard-num">{i + 1}</span>{s}
+          </span>
+        ))}
+      </div>
+    );
+  };
+
   if (view === 'projects') {
     return <ProjectList projects={projects} onOpen={(p) => void openProject(p)} onCreate={(name, file) => void createProject(name, file)} onDelete={removeProject} onRename={renameProject} />;
   }
@@ -802,9 +820,10 @@ export default function App() {
       <div className="calibrate-view">
         <header className="calibrate-head">
           <button className="btn ghost sm" onClick={backToProjects} title="프로젝트 목록으로">← 프로젝트</button>
-          <span className="calibrate-title">🎾 코트 보정 · {projectName}</span>
-          <button className="btn primary sm" onClick={goAfterCalibrate}>
-            {hasML && !analyzed ? (calibration ? '완료 · 선수 분석 →' : '건너뛰고 선수 분석 →') : (calibration ? '완료 · 에디터로 →' : '건너뛰고 에디터로 →')}
+          {wizardSteps('calibrate')}
+          <button className="btn primary sm" onClick={goAfterCalibrate} disabled={!calibration}
+            title={calibration ? '' : '코트 보정을 먼저 완료하세요'}>
+            {hasML && !analyzed ? '다음 · 선수 분석 →' : '완료 · 에디터로 →'}
           </button>
         </header>
         <div className="calibrate-body">
@@ -822,7 +841,7 @@ export default function App() {
       <div className="calibrate-view">
         <header className="calibrate-head">
           <button className="btn ghost sm" onClick={backToProjects} disabled={running} title="프로젝트 목록으로">← 프로젝트</button>
-          <span className="calibrate-title">🎾 선수 분석 · {projectName}</span>
+          {wizardSteps('analyze')}
           <button className="btn sm" onClick={() => setView('editor')} disabled={running}>건너뛰고 에디터로 →</button>
         </header>
         <div className="analyze-body">

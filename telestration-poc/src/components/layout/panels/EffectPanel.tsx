@@ -119,7 +119,7 @@ export function EffectPanel(p: Props) {
       {p.section !== 'detail' && (
       <>
       <div className="panel-title">Effect</div>
-      {!p.hasCalibration && <div className="warn-note">코트 보정이 필요합니다 — 상단 <b>재보정</b>을 누르세요. (화면 위 텍스트·직선·배속은 보정 없이도 가능)</div>}
+      {!p.hasCalibration && <div className="warn-note">코트 보정이 필요합니다 — 상단 <b>⚙ 설정 → 코트 재보정</b>.</div>}
 
       {/* ── tile catalog: Player / Tactic / Action ── */}
       {FEATURE_GROUPS.map((g) => (
