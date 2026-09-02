@@ -64,13 +64,17 @@ ipcMain.handle('export:save-png', async (evt, { buf, suggestedName }) => {
   return filePath;
 });
 
-ipcMain.handle('export:save-mp4', async (evt, { webm, suggestedName }) => {
+ipcMain.handle('export:save-video', async (evt, { webm, suggestedName, format }) => {
   const win = BrowserWindow.fromWebContents(evt.sender);
+  const isMp4 = format !== 'webm';
   const { canceled, filePath } = await dialog.showSaveDialog(win, {
-    defaultPath: suggestedName || 'telestration.mp4',
-    filters: [{ name: 'MP4 영상', extensions: ['mp4'] }],
+    defaultPath: suggestedName || (isMp4 ? 'telestration.mp4' : 'telestration.webm'),
+    filters: isMp4 ? [{ name: 'MP4 영상', extensions: ['mp4'] }] : [{ name: 'WebM 영상', extensions: ['webm'] }],
   });
   if (canceled || !filePath) return null;
+  // WebM is what MediaRecorder produced → write it straight through, no transcode.
+  if (!isMp4) { await fs.promises.writeFile(filePath, Buffer.from(webm)); return filePath; }
+  // MP4 → transcode the recorded WebM with the bundled ffmpeg (H.264 / AAC).
   const tmp = path.join(os.tmpdir(), `tele-export-${crypto.randomUUID()}.webm`);
   await fs.promises.writeFile(tmp, Buffer.from(webm));
   try {

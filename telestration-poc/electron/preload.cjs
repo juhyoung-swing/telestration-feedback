@@ -18,5 +18,5 @@ contextBridge.exposeInMainWorld('ml', {
 // bundled ffmpeg, each behind a native Save dialog. Returns the saved path, or null if cancelled.
 contextBridge.exposeInMainWorld('exportApi', {
   savePng: (buf, suggestedName) => ipcRenderer.invoke('export:save-png', { buf, suggestedName }),
-  saveMp4: (webm, suggestedName) => ipcRenderer.invoke('export:save-mp4', { webm, suggestedName }),
+  saveVideo: (webm, suggestedName, format) => ipcRenderer.invoke('export:save-video', { webm, suggestedName, format }),
 });

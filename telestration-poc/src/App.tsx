@@ -36,7 +36,7 @@ declare global {
     // Export bridge exposed by the Electron preload (absent on the web → download fallback).
     exportApi?: {
       savePng: (buf: ArrayBuffer, suggestedName: string) => Promise<string | null>;
-      saveMp4: (webm: ArrayBuffer, suggestedName: string) => Promise<string | null>;
+      saveVideo: (webm: ArrayBuffer, suggestedName: string, format: 'mp4' | 'webm') => Promise<string | null>;
     };
   }
 }
@@ -736,15 +736,17 @@ export default function App() {
     else downloadBlob(blob, name);
   };
 
-  const exportVideo = async (onProgress: (t: number, dur: number) => void, height = 720) => {
+  const exportVideo = async (onProgress: (t: number, dur: number) => void, height = 720, format: 'mp4' | 'webm' = 'mp4') => {
     const v = videoRef.current;
     if (!v) return;
     const wasPlaying = !v.paused;
     setSelectedOverlayId(null);
     await nextFrame();
-    const webm = await recordCompositeWebM(v, onProgress, height);
-    if (window.exportApi?.saveMp4) await window.exportApi.saveMp4(await webm.arrayBuffer(), `${exportBaseName()}.mp4`);
-    else downloadBlob(webm, `${exportBaseName()}.webm`); // web has no ffmpeg → WebM
+    const webm = await recordCompositeWebM(v, onProgress, height); // MediaRecorder always yields WebM
+    const buf = await webm.arrayBuffer();
+    const name = `${exportBaseName()}.${format}`;
+    if (window.exportApi?.saveVideo) await window.exportApi.saveVideo(buf, name, format); // Electron: WebM (write) or MP4 (ffmpeg)
+    else downloadBlob(webm, `${exportBaseName()}.webm`); // web: no ffmpeg → WebM only
     if (wasPlaying) void v.play().catch(() => {});
   };
 
