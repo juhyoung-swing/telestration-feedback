@@ -11,7 +11,7 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "verify": "tsx scripts/verify.ts",
-    "electron:dev": "concurrently -k \"vite\" \"wait-on http://localhost:5173 && cross-env ELECTRON_DEV=1 electron .\"",
+    "electron:dev": "concurrently -k \"vite\" \"wait-on http://localhost:5178 && cross-env ELECTRON_DEV=1 electron .\"",
     "electron:preview": "npm run build && electron .",
     "electron:build": "npm run build && electron-builder"
   },

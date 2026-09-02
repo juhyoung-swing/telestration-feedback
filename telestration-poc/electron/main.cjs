@@ -8,7 +8,7 @@ const path = require('path');
 const { startServer } = require('./static-server.cjs');
 
 const isDev = process.env.ELECTRON_DEV === '1';
-const DEV_URL = 'http://localhost:5173';
+const DEV_URL = 'http://localhost:5178'; // must match vite.config.ts server.port + the electron:dev wait-on
 const DIST = path.join(__dirname, '..', 'dist');
 
 let serverRef = null;
