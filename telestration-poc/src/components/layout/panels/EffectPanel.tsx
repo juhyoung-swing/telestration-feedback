@@ -384,6 +384,15 @@ export function EffectPanel(p: Props) {
                 <input type="range" min="0" max="1" step="0.05" value={selSector.opacity ?? 0.22}
                   onChange={(e) => p.onPatchOverlay(selSector.id, { opacity: Number(e.target.value) })} /></div>
               <div className="muted-note">화면에서 중심을 드래그해 이동, 끝점을 드래그해 반지름·방향 조절.</div>
+              <AnimationControls
+                on={!!selSector.drawOn}
+                sec={selSector.drawSec ?? 1.2}
+                delay={selSector.drawDelay ?? 0}
+                ease={selSector.drawEase ?? 'linear'}
+                reverse={!!selSector.drawReverse}
+                loop={!!selSector.drawLoop}
+                set={(patch) => p.onPatchOverlay(selSector.id, patch)}
+              />
             </>
           )}
           {p.selected === 'zoom-in' && (

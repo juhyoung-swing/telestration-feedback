@@ -13,17 +13,18 @@ type DrawAnim = {
 const easeInOut = (t: number) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
 
 export function drawOnProgress(o: DrawAnim, currentTime: number): number {
-  if (!o.drawOn || !o.drawSec || o.drawSec <= 0) return 1;
+  if (!o.drawOn) return 1;
+  const sec = o.drawSec && o.drawSec > 0 ? o.drawSec : 1.2; // default when only drawOn was toggled
   const local = currentTime - (o.startTime + (o.drawDelay ?? 0));
   if (local < 0) return 0; // still in the delay window → nothing drawn yet
 
   let raw: number;
   if (o.drawLoop) {
-    const cycle = o.drawSec * 2; // draw for drawSec, then hold fully drawn for drawSec, repeat
+    const cycle = sec * 2; // draw for `sec`, then hold fully drawn for `sec`, repeat
     const phase = local % cycle;
-    raw = phase < o.drawSec ? phase / o.drawSec : 1;
+    raw = phase < sec ? phase / sec : 1;
   } else {
-    raw = Math.min(1, local / o.drawSec);
+    raw = Math.min(1, local / sec);
   }
   return o.drawEase === 'inout' ? easeInOut(raw) : raw;
 }

@@ -125,6 +125,12 @@ export type Sector = TimeSpan & {
   dir: number;                    // direction angle (degrees) in the court plane
   spread: number;                 // total arc angle (degrees)
   color?: string; opacity?: number;
+  drawOn?: boolean;    // animate the fan outline drawing itself
+  drawSec?: number;
+  drawDelay?: number;
+  drawEase?: 'linear' | 'inout';
+  drawReverse?: boolean;
+  drawLoop?: boolean;
 };
 
 // Spotlight: dim the whole frame, reveal (light up) the tracked player.

@@ -332,7 +332,8 @@ export function VideoStage({
                         return <CoverageZone key={o.id} points={o.points} project={project} color={o.color} opacity={o.opacity}
                           fillStyle={o.fillStyle} dashed={o.dashed} strokeWidth={o.strokeWidth} />;
                       case 'sector':
-                        return <Sector key={o.id} courtX={o.courtX} courtY={o.courtY} radiusM={o.radiusM} dir={o.dir} spread={o.spread} project={project} color={o.color} opacity={o.opacity} />;
+                        return <Sector key={o.id} courtX={o.courtX} courtY={o.courtY} radiusM={o.radiusM} dir={o.dir} spread={o.spread} project={project} color={o.color} opacity={o.opacity}
+                          drawProgress={drawOnProgress(o, currentTime)} drawReverse={o.drawReverse} />;
                       case 'marker':
                         return <Marker key={o.id} courtX={o.courtX} courtY={o.courtY} project={project} color={o.color} />;
                       case 'text':
