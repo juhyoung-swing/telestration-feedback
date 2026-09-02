@@ -103,7 +103,6 @@ export function EffectPanel(p: Props) {
     fillStyle: selZone?.fillStyle ?? p.zoneParams.fillStyle,
     dashed: selZone?.dashed ?? p.zoneParams.dashed,
     strokeWidth: selZone?.strokeWidth ?? p.zoneParams.strokeWidth,
-    curved: selZone?.curved ?? p.zoneParams.curved,
   };
   const zSet = (patch: Partial<ZoneParams>) => (selZone ? p.onPatchOverlay(selZone.id, patch) : p.setZoneParams({ ...p.zoneParams, ...patch }));
 
@@ -301,11 +300,6 @@ export function EffectPanel(p: Props) {
               <div className="field"><label>두께 {zVal.strokeWidth}px</label>
                 <input type="range" min="1" max="10" step="1" value={zVal.strokeWidth}
                   onChange={(e) => zSet({ strokeWidth: Number(e.target.value) })} /></div>
-              <div className="field"><label>경계</label>
-                <div className="btn-row">
-                  <button className={`btn sm ${!zVal.curved ? 'active' : ''}`} onClick={() => zSet({ curved: false })}>직선</button>
-                  <button className={`btn sm ${zVal.curved ? 'active' : ''}`} onClick={() => zSet({ curved: true })}>곡선</button>
-                </div></div>
             </>
           )}
           {p.selected === 'marker' && selMarker && (

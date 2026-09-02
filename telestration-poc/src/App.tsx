@@ -118,7 +118,7 @@ export default function App() {
   // Per-player follow-circle style (color + solid/dashed). Transient: on reload it
   // re-derives from each player's existing circle overlay (which persists its own color/dash).
   const [playerStyles, setPlayerStyles] = useState<Record<string, { color: string; dashed: boolean }>>({});
-  const [zoneParams, setZoneParams] = useState<ZoneParams>({ color: '#17335F', opacity: 0.18, fillStyle: 'solid', dashed: false, strokeWidth: 4, curved: false });
+  const [zoneParams, setZoneParams] = useState<ZoneParams>({ color: '#17335F', opacity: 0.18, fillStyle: 'solid', dashed: false, strokeWidth: 4 });
   const [zoomParams, setZoomParams] = useState<ZoomParams>({ scale: 2.2 });
   const [pathParams, setPathParams] = useState<PathParams>({ shape: 'court-line', height: 0.4, color: FEATURE_COLORS.path, dashed: false });
   const [pathDraft, setPathDraft] = useState<Pt | null>(null); // first click (video px) while drawing a path
@@ -496,7 +496,7 @@ export default function App() {
     const pts = draftZone;
     if (mode === 'drawing-zone' && pts.length >= 3) {
       const id = uid('zone');
-      mutate((o) => [...o, { id, type: 'coverage-zone', name: nextName(o, 'coverage-zone', 'Zone'), visible: true, ...spanAtPlayhead(), points: pts, color: zoneParams.color, opacity: zoneParams.opacity, fillStyle: zoneParams.fillStyle, dashed: zoneParams.dashed, strokeWidth: zoneParams.strokeWidth, curved: zoneParams.curved }]);
+      mutate((o) => [...o, { id, type: 'coverage-zone', name: nextName(o, 'coverage-zone', 'Zone'), visible: true, ...spanAtPlayhead(), points: pts, color: zoneParams.color, opacity: zoneParams.opacity, fillStyle: zoneParams.fillStyle, dashed: zoneParams.dashed, strokeWidth: zoneParams.strokeWidth }]);
     }
     setDraftZone([]);
     setMode('idle');

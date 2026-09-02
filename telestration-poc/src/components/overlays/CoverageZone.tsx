@@ -21,8 +21,8 @@ function makeHatch(color: string, opacity: number): HTMLCanvasElement | null {
 
 /**
  * A polygon lying on the court floor. Court-space vertices are projected through H, so it
- * conforms to the court perspective. Style: border (solid/dash, thickness), fill
- * (solid tint / diagonal hatch / outline-only), and a straight or smooth (spline) boundary.
+ * conforms to the court perspective. Style: border (solid/dash, thickness) and fill
+ * (solid tint / diagonal hatch / outline-only).
  */
 export function CoverageZone({
   points,
@@ -33,7 +33,6 @@ export function CoverageZone({
   fillStyle = 'solid',
   dashed = false,
   strokeWidth = 4,
-  curved = false,
 }: {
   points: { courtX: number; courtY: number }[];
   project: (courtX: number, courtY: number) => Pt; // court -> display px
@@ -43,7 +42,6 @@ export function CoverageZone({
   fillStyle?: ZoneFill;
   dashed?: boolean;
   strokeWidth?: number;
-  curved?: boolean;
 }) {
   const flat: number[] = [];
   for (const p of points) {
@@ -68,7 +66,6 @@ export function CoverageZone({
       stroke={color}
       strokeWidth={strokeWidth}
       dash={dashed ? [Math.max(8, strokeWidth * 3), Math.max(6, strokeWidth * 2)] : undefined}
-      tension={curved ? 0.5 : 0}
       lineJoin="round"
       listening={false}
     />
