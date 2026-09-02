@@ -159,6 +159,14 @@ body {
 .feature-name { font-size: 12px; }
 .soon-tag { position: absolute; top: 5px; right: 6px; font-size: 9px; color: var(--muted); background: var(--panel); border: 1px solid var(--border); border-radius: 6px; padding: 1px 4px; }
 .lock-tag { position: absolute; top: 5px; right: 6px; font-size: 10px; line-height: 1; }
+
+/* animation type cards (Path inspector) */
+.anim-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 2px; }
+.anim-card { appearance: none; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 9px 6px; border: 1px solid var(--border); background: var(--panel-2); color: var(--text); border-radius: 8px; cursor: pointer; transition: background .12s, border-color .12s; }
+.anim-card:hover { background: var(--panel-3); }
+.anim-card.active { border-color: var(--accent); background: var(--accent-weak); color: var(--accent); }
+.anim-icon { font-size: 16px; line-height: 1; }
+.anim-name { font-size: 11px; }
 .lock-note { font-size: 11px; color: var(--muted); background: var(--panel-2); border: 1px dashed var(--border); border-radius: 8px; padding: 7px 9px; margin-top: 2px; }
 
 /* ── center ────────────────────────────────────────────────────────────── */

@@ -430,11 +430,14 @@ export function EffectPanel(p: Props) {
                 </div>
               </div>
               <div className="field-label" style={{ marginTop: 4 }}>애니메이션</div>
-              <div className="field"><label>종류</label>
-                <div className="btn-row">
-                  <button className={`btn sm ${!pathDrawOn ? 'active' : ''}`} onClick={() => setPathAnim({ drawOn: false })}>없음</button>
-                  <button className={`btn sm ${pathDrawOn ? 'active' : ''}`} onClick={() => setPathAnim({ drawOn: true })}>그려지기</button>
-                </div></div>
+              <div className="anim-grid">
+                <button className={`anim-card ${!pathDrawOn ? 'active' : ''}`} onClick={() => setPathAnim({ drawOn: false })}>
+                  <span className="anim-icon">—</span><span className="anim-name">없음</span>
+                </button>
+                <button className={`anim-card ${pathDrawOn ? 'active' : ''}`} onClick={() => setPathAnim({ drawOn: true })}>
+                  <span className="anim-icon">✏️</span><span className="anim-name">그리기</span>
+                </button>
+              </div>
               {pathDrawOn && (
                 <>
                   <div className="field"><label>그리는 시간 {pathDrawSec.toFixed(1)}s</label>
