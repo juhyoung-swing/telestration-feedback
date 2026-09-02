@@ -25,6 +25,8 @@ type Props = {
   zoom: number;               // 1 = fit whole clip; >1 = zoomed in
   snap: boolean;
   speed: number;              // preview playback rate (shown on the base track)
+  loop: { start: number; end: number } | null; // A-B repeat band (null = off)
+  onSetLoop: (l: { start: number; end: number } | null) => void;
   onBeginHistory: () => void; // called once at drag-start so a whole drag is one undo step
   onSelect: (id: string) => void;
   onSeek: (t: number) => void;
@@ -119,6 +121,26 @@ export function Timeline(p: Props) {
     window.addEventListener('mouseup', up);
   };
 
+  // A-B repeat band: drag body to move, edges to resize. Snaps to overlay edges / playhead / ends.
+  const startLoopDrag = (e: React.MouseEvent, kind: 'move' | 'trim-l' | 'trim-r') => {
+    if (!p.loop) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const startX = e.clientX;
+    const s0 = p.loop.start, e0 = p.loop.end, len = e0 - s0;
+    const move = (ev: MouseEvent) => {
+      const dt = (ev.clientX - startX) / pxPerSec;
+      let s = s0, en = e0;
+      if (kind === 'move') { s = clamp(snapTime(clamp(s0 + dt, 0, dur - len), '') , 0, dur - len); en = s + len; }
+      else if (kind === 'trim-l') { s = clamp(snapTime(clamp(s0 + dt, 0, e0 - MIN_LEN), ''), 0, e0 - MIN_LEN); }
+      else { en = clamp(snapTime(clamp(e0 + dt, s0 + MIN_LEN, dur), ''), s0 + MIN_LEN, dur); }
+      p.onSetLoop({ start: s, end: en });
+    };
+    const up = () => { window.removeEventListener('mousemove', move); window.removeEventListener('mouseup', up); };
+    window.addEventListener('mousemove', move);
+    window.addEventListener('mouseup', up);
+  };
+
   const ordered = [...p.overlays].reverse(); // latest on top
   const step = tickStep(pxPerSec);
   const ticks: number[] = [];
@@ -160,6 +182,19 @@ export function Timeline(p: Props) {
               </div>
             </div>
           </div>
+
+          {p.loop && (
+            <div
+              className="tl-loop"
+              style={{ left: x(p.loop.start), width: Math.max(6, x(p.loop.end - p.loop.start)) }}
+            >
+              <div className="tl-loop-move" onMouseDown={(e) => startLoopDrag(e, 'move')} title="반복 구간 이동 (양끝: 길이 조절)">
+                🔁 {fmt(p.loop.start)}–{fmt(p.loop.end)}
+              </div>
+              <div className="tl-loop-handle l" onMouseDown={(e) => startLoopDrag(e, 'trim-l')} />
+              <div className="tl-loop-handle r" onMouseDown={(e) => startLoopDrag(e, 'trim-r')} />
+            </div>
+          )}
 
           <div className="tl-playhead" style={{ left: x(p.currentTime) }} onMouseDown={startPlayheadDrag}>
             <div className="tl-playhead-head" />

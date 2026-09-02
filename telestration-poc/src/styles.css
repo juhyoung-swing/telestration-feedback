@@ -255,6 +255,17 @@ body {
 .tl-playhead { position: absolute; top: 0; bottom: 0; width: 2px; background: #ff3b3b; cursor: ew-resize; z-index: 10; }
 .tl-playhead-head { position: absolute; top: 0; left: -5px; width: 12px; height: 9px; background: #ff3b3b; border-radius: 2px 2px 3px 3px; }
 
+/* A-B repeat band. Body passes clicks through to the tracks; only the top strip + edges grab. */
+.tl-loop { position: absolute; top: 0; bottom: 0; z-index: 8; pointer-events: none;
+  background: var(--accent-weak); border-left: 2px solid var(--accent); border-right: 2px solid var(--accent); }
+.tl-loop-move { position: absolute; top: 0; left: 0; right: 0; height: 16px; pointer-events: auto; cursor: grab;
+  display: flex; align-items: center; gap: 4px; padding: 0 6px; font-size: 10px; font-weight: 700; line-height: 16px;
+  color: var(--accent-ink); background: var(--accent); border-radius: 0 0 4px 0; white-space: nowrap; overflow: hidden; }
+.tl-loop-move:active { cursor: grabbing; }
+.tl-loop-handle { position: absolute; top: 0; bottom: 0; width: 9px; pointer-events: auto; cursor: ew-resize; }
+.tl-loop-handle.l { left: -5px; }
+.tl-loop-handle.r { right: -5px; }
+
 .ctx-menu { position: fixed; z-index: 50; list-style: none; margin: 0; padding: 4px; min-width: 150px; background: var(--panel-3); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,.5); font-size: 13px; }
 .ctx-menu li { padding: 7px 10px; border-radius: 6px; cursor: pointer; }
 .ctx-menu li:hover:not(.disabled) { background: var(--accent-weak); color: var(--accent); }

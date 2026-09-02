@@ -133,6 +133,9 @@ export default function App() {
   const [tlZoom, setTlZoom] = useState(1); // timeline horizontal zoom (1 = fit whole clip)
   const [snap, setSnap] = useState(true);  // snap dragged bars to playhead / edges
   const [speed, setSpeed] = useState(1);   // preview playback rate (0.25×–2×)
+  const [loopRegion, setLoopRegion] = useState<{ start: number; end: number } | null>(null); // A-B repeat band
+  const loopRef = useRef<{ start: number; end: number } | null>(null);
+  loopRef.current = loopRegion; // read by the rAF loop without re-binding it
 
   // tracking (players.json auto-4, and fragments.json for user-anchored re-ID)
   const [players, setPlayers] = useState<Players | null>(null);
@@ -341,7 +344,11 @@ export default function App() {
     let raf = 0;
     const loop = () => {
       const v = videoRef.current;
-      if (v) setCur(v.currentTime);
+      if (v) {
+        const lr = loopRef.current; // A-B repeat: jump back to start when the region's end is reached
+        if (lr && v.currentTime >= lr.end - 0.02 && lr.end > lr.start) v.currentTime = lr.start;
+        setCur(v.currentTime);
+      }
       raf = requestAnimationFrame(loop);
     };
     raf = requestAnimationFrame(loop);
@@ -724,6 +731,15 @@ export default function App() {
     else v.pause();
   };
 
+  // A-B repeat: click adds a loop band at the playhead (drag its edges on the timeline); click again clears it.
+  const toggleLoop = () => {
+    if (loopRegion) { setLoopRegion(null); return; }
+    const total = dur > 0 ? dur : cur + 3;
+    const start = clampT(cur, 0, Math.max(0, total - 0.5));
+    const end = clampT(start + 3, start + 0.5, total);
+    setLoopRegion({ start, end });
+  };
+
   // ── export (screenshot / video) ─────────────────────────────────────────
   const exportBaseName = () => (projectName || videoName || 'telestration').replace(/\.[^.]+$/, '');
   const nextFrame = () => new Promise((r) => requestAnimationFrame(() => r(null)));
@@ -1047,6 +1063,8 @@ export default function App() {
           onZoom={setTlZoom}
           snap={snap}
           onToggleSnap={() => setSnap((s) => !s)}
+          loopOn={!!loopRegion}
+          onToggleLoop={toggleLoop}
         />
 
         <Timeline
@@ -1058,6 +1076,8 @@ export default function App() {
           speed={speed}
           zoom={tlZoom}
           snap={snap}
+          loop={loopRegion}
+          onSetLoop={setLoopRegion}
           onBeginHistory={beginHistory}
           onSelect={setSelectedOverlayId}
           onSeek={seek}
