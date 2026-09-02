@@ -25,23 +25,32 @@ import {
 export type Line3 = [number, number, number]; // a·x + b·y + c = 0
 export type LineFamily = 'horizontal' | 'vertical'; // court y=const vs x=const
 
-export type CourtLineDef = { id: string; label: string; family: LineFamily; vec: Line3 };
+export type CourtLineDef = { id: string; label: string; family: LineFamily; vec: Line3; required: boolean };
 
 // Every known court line, as an infinite line in court meters. The user draws any
 // subset; a valid solve needs ≥4 lines spanning BOTH families (else the x- or
 // y-direction is unconstrained).
+//
+// `required` marks the minimal, best-conditioned set: the outer rectangle —
+// both baselines (2 horizontal) + both doubles sidelines (2 vertical). These 4
+// are the widest-apart lines, so they alone already give an accurate solve; the
+// rest (net, service lines, singles/center) only over-determine it for extra
+// robustness. Required lines are listed first.
 export const COURT_LINE_DEFS: CourtLineDef[] = [
-  { id: 'far-baseline', label: '먼 베이스라인', family: 'horizontal', vec: [0, 1, 0] },
-  { id: 'near-baseline', label: '가까운 베이스라인', family: 'horizontal', vec: [0, 1, -COURT_LENGTH] },
-  { id: 'net', label: '네트 라인', family: 'horizontal', vec: [0, 1, -NET_Y] },
-  { id: 'far-service', label: '먼 서비스라인', family: 'horizontal', vec: [0, 1, -SERVICE_FAR_Y] },
-  { id: 'near-service', label: '가까운 서비스라인', family: 'horizontal', vec: [0, 1, -SERVICE_NEAR_Y] },
-  { id: 'left-doubles', label: '왼쪽 더블스 사이드라인', family: 'vertical', vec: [1, 0, 0] },
-  { id: 'right-doubles', label: '오른쪽 더블스 사이드라인', family: 'vertical', vec: [1, 0, -DOUBLES_WIDTH] },
-  { id: 'left-singles', label: '왼쪽 싱글스 사이드라인', family: 'vertical', vec: [1, 0, -SINGLES_LEFT_X] },
-  { id: 'right-singles', label: '오른쪽 싱글스 사이드라인', family: 'vertical', vec: [1, 0, -SINGLES_RIGHT_X] },
-  { id: 'center-service', label: '센터 서비스라인', family: 'vertical', vec: [1, 0, -CENTER_X] },
+  { id: 'far-baseline', label: '먼 베이스라인', family: 'horizontal', vec: [0, 1, 0], required: true },
+  { id: 'near-baseline', label: '가까운 베이스라인', family: 'horizontal', vec: [0, 1, -COURT_LENGTH], required: true },
+  { id: 'left-doubles', label: '왼쪽 더블스 사이드라인', family: 'vertical', vec: [1, 0, 0], required: true },
+  { id: 'right-doubles', label: '오른쪽 더블스 사이드라인', family: 'vertical', vec: [1, 0, -DOUBLES_WIDTH], required: true },
+  { id: 'net', label: '네트 라인', family: 'horizontal', vec: [0, 1, -NET_Y], required: false },
+  { id: 'far-service', label: '먼 서비스라인', family: 'horizontal', vec: [0, 1, -SERVICE_FAR_Y], required: false },
+  { id: 'near-service', label: '가까운 서비스라인', family: 'horizontal', vec: [0, 1, -SERVICE_NEAR_Y], required: false },
+  { id: 'left-singles', label: '왼쪽 싱글스 사이드라인', family: 'vertical', vec: [1, 0, -SINGLES_LEFT_X], required: false },
+  { id: 'right-singles', label: '오른쪽 싱글스 사이드라인', family: 'vertical', vec: [1, 0, -SINGLES_RIGHT_X], required: false },
+  { id: 'center-service', label: '센터 서비스라인', family: 'vertical', vec: [1, 0, -CENTER_X], required: false },
 ];
+
+// The minimal required line ids (outer rectangle: 2 baselines + 2 doubles sidelines).
+export const REQUIRED_LINE_IDS = COURT_LINE_DEFS.filter((d) => d.required).map((d) => d.id);
 
 export function courtLineDef(id: string): CourtLineDef {
   const d = COURT_LINE_DEFS.find((x) => x.id === id);

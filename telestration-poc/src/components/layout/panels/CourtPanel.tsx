@@ -46,32 +46,44 @@ export function CourtPanel(p: Props) {
         </div>
       )}
 
-      {p.mode === 'line-calibrating' && (
-        <div className="calib-hint">
-          그릴 선을 고르고 그 선 위를 <b>2점+</b> 클릭. 끝점(코너)은 안 찍어도 됩니다.
-          <div className="chip-wrap">
-            {COURT_LINE_DEFS.map((d) => {
-              const isActive = p.activeLineId === d.id;
-              const isDone = p.currentLineIds.includes(d.id) && !(isActive && p.lineDraftCount < 2);
-              return (
-                <button key={d.id} className={`mini-chip ${d.family} ${isActive ? 'active' : ''} ${isDone ? 'done' : ''}`} onClick={() => p.onSelectLine(d.id)}>
-                  {isDone ? '✓ ' : ''}{d.label}
-                </button>
-              );
-            })}
-          </div>
-          <div className="btn-row">
-            <button className="btn primary" onClick={p.onFinishLine} disabled={!p.canFinishLines}>
-              완료 · H 계산 ({p.currentLineIds.length}선)
+      {p.mode === 'line-calibrating' && (() => {
+        const isLineDone = (id: string) =>
+          p.currentLineIds.includes(id) && !(p.activeLineId === id && p.lineDraftCount < 2);
+        const renderChip = (d: (typeof COURT_LINE_DEFS)[number]) => {
+          const isActive = p.activeLineId === d.id;
+          const isDone = isLineDone(d.id);
+          return (
+            <button key={d.id} className={`mini-chip ${d.family} ${isActive ? 'active' : ''} ${isDone ? 'done' : ''}`} onClick={() => p.onSelectLine(d.id)}>
+              {isDone ? '✓ ' : ''}{d.label}
             </button>
-            <button className="btn" onClick={p.onCancelLine}>취소</button>
+          );
+        };
+        const required = COURT_LINE_DEFS.filter((d) => d.required);
+        const extra = COURT_LINE_DEFS.filter((d) => !d.required);
+        const requiredDone = required.filter((d) => isLineDone(d.id)).length;
+        return (
+          <div className="calib-hint">
+            그릴 선을 고르고 그 선 위를 <b>2점+</b> 클릭. 끝점(코너)은 안 찍어도 됩니다.
+
+            <div className="line-group-label">필수 · 바깥 사각형 4선 <span className="lg-count">{requiredDone}/4</span></div>
+            <div className="chip-wrap">{required.map(renderChip)}</div>
+
+            <div className="line-group-label muted">추가 · 있으면 더 정확 <span className="lg-opt">선택</span></div>
+            <div className="chip-wrap">{extra.map(renderChip)}</div>
+
+            <div className="btn-row">
+              <button className="btn primary" onClick={p.onFinishLine} disabled={!p.canFinishLines}>
+                완료 · H 계산 ({p.currentLineIds.length}선)
+              </button>
+              <button className="btn" onClick={p.onCancelLine}>취소</button>
+            </div>
+            <div className="muted-note">
+              가로 {p.lineCoverage.horizontal} · 세로 {p.lineCoverage.vertical}
+              {p.activeLineId ? ` · 지금 ${courtLineDef(p.activeLineId).label} (${p.lineDraftCount}점)` : ' · 선을 고르세요'}
+            </div>
           </div>
-          <div className="muted-note">
-            가로 {p.lineCoverage.horizontal} · 세로 {p.lineCoverage.vertical}
-            {p.activeLineId ? ` · 지금 ${courtLineDef(p.activeLineId).label} (${p.lineDraftCount}점)` : ' · 선을 고르세요'}
-          </div>
-        </div>
-      )}
+        );
+      })()}
 
       <div className="panel-divider" />
 
