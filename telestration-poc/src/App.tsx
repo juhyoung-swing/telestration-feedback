@@ -497,6 +497,7 @@ export default function App() {
     if (mode === 'drawing-zone' && pts.length >= 3) {
       const id = uid('zone');
       mutate((o) => [...o, { id, type: 'coverage-zone', name: nextName(o, 'coverage-zone', 'Zone'), visible: true, ...spanAtPlayhead(), points: pts, color: zoneParams.color, opacity: zoneParams.opacity, fillStyle: zoneParams.fillStyle, dashed: zoneParams.dashed, strokeWidth: zoneParams.strokeWidth }]);
+      setSelectedOverlayId(id);
     }
     setDraftZone([]);
     setMode('idle');
@@ -624,6 +625,7 @@ export default function App() {
           drawOn: pathParams.drawOn, drawSec: pathParams.drawSec, drawDelay: pathParams.drawDelay,
           drawEase: pathParams.drawEase, drawReverse: pathParams.drawReverse, drawLoop: pathParams.drawLoop,
         }]);
+        setSelectedOverlayId(id);
         setPathDraft(null);
         setMode('idle');
       } else {
@@ -637,11 +639,11 @@ export default function App() {
     if (mode === 'placing-halo') {
       const id = uid('halo');
       mutate((o) => [...o, { id, type: 'ground-halo', name: nextName(o, 'ground-halo', 'Circle'), visible: true, ...spanAtPlayhead(), courtX: court.x, courtY: court.y, radiusMeters: circleParams.radiusMeters, color: circleParams.color, opacity: circleParams.opacity, dashed: circleParams.dashed, drawOn: circleParams.drawOn, drawSec: circleParams.drawSec, drawDelay: circleParams.drawDelay, drawEase: circleParams.drawEase, drawReverse: circleParams.drawReverse, drawLoop: circleParams.drawLoop }]);
-      setMode('idle');
+      setSelectedOverlayId(id); setMode('idle'); // select the new effect so it's immediately editable
     } else if (mode === 'placing-marker') {
       const id = uid('marker');
       mutate((o) => [...o, { id, type: 'marker', name: nextName(o, 'marker', 'Marker'), visible: true, ...spanAtPlayhead(), ...cxy, color: FEATURE_COLORS.marker }]);
-      setMode('idle');
+      setSelectedOverlayId(id); setMode('idle');
     } else if (mode === 'placing-text') {
       const id = uid('text');
       const text = textDraft.trim() || '텍스트';
@@ -651,11 +653,11 @@ export default function App() {
         fontSize: textParams.fontSize, fontFamily: textParams.fontFamily, bold: textParams.bold, align: textParams.align,
         color: textParams.color, bg: textParams.bg, bgColor: textParams.bgColor, bgOpacity: textParams.bgOpacity,
       }]);
-      setMode('idle');
+      setSelectedOverlayId(id); setMode('idle');
     } else if (mode === 'placing-zoom') {
       const id = uid('zoom');
       mutate((o) => [...o, { id, type: 'zoom-in', name: nextName(o, 'zoom-in', 'Zoom'), visible: true, ...spanAtPlayhead(), ...cxy, scale: zoomParams.scale }]);
-      setMode('idle');
+      setSelectedOverlayId(id); setMode('idle');
     } else if (mode === 'drawing-zone') {
       setDraftZone((z) => [...z, cxy]);
     } else if (mode === 'drawing-connector') {
@@ -663,7 +665,7 @@ export default function App() {
         const p0 = draftZone[0];
         const id = uid('conn');
         mutate((o) => [...o, { id, type: 'connector', name: nextName(o, 'connector', 'Connector'), visible: true, ...spanAtPlayhead(), points: [p0, cxy], color: FEATURE_COLORS.connector }]);
-        setDraftZone([]); setMode('idle');
+        setSelectedOverlayId(id); setDraftZone([]); setMode('idle');
       } else {
         setDraftZone([cxy]);
       }
@@ -675,7 +677,7 @@ export default function App() {
         const dir = (Math.atan2(dy, dx) * 180) / Math.PI;
         const id = uid('sector');
         mutate((o) => [...o, { id, type: 'sector', name: nextName(o, 'sector', 'Sector'), visible: true, ...spanAtPlayhead(), courtX: c.courtX, courtY: c.courtY, radiusM, dir, spread: 60, color: FEATURE_COLORS.sector, opacity: 0.22 }]);
-        setDraftZone([]); setMode('idle');
+        setSelectedOverlayId(id); setDraftZone([]); setMode('idle');
       } else {
         setDraftZone([cxy]);
       }
