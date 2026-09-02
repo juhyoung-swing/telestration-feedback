@@ -304,6 +304,7 @@ export default function App() {
     v.addEventListener('seeked', onTime);
     v.addEventListener('loadedmetadata', onMeta);
     if (v.readyState >= 1) { onMeta(); onTime(); } // cached video: metadata already loaded before listener
+    setPlaying(!v.paused); // re-sync toolbar/rAF state to this (possibly remounted) element — a view switch remounts the video paused
     return () => {
       v.removeEventListener('play', onPlay);
       v.removeEventListener('pause', onPause);
@@ -458,6 +459,7 @@ export default function App() {
     const H = getPerspectiveTransform(COURT_CORNERS, draftCalib);
     setCalibration({ imagePoints: draftCalib, homography: H, inverseHomography: invert3x3(H) });
     setCalibMethod('corner');
+    setDraftCalib([]); // committed → the corners now live in calibration.imagePoints; clear the draft so it never leaks into the editor
     setMode('idle');
   }, [mode, draftCalib]);
 
