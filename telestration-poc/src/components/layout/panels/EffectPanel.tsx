@@ -119,7 +119,7 @@ export function EffectPanel(p: Props) {
       {p.section !== 'detail' && (
       <>
       <div className="panel-title">Effect</div>
-      {!p.hasCalibration && <div className="warn-note">코트 보정이 필요합니다 — 상단 <b>⚙ 설정 → 코트 재보정</b>.</div>}
+      {!p.hasCalibration && <div className="warn-note">바닥면 보정이 필요합니다 — 상단 <b>⚙ 설정 → 바닥면 재보정</b>.</div>}
 
       {/* ── tile catalog: Player / Tactic / Action ── */}
       {FEATURE_GROUPS.map((g) => (

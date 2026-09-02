@@ -22,25 +22,22 @@ type Props = {
 };
 
 export function CourtPanel(p: Props) {
-  const nextCorner = CORNER_LABELS[p.draftCalibCount] ?? '완료';
-
   return (
     <div className="panel">
-      <div className="panel-title">Court · 코트 보정</div>
+      <div className="panel-title">바닥면 보정</div>
 
       <div className="field-label">보정 방식</div>
       <div className="btn-row">
         <button className={`btn ${p.mode === 'calibrating' ? 'active' : ''}`} onClick={p.onStartCorner}>
-          {p.mode === 'calibrating' ? `꼭짓점 클릭… (${p.draftCalibCount}/4)` : '꼭짓점 4개'}
+          {p.mode === 'calibrating' ? `점 찍는 중… (${p.draftCalibCount}/4)` : '점으로 보정'}
         </button>
         <button className={`btn ${p.mode === 'line-calibrating' ? 'active' : ''}`} onClick={p.onStartLine}>
-          {p.mode === 'line-calibrating' ? '라인 그리는 중…' : '코트 라인'}
+          {p.mode === 'line-calibrating' ? '선 그리는 중…' : '선으로 보정'}
         </button>
       </div>
 
       {p.mode === 'calibrating' && (
         <div className="calib-hint">
-          코트 네 꼭짓점을 순서대로 클릭 — 다음 <b className="accent">{nextCorner}</b>
           <div className="chip-wrap">
             {CORNER_LABELS.map((l, i) => (
               <span key={i} className={`mini-chip ${i < p.draftCalibCount ? 'done' : i === p.draftCalibCount ? 'now' : ''}`}>{l}</span>
@@ -83,7 +80,7 @@ export function CourtPanel(p: Props) {
       </button>
 
       <div className={`status-pill ${p.hasCalibration ? 'ok' : ''}`}>
-        {p.hasCalibration ? `보정 완료 ✓ (${p.method === 'line' ? '라인' : '꼭짓점'})` : '아직 보정 안 됨'}
+        {p.hasCalibration ? `보정 완료 ✓ (${p.method === 'line' ? '선' : '점'})` : '아직 보정 안 됨'}
       </div>
     </div>
   );

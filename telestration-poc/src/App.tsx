@@ -757,8 +757,8 @@ export default function App() {
   const stageHint: string | null = (() => {
     const n = draftZone.length;
     switch (mode) {
-      case 'calibrating': return `코트 네 모서리를 클릭하세요 · ${draftCalib.length}/4 · Esc 취소`;
-      case 'line-calibrating': return '코트 선을 클릭해 그리세요 · Enter 완료 · Esc 취소';
+      case 'calibrating': return `바닥면 네 점을 순서대로 클릭 · ${draftCalib.length}/4 · Esc 취소`;
+      case 'line-calibrating': return '선을 클릭해 그리세요 · Enter 완료 · Esc 취소';
       case 'player-calibrating': return `각 선수를 클릭해 지정 · ${playerAnchors.length}/4 · 완료는 왼쪽 패널 · Esc 취소`;
       case 'placing-halo': return '코트를 클릭 → Circle 배치 · Esc 종료';
       case 'placing-marker': return '코트를 클릭 → Marker 배치 · Esc 종료';
@@ -798,7 +798,7 @@ export default function App() {
 
   // new-project wizard step indicator (영상 → 코트 보정 → 선수 분석)
   const wizardSteps = (current: 'calibrate' | 'analyze') => {
-    const steps = hasML ? ['영상', '코트 보정', '선수 분석'] : ['영상', '코트 보정'];
+    const steps = hasML ? ['영상', '바닥면 보정', '선수 분석'] : ['영상', '바닥면 보정'];
     const cur = current === 'calibrate' ? 1 : 2;
     return (
       <div className="wizard-steps">
@@ -822,7 +822,7 @@ export default function App() {
           <button className="btn ghost sm" onClick={backToProjects} title="프로젝트 목록으로">← 프로젝트</button>
           {wizardSteps('calibrate')}
           <button className="btn primary sm" onClick={goAfterCalibrate} disabled={!calibration}
-            title={calibration ? '' : '코트 보정을 먼저 완료하세요'}>
+            title={calibration ? '' : '바닥면 보정을 먼저 완료하세요'}>
             {hasML && !analyzed ? '다음 · 선수 분석 →' : '완료 · 에디터로 →'}
           </button>
         </header>

@@ -14,7 +14,7 @@ export function CalibrationPoints({
   toDisplay: (p: Pt) => Pt; // video -> display px
   committed?: boolean;
 }) {
-  const color = committed ? '#00E5FF' : '#FFD400';
+  const color = committed ? '#A8D93A' : '#CCFF00'; // tennis-ball optic yellow-green
   return (
     <>
       {points.map((p, i) => {

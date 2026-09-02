@@ -25,7 +25,7 @@ export function SettingsDropdown({ onRecalibrate, onReanalyze, analyzed }: {
       {open && (
         <div className="export-pop settings-pop">
           <div className="panel-subtitle">설정</div>
-          <button className="btn block" onClick={() => { setOpen(false); onRecalibrate(); }}>🎯 코트 재보정</button>
+          <button className="btn block" onClick={() => { setOpen(false); onRecalibrate(); }}>🎯 바닥면 재보정</button>
           {onReanalyze && (
             <button className="btn block" onClick={() => { setOpen(false); onReanalyze(); }}>
               🏃 {analyzed ? '선수 재분석' : '선수 분석'}
