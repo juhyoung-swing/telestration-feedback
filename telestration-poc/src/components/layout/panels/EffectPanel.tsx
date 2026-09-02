@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { FEATURES, FEATURE_GROUPS } from '../features';
 import { playersBySpan } from '../../../geometry/tracking';
 import type { CircleParams, FeatureId, Mode, Overlay, PathArrow, PathParams, Players, SpeedSegment, TextLabel, TextParams, ZoneParams, ZoomParams } from '../../../types';
@@ -66,6 +67,7 @@ type Props = {
 };
 
 export function EffectPanel(p: Props) {
+  const [expandedPlayer, setExpandedPlayer] = useState<string | null>(null); // per-player accordion (follow-circle)
   const def = FEATURES.find((f) => f.id === p.selected)!;
   const myMode = FEATURE_MODE[p.selected];
   const active = p.mode === myMode;
@@ -189,34 +191,52 @@ export function EffectPanel(p: Props) {
 
           <div className="field-label" style={{ marginTop: 4 }}>{p.selected === 'follow-circle' ? '선수별 설정' : '선수'}</div>
           <div className="muted-note">
-            {apply.add ? '선수별로 색·선(실선/대시)을 정하고, 눌러서 타임라인에 추가합니다.' : '선수를 눌러 적용/해제합니다.'}
+            {apply.add ? '선수를 펼쳐 색·선을 정하고 추가하세요.' : '선수를 눌러 적용/해제합니다.'}
           </div>
           <div className="player-list">
             {list.map((pl) => {
               const on = !apply.add && apply.set.has(pl.id); // toggle effects (spotlight) show an on-state
               const paletteColor = p.colors[(Number(pl.id) - 1) % p.colors.length];
-              const style = p.selected === 'follow-circle' ? p.playerStyleFor(pl.id) : null; // per-player color/dash
-              return (
-                <div key={pl.id} className={`player-row ${on ? 'on' : ''}`}>
-                  {style ? (
-                    <input className="player-color" type="color" value={style.color} title="이 선수 원 색상"
-                      onChange={(e) => p.onSetPlayerStyle(pl.id, { color: e.target.value })} />
-                  ) : (
+
+              // ── spotlight (and any non-circle player effect): simple apply/remove row ──
+              if (p.selected !== 'follow-circle') {
+                return (
+                  <div key={pl.id} className={`player-row ${on ? 'on' : ''}`}>
                     <span className="player-dot" style={{ background: paletteColor }} />
+                    <span className="player-tag">P{pl.id}</span>
+                    <span className="player-spacer" />
+                    <button className={on ? 'btn sm active' : 'btn sm'} onClick={() => apply.fn(pl.id)} disabled={!apply.enabled}
+                      title={apply.enabled ? `${def.label} 적용/해제` : apply.why}>{on ? '해제' : '적용'}</button>
+                  </div>
+                );
+              }
+
+              // ── follow-circle: expandable per-player settings (색 / 원 스타일 / 추가하기) ──
+              const style = p.playerStyleFor(pl.id);
+              const open = expandedPlayer === pl.id;
+              return (
+                <div key={pl.id} className={`player-item ${open ? 'open' : ''}`}>
+                  <button type="button" className="player-head" onClick={() => setExpandedPlayer(open ? null : pl.id)}>
+                    <span className="player-swatch" style={{ background: style.color }} />
+                    <span className="player-tag">P{pl.id}</span>
+                    {style.dashed && <span className="player-badge">대시</span>}
+                    <span className="player-spacer" />
+                    <span className="player-caret">{open ? '▾' : '▸'}</span>
+                  </button>
+                  {open && (
+                    <div className="player-body">
+                      <div className="field"><label>색 설정</label>
+                        <input type="color" value={style.color}
+                          onChange={(e) => p.onSetPlayerStyle(pl.id, { color: e.target.value })} /></div>
+                      <div className="field"><label>원 스타일</label>
+                        <div className="btn-row">
+                          <button className={`btn sm ${!style.dashed ? 'active' : ''}`} onClick={() => p.onSetPlayerStyle(pl.id, { dashed: false })}>실선</button>
+                          <button className={`btn sm ${style.dashed ? 'active' : ''}`} onClick={() => p.onSetPlayerStyle(pl.id, { dashed: true })}>대시</button>
+                        </div></div>
+                      <button className="btn primary block" onClick={() => apply.fn(pl.id)} disabled={!apply.enabled}
+                        title={apply.enabled ? `${def.label} 추가` : apply.why}>추가하기</button>
+                    </div>
                   )}
-                  <span className="player-tag">P{pl.id}</span>
-                  <span className="player-spacer" />
-                  {style && (
-                    <button className={`btn sm dash-toggle ${style.dashed ? 'active' : ''}`}
-                      onClick={() => p.onSetPlayerStyle(pl.id, { dashed: !style.dashed })}
-                      title={style.dashed ? '대시 → 실선' : '실선 → 대시'}>{style.dashed ? '┅' : '─'}</button>
-                  )}
-                  <button
-                    className={on ? 'btn sm active' : 'btn sm'}
-                    onClick={() => apply.fn(pl.id)}
-                    disabled={!apply.enabled}
-                    title={apply.enabled ? (apply.add ? `${def.label} 추가` : `${def.label} 적용/해제`) : apply.why}
-                  >{apply.add ? '추가' : (on ? '해제' : '적용')}</button>
                 </div>
               );
             })}
