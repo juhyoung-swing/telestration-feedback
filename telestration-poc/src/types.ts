@@ -54,6 +54,7 @@ export type Fragments = Record<string, Fragment>;
 export type FragmentData = { video: string; fps: number; width: number; height: number; step: number; tracks: Fragments };
 export type PlayerAnchor = { label: string; desc: [number, number, number]; fragId: string };
 
+export type ZoneFill = 'solid' | 'hatch' | 'none';
 export type CoverageZone = TimeSpan & {
   id: string;
   type: 'coverage-zone';
@@ -62,6 +63,10 @@ export type CoverageZone = TimeSpan & {
   points: { courtX: number; courtY: number }[]; // meters — NOT screen space
   color?: string;
   opacity?: number;
+  fillStyle?: ZoneFill;   // interior: solid tint / diagonal hatch / outline-only
+  dashed?: boolean;       // dashed border
+  strokeWidth?: number;   // border thickness (px)
+  curved?: boolean;       // smooth (spline) boundary vs straight edges
 };
 
 // A point on the court (Marker) / a labeled point (Text).
@@ -144,7 +149,7 @@ export type FeatureId =
   | 'text' | 'zoom-in' | 'slowmo';                      // Action group
 
 export type CircleParams = { radiusMeters: number; color: string; opacity: number; dashed: boolean };
-export type ZoneParams = { color: string; opacity: number };
+export type ZoneParams = { color: string; opacity: number; fillStyle: ZoneFill; dashed: boolean; strokeWidth: number; curved: boolean };
 export type ZoomParams = { scale: number };
 export type PathParams = { shape: 'court-line' | 'screen-line' | 'arc'; height: number; color: string; dashed: boolean };
 export type TextParams = { fontSize: number; fontFamily: string; bold: boolean; align: 'left' | 'center' | 'right'; color: string; bg: boolean; bgColor: string; bgOpacity: number };

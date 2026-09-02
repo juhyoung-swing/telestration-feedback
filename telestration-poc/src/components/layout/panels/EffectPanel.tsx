@@ -97,7 +97,14 @@ export function EffectPanel(p: Props) {
   const selSector = p.selectedOverlay?.type === 'sector' ? p.selectedOverlay : null;
   const cVal = { radiusMeters: selHalo?.radiusMeters ?? p.circleParams.radiusMeters, color: selHalo?.color ?? p.circleParams.color, opacity: selHalo?.opacity ?? p.circleParams.opacity, dashed: selHalo?.dashed ?? p.circleParams.dashed };
   const cSet = (patch: Partial<CircleParams>) => (selHalo ? p.onPatchOverlay(selHalo.id, patch) : p.setCircleParams({ ...p.circleParams, ...patch }));
-  const zVal = { color: selZone?.color ?? p.zoneParams.color, opacity: selZone?.opacity ?? p.zoneParams.opacity };
+  const zVal = {
+    color: selZone?.color ?? p.zoneParams.color,
+    opacity: selZone?.opacity ?? p.zoneParams.opacity,
+    fillStyle: selZone?.fillStyle ?? p.zoneParams.fillStyle,
+    dashed: selZone?.dashed ?? p.zoneParams.dashed,
+    strokeWidth: selZone?.strokeWidth ?? p.zoneParams.strokeWidth,
+    curved: selZone?.curved ?? p.zoneParams.curved,
+  };
   const zSet = (patch: Partial<ZoneParams>) => (selZone ? p.onPatchOverlay(selZone.id, patch) : p.setZoneParams({ ...p.zoneParams, ...patch }));
 
   // Slow-mo: rate of a selected speed segment, or the default for new ones.
@@ -275,9 +282,30 @@ export function EffectPanel(p: Props) {
             <>
               <div className="field"><label>색상</label>
                 <input type="color" value={zVal.color} onChange={(e) => zSet({ color: e.target.value })} /></div>
-              <div className="field"><label>투명도 {zVal.opacity.toFixed(2)}</label>
-                <input type="range" min="0" max="1" step="0.05" value={zVal.opacity}
-                  onChange={(e) => zSet({ opacity: Number(e.target.value) })} /></div>
+              <div className="field"><label>채움</label>
+                <div className="btn-row">
+                  <button className={`btn sm ${zVal.fillStyle === 'solid' ? 'active' : ''}`} onClick={() => zSet({ fillStyle: 'solid' })}>단색</button>
+                  <button className={`btn sm ${zVal.fillStyle === 'hatch' ? 'active' : ''}`} onClick={() => zSet({ fillStyle: 'hatch' })}>빗금</button>
+                  <button className={`btn sm ${zVal.fillStyle === 'none' ? 'active' : ''}`} onClick={() => zSet({ fillStyle: 'none' })}>없음</button>
+                </div></div>
+              {zVal.fillStyle !== 'none' && (
+                <div className="field"><label>투명도 {zVal.opacity.toFixed(2)}</label>
+                  <input type="range" min="0" max="1" step="0.05" value={zVal.opacity}
+                    onChange={(e) => zSet({ opacity: Number(e.target.value) })} /></div>
+              )}
+              <div className="field"><label>테두리</label>
+                <div className="btn-row">
+                  <button className={`btn sm ${!zVal.dashed ? 'active' : ''}`} onClick={() => zSet({ dashed: false })}>실선</button>
+                  <button className={`btn sm ${zVal.dashed ? 'active' : ''}`} onClick={() => zSet({ dashed: true })}>대시</button>
+                </div></div>
+              <div className="field"><label>두께 {zVal.strokeWidth}px</label>
+                <input type="range" min="1" max="10" step="1" value={zVal.strokeWidth}
+                  onChange={(e) => zSet({ strokeWidth: Number(e.target.value) })} /></div>
+              <div className="field"><label>경계</label>
+                <div className="btn-row">
+                  <button className={`btn sm ${!zVal.curved ? 'active' : ''}`} onClick={() => zSet({ curved: false })}>직선</button>
+                  <button className={`btn sm ${zVal.curved ? 'active' : ''}`} onClick={() => zSet({ curved: true })}>곡선</button>
+                </div></div>
             </>
           )}
           {p.selected === 'marker' && selMarker && (
