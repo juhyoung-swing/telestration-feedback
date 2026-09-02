@@ -15,6 +15,8 @@ type Props = {
   players: Players | null;
   onFollow: (id: string) => void;
   followedIds: Set<string>;
+  playerStyleFor: (id: string) => { color: string; dashed: boolean }; // per-player follow-circle style
+  onSetPlayerStyle: (id: string, patch: Partial<{ color: string; dashed: boolean }>) => void;
   onToggleSpotlight: (id: string) => void;
   spotlightIds: Set<string>;
   colors: string[];
@@ -97,7 +99,7 @@ export function EffectPanel(p: Props) {
   const selZone = p.selectedOverlay?.type === 'coverage-zone' ? p.selectedOverlay : null;
   const selConn = p.selectedOverlay?.type === 'connector' ? p.selectedOverlay : null;
   const selSector = p.selectedOverlay?.type === 'sector' ? p.selectedOverlay : null;
-  const cVal = { radiusMeters: selHalo?.radiusMeters ?? p.circleParams.radiusMeters, color: selHalo?.color ?? p.circleParams.color, opacity: selHalo?.opacity ?? p.circleParams.opacity };
+  const cVal = { radiusMeters: selHalo?.radiusMeters ?? p.circleParams.radiusMeters, color: selHalo?.color ?? p.circleParams.color, opacity: selHalo?.opacity ?? p.circleParams.opacity, dashed: selHalo?.dashed ?? p.circleParams.dashed };
   const cSet = (patch: Partial<CircleParams>) => (selHalo ? p.onPatchOverlay(selHalo.id, patch) : p.setCircleParams({ ...p.circleParams, ...patch }));
   const zVal = { color: selZone?.color ?? p.zoneParams.color, opacity: selZone?.opacity ?? p.zoneParams.opacity };
   const zSet = (patch: Partial<ZoneParams>) => (selZone ? p.onPatchOverlay(selZone.id, patch) : p.setZoneParams({ ...p.zoneParams, ...patch }));
@@ -178,11 +180,10 @@ export function EffectPanel(p: Props) {
               <div className="field"><label>반지름 (m)</label>
                 <input type="number" step="0.1" min="0.1" value={cVal.radiusMeters}
                   onChange={(e) => cSet({ radiusMeters: Number(e.target.value) || 0.1 })} /></div>
-              <div className="field"><label>색상{selHalo ? '' : ' (기본)'}</label>
-                <input type="color" value={cVal.color} onChange={(e) => cSet({ color: e.target.value })} /></div>
               <div className="field"><label>투명도 {cVal.opacity.toFixed(2)}</label>
                 <input type="range" min="0" max="1" step="0.05" value={cVal.opacity}
                   onChange={(e) => cSet({ opacity: Number(e.target.value) })} /></div>
+              <div className="muted-note">색상·선(실선/대시)은 아래 선수별로 지정합니다.</div>
             </>
           )}
 
@@ -204,12 +205,23 @@ export function EffectPanel(p: Props) {
           <div className="player-list">
             {list.map((pl) => {
               const on = !apply.add && apply.set.has(pl.id); // toggle effects (spotlight) show an on-state
-              const color = p.colors[(Number(pl.id) - 1) % p.colors.length];
+              const paletteColor = p.colors[(Number(pl.id) - 1) % p.colors.length];
+              const style = p.selected === 'follow-circle' ? p.playerStyleFor(pl.id) : null; // per-player color/dash
               return (
                 <div key={pl.id} className={`player-row ${on ? 'on' : ''}`}>
-                  <span className="player-dot" style={{ background: color }} />
+                  {style ? (
+                    <input className="player-color" type="color" value={style.color} title="이 선수 원 색상"
+                      onChange={(e) => p.onSetPlayerStyle(pl.id, { color: e.target.value })} />
+                  ) : (
+                    <span className="player-dot" style={{ background: paletteColor }} />
+                  )}
                   <span className="player-tag">P{pl.id}</span>
                   <span className="player-span">{posLabel(pl.medY)} <span className="muted">· {pl.t0.toFixed(0)}–{pl.t1.toFixed(0)}s</span></span>
+                  {style && (
+                    <button className={`btn sm dash-toggle ${style.dashed ? 'active' : ''}`}
+                      onClick={() => p.onSetPlayerStyle(pl.id, { dashed: !style.dashed })}
+                      title={style.dashed ? '대시 → 실선' : '실선 → 대시'}>{style.dashed ? '┅' : '─'}</button>
+                  )}
                   <button
                     className={on ? 'btn sm active' : 'btn sm'}
                     onClick={() => apply.fn(pl.id)}
@@ -232,6 +244,11 @@ export function EffectPanel(p: Props) {
                   onChange={(e) => cSet({ radiusMeters: Number(e.target.value) || 0.1 })} /></div>
               <div className="field"><label>색상</label>
                 <input type="color" value={cVal.color} onChange={(e) => cSet({ color: e.target.value })} /></div>
+              <div className="field"><label>선</label>
+                <div className="btn-row">
+                  <button className={`btn sm ${!cVal.dashed ? 'active' : ''}`} onClick={() => cSet({ dashed: false })}>실선</button>
+                  <button className={`btn sm ${cVal.dashed ? 'active' : ''}`} onClick={() => cSet({ dashed: true })}>대시</button>
+                </div></div>
               <div className="field"><label>투명도 {cVal.opacity.toFixed(2)}</label>
                 <input type="range" min="0" max="1" step="0.05" value={cVal.opacity}
                   onChange={(e) => cSet({ opacity: Number(e.target.value) })} /></div>

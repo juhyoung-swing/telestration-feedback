@@ -17,7 +17,7 @@ import { COURT_CORNERS } from './geometry/court';
 import { courtLineDef, fitImageLine, homographyFromLines, familiesCovered } from './geometry/lineCalib';
 import { PLAYER_COLORS, playerColor, hitTestFragment, assignFragments } from './geometry/tracking';
 import type {
-  CircleParams, CourtCalibration, DrawnLine, FeatureId, FragmentData, Fragments, Mode, Overlay,
+  CircleParams, CourtCalibration, DrawnLine, FeatureId, FragmentData, Fragments, GroundHalo, Mode, Overlay,
   PathParams, PlayerAnchor, Players, RailTab, TextParams, TrackingData, ZoneParams, ZoomParams,
 } from './types';
 
@@ -107,7 +107,10 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<RailTab>('effect');
   const [selectedFeature, setSelectedFeature] = useState<FeatureId>('follow-circle');
   const [selectedOverlayId, setSelectedOverlayId] = useState<string | null>(null);
-  const [circleParams, setCircleParams] = useState<CircleParams>({ radiusMeters: 0.8, color: '#E4EF3D', opacity: 0.2 });
+  const [circleParams, setCircleParams] = useState<CircleParams>({ radiusMeters: 0.8, color: '#E4EF3D', opacity: 0.2, dashed: false });
+  // Per-player follow-circle style (color + solid/dashed). Transient: on reload it
+  // re-derives from each player's existing circle overlay (which persists its own color/dash).
+  const [playerStyles, setPlayerStyles] = useState<Record<string, { color: string; dashed: boolean }>>({});
   const [zoneParams, setZoneParams] = useState<ZoneParams>({ color: '#17335F', opacity: 0.18 });
   const [zoomParams, setZoomParams] = useState<ZoomParams>({ scale: 2.2 });
   const [pathParams, setPathParams] = useState<PathParams>({ shape: 'court-line', height: 0.4, color: FEATURE_COLORS.path, dashed: false });
@@ -210,6 +213,7 @@ export default function App() {
     seedIdCounter(p.overlays ?? []);
     setPast([]); setFuture([]);
     setPlayerAnchors(p.playerAnchors ?? []);
+    setPlayerStyles({});
     setSelectedOverlayId(null);
     setDraftCalib([]); setDraftZone([]); setPathDraft(null); setDrawnLines([]); setLineDraft([]); setActiveLineId(null);
     setMode('idle');
@@ -507,17 +511,33 @@ export default function App() {
   // gets a distinct color.
   // Add a follow-circle for a player (not a toggle) — each click adds a circle to
   // the timeline, like any other effect; remove it via the timeline / delete.
+  // Resolve a player's follow-circle style: an explicit per-player override wins,
+  // else the style of an existing circle for that player, else the palette color.
+  const playerStyleFor = (playerId: string): { color: string; dashed: boolean } => {
+    if (playerStyles[playerId]) return playerStyles[playerId];
+    const existing = overlays.find(
+      (o): o is GroundHalo => o.type === 'ground-halo' && o.trackId === playerId,
+    );
+    if (existing) return { color: existing.color ?? playerColor(playerId) ?? circleParams.color, dashed: !!existing.dashed };
+    return { color: playerColor(playerId) ?? circleParams.color, dashed: false };
+  };
+  // Set a player's style: remember it for future circles AND update this player's existing ones.
+  const setPlayerStyleFor = (playerId: string, patch: Partial<{ color: string; dashed: boolean }>) => {
+    setPlayerStyles((s) => ({ ...s, [playerId]: { ...playerStyleFor(playerId), ...patch } }));
+    mutate((o) => o.map((x) => (x.type === 'ground-halo' && x.trackId === playerId ? { ...x, ...patch } : x)));
+  };
+
   const followPlayer = (playerId: string) => {
     if (!calibration || !players) return;
     const pts = players[playerId];
     if (!pts || pts.length === 0) return;
     const t0 = pts[0].t, t1 = pts[pts.length - 1].t;
     const span = followSpan(t0, t1);
-    const color = playerColor(playerId) ?? circleParams.color;
+    const st = playerStyleFor(playerId);
     mutate((o) => [...o, {
       id: uid('halo'), type: 'ground-halo', name: `Player ${playerId}`, visible: true,
       ...span, courtX: 0, courtY: 0,
-      radiusMeters: circleParams.radiusMeters, color, opacity: circleParams.opacity,
+      radiusMeters: circleParams.radiusMeters, color: st.color, opacity: circleParams.opacity, dashed: st.dashed,
       trackId: playerId,
     }]);
     if (cur < span.startTime || cur > span.endTime) seek(span.startTime); // jump into range so it's immediately visible
@@ -605,7 +625,7 @@ export default function App() {
     const cxy = { courtX: court.x, courtY: court.y };
     if (mode === 'placing-halo') {
       const id = uid('halo');
-      mutate((o) => [...o, { id, type: 'ground-halo', name: nextName(o, 'ground-halo', 'Circle'), visible: true, ...spanAtPlayhead(), courtX: court.x, courtY: court.y, radiusMeters: circleParams.radiusMeters, color: circleParams.color, opacity: circleParams.opacity }]);
+      mutate((o) => [...o, { id, type: 'ground-halo', name: nextName(o, 'ground-halo', 'Circle'), visible: true, ...spanAtPlayhead(), courtX: court.x, courtY: court.y, radiusMeters: circleParams.radiusMeters, color: circleParams.color, opacity: circleParams.opacity, dashed: circleParams.dashed }]);
       setMode('idle');
     } else if (mode === 'placing-marker') {
       const id = uid('marker');
@@ -887,6 +907,8 @@ export default function App() {
       players={players}
       onFollow={followPlayer}
       followedIds={followedIds}
+      playerStyleFor={playerStyleFor}
+      onSetPlayerStyle={setPlayerStyleFor}
       onToggleSpotlight={toggleSpotlight}
       spotlightIds={spotlightIds}
       colors={PLAYER_COLORS}

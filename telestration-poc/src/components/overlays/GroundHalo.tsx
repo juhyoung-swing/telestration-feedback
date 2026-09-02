@@ -25,6 +25,7 @@ export function GroundHalo({
   project,
   color = '#E4EF3D',
   opacity = 0.2,
+  dashed = false,
   minScreenRadius = 20,
 }: {
   courtX: number;
@@ -33,6 +34,7 @@ export function GroundHalo({
   project: (courtX: number, courtY: number) => Pt; // court -> display px
   color?: string;
   opacity?: number;
+  dashed?: boolean;
   minScreenRadius?: number;
 }) {
   const flat: number[] = [];
@@ -61,6 +63,7 @@ export function GroundHalo({
       fill={hexToRgba(color, opacity)}
       stroke={color}
       strokeWidth={4}
+      dash={dashed ? [16, 11] : undefined}
       lineJoin="round"
       listening={false}
     />

@@ -339,7 +339,7 @@ export function VideoStage({
                           const c = unprojectToCourt(calibration.inverseHomography, foot[0], foot[1]);
                           cx = c.x; cy = c.y;
                         }
-                        return <GroundHalo key={o.id} courtX={cx} courtY={cy} radiusMeters={o.radiusMeters} project={project} color={o.color} opacity={o.opacity} />;
+                        return <GroundHalo key={o.id} courtX={cx} courtY={cy} radiusMeters={o.radiusMeters} project={project} color={o.color} opacity={o.opacity} dashed={o.dashed} />;
                       }
                     }
                   })}

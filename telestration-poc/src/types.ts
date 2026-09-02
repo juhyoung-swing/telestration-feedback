@@ -35,6 +35,7 @@ export type GroundHalo = TimeSpan & {
   radiusMeters: number;
   color?: string;
   opacity?: number;
+  dashed?: boolean;    // dashed ring instead of solid
   trackId?: string;    // if set, courtX/courtY are derived per-frame from this player's foot
 };
 
@@ -142,7 +143,7 @@ export type FeatureId =
   | 'circle' | 'path' | 'zone' | 'marker' | 'connector' | 'sector' // Tactic group (place on court)
   | 'text' | 'zoom-in' | 'slowmo';                      // Action group
 
-export type CircleParams = { radiusMeters: number; color: string; opacity: number };
+export type CircleParams = { radiusMeters: number; color: string; opacity: number; dashed: boolean };
 export type ZoneParams = { color: string; opacity: number };
 export type ZoomParams = { scale: number };
 export type PathParams = { shape: 'court-line' | 'screen-line' | 'arc'; height: number; color: string; dashed: boolean };
