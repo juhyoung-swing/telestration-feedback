@@ -17,11 +17,15 @@ let serverRef = null;
 // app.asar.unpacked, and require('ffmpeg-static') hands back an in-asar path we must
 // remap. The model is shipped via extraResources next to the app.
 const unpack = (p) => p.replace('app.asar' + path.sep, 'app.asar.unpacked' + path.sep).replace('app.asar/', 'app.asar.unpacked/');
+function modelFile(name) {
+  return app.isPackaged
+    ? path.join(process.resourcesPath, 'resources', 'models', name)
+    : path.join(__dirname, '..', 'resources', 'models', name);
+}
 function mlPaths() {
   return {
-    modelPath: app.isPackaged
-      ? path.join(process.resourcesPath, 'resources', 'models', 'yolov8x.onnx')
-      : path.join(__dirname, '..', 'resources', 'models', 'yolov8x.onnx'),
+    modelPath: modelFile('yolov8x.onnx'),      // person detection (position analysis)
+    posePath: modelFile('yolov8n-pose.onnx'),  // pose/keypoints (form analysis)
     ffmpegPath: unpack(require('ffmpeg-static')),
     ffprobePath: unpack(require('ffprobe-static').path),
   };
@@ -43,6 +47,23 @@ ipcMain.handle('ml:analyze', async (evt, { video, options = {} }) => {
     return await analyzeVideo(tmp, {
       ...options, ...paths,
       onProgress: (p) => { if (!evt.sender.isDestroyed()) evt.sender.send('ml:analyze:progress', p); },
+    });
+  } finally {
+    fs.promises.unlink(tmp).catch(() => {});
+  }
+});
+
+// Renderer → main: pose/form analysis (separate model, separate progress channel
+// so it can run independently of position analysis).
+ipcMain.handle('ml:analyzePose', async (evt, { video, options = {} }) => {
+  const { analyzePoseVideo } = require('./ml/pose.cjs'); // lazy: only load ORT when used
+  const paths = mlPaths();
+  const tmp = path.join(os.tmpdir(), `tele-pose-${crypto.randomUUID()}.mp4`);
+  await fs.promises.writeFile(tmp, Buffer.from(video));
+  try {
+    return await analyzePoseVideo(tmp, {
+      ...options, ...paths,
+      onProgress: (p) => { if (!evt.sender.isDestroyed()) evt.sender.send('ml:analyzePose:progress', p); },
     });
   } finally {
     fs.promises.unlink(tmp).catch(() => {});

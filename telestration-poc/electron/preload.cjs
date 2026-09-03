@@ -12,6 +12,13 @@ contextBridge.exposeInMainWorld('ml', {
     ipcRenderer.on('ml:analyze:progress', listener);
     return () => ipcRenderer.removeListener('ml:analyze:progress', listener);
   },
+  // Pose/form analysis (separate model + progress channel).
+  analyzePose: (video, options) => ipcRenderer.invoke('ml:analyzePose', { video, options }),
+  onPoseProgress: (cb) => {
+    const listener = (_e, p) => cb(p);
+    ipcRenderer.on('ml:analyzePose:progress', listener);
+    return () => ipcRenderer.removeListener('ml:analyzePose:progress', listener);
+  },
 });
 
 // Export bridge: save a screenshot (PNG bytes) or transcode a recorded WebM → MP4 via the
