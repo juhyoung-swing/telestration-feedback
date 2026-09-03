@@ -154,6 +154,7 @@ export type Spotlight = TimeSpan & {
 // Pose (form) overlay: draw a player's skeleton + annotate joint angles, sourced
 // from the pose-analysis cache (PoseData) by trackId, per the video currentTime.
 export type PoseAngleId = 'elbow' | 'knee' | 'rotation' | 'trunk';
+export type PoseAngleDisplay = 'both' | 'number' | 'arc';
 export type PoseOverlay = TimeSpan & {
   id: string; type: 'pose'; name: string; visible: boolean;
   trackId: string;              // pose player label ("1".."K")
@@ -161,6 +162,18 @@ export type PoseOverlay = TimeSpan & {
   skeleton: boolean;            // draw the stick figure
   angles: PoseAngleId[];        // which joint angles to annotate
   side: 'left' | 'right';       // which arm/leg for elbow/knee angles
+  // ── appearance ──
+  strokeWidth?: number;         // skeleton line width (default 3)
+  opacity?: number;             // skeleton opacity 0..1 (default 1)
+  showJoints?: boolean;         // draw joint dots (default true)
+  jointSize?: number;           // joint dot radius (default 3)
+  angleDisplay?: PoseAngleDisplay; // arc+number / number / arc (default 'both')
+  angleFontSize?: number;       // angle label size (default 14)
+  // ── coaching ──
+  targets?: Partial<Record<PoseAngleId, [number, number]>>; // per-angle [min,max]°: in-range green, out red
+  trailJoint?: number | null;   // COCO keypoint index to trace over time (null = off)
+  trailSec?: number;            // trail window length in seconds (default 1.2)
+  freeze?: number | null;       // freeze the pose at this SOURCE time (null = live/tracking)
 };
 // Speed segment: while the playhead is inside [start,end], the video plays at `rate`
 // (slow-motion < 1, fast > 1). Not drawn on the canvas — a playback modifier on the timeline.

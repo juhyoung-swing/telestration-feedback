@@ -1130,6 +1130,7 @@ export default function App() {
       posePlayerIds={poseData ? Object.keys(poseData.players) : []}
       onAddPose={addPose}
       posedIds={posedIds}
+      onFreezePose={(id) => patchOverlay(id, { freeze: clips.length ? srcAt(clips, cur) : cur })}
       colors={PLAYER_COLORS}
       hasFragments={!!fragments}
       anchorCount={playerAnchors.length}

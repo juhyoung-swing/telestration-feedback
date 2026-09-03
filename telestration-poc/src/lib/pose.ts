@@ -121,6 +121,25 @@ export function computeAngles(frame: PoseFrame, side: 'left' | 'right', ids: Pos
   return out;
 }
 
+// Joints offered for the trail (swing-path) control, with Korean labels.
+export const TRAIL_JOINTS: { id: number; label: string }[] = [
+  { id: KP.rWr, label: '오른손목' }, { id: KP.lWr, label: '왼손목' },
+  { id: KP.rAnk, label: '오른발목' }, { id: KP.lAnk, label: '왼발목' },
+];
+
+// A joint's positions (video px) over [fromT, toT] — the trail / swing path.
+export function trailPath(samples: PoseSample[], joint: number, fromT: number, toT: number): PoseKptPt[] {
+  const out: PoseKptPt[] = [];
+  for (const s of samples) {
+    if (s.t < fromT || s.t > toT) continue;
+    const k = s.kpts[joint];
+    if (k && k[2] >= MIN_SCORE) out.push({ x: k[0], y: k[1], score: k[2] });
+  }
+  return out;
+}
+
+export const inTarget = (value: number, range: [number, number]) => value >= range[0] && value <= range[1];
+
 // Pick the better-tracked side (higher wrist+elbow confidence) as the default at creation.
 export function defaultSide(samples: PoseSample[]): 'left' | 'right' {
   let l = 0, r = 0;

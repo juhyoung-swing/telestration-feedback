@@ -365,10 +365,14 @@ export function VideoStage({
                         return null; // rendered by SpotlightDim above
                       case 'pose': {
                         const samples = poseData?.players[o.trackId];
-                        const frame = samples ? poseAt(samples, sourceTime) : null;
+                        const frameTime = o.freeze != null ? o.freeze : sourceTime; // freeze pins a source time
+                        const frame = samples ? poseAt(samples, frameTime) : null;
                         if (!frame) return null;
-                        return <PoseFigure key={o.id} frame={frame} toDisplay={vToD} color={o.color}
-                          skeleton={o.skeleton} angles={o.angles} side={o.side} selected={selectedId === o.id} />;
+                        return <PoseFigure key={o.id} frame={frame} samples={samples} trailEndT={frameTime} toDisplay={vToD} color={o.color}
+                          skeleton={o.skeleton} angles={o.angles} side={o.side} selected={selectedId === o.id}
+                          strokeWidth={o.strokeWidth} opacity={o.opacity} showJoints={o.showJoints} jointSize={o.jointSize}
+                          angleDisplay={o.angleDisplay} angleFontSize={o.angleFontSize} targets={o.targets}
+                          trailJoint={o.trailJoint} trailSec={o.trailSec} />;
                       }
                       case 'zoom-in':
                         return null; // applied as a CSS transform on the whole stage

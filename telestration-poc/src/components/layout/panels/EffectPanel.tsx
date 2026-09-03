@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { FEATURES, FEATURE_GROUPS } from '../features';
 import { playersBySpan } from '../../../geometry/tracking';
+import { TRAIL_JOINTS } from '../../../lib/pose';
 import type { CircleParams, FeatureId, Mode, Overlay, PathArrow, PathParams, Players, PoseAngleId, PoseOverlay, SpeedSegment, TextLabel, TextParams, ZoneParams, ZoomParams } from '../../../types';
 
 const FEATURE_MODE: Record<string, Mode> = {
@@ -13,6 +14,8 @@ const POSE_ANGLES: { id: PoseAngleId; label: string }[] = [
   { id: 'elbow', label: '팔꿈치' }, { id: 'knee', label: '무릎' },
   { id: 'rotation', label: '어깨-엉덩이' }, { id: 'trunk', label: '몸통' },
 ];
+const POSE_ANGLE_LABEL: Record<PoseAngleId, string> = { elbow: '팔꿈치', knee: '무릎', rotation: '어깨-엉덩이', trunk: '몸통' };
+const DEFAULT_TARGET: Record<PoseAngleId, [number, number]> = { elbow: [150, 175], knee: [140, 175], rotation: [30, 60], trunk: [0, 20] };
 
 type Props = {
   hasCalibration: boolean;
@@ -33,6 +36,7 @@ type Props = {
   posePlayerIds: string[];     // player labels available in the pose cache
   onAddPose: (id: string) => void;
   posedIds: Set<string>;
+  onFreezePose?: (id: string) => void; // freeze a pose overlay at the current source frame
   colors: string[];
   hasFragments: boolean;
   anchorCount: number;
@@ -128,6 +132,9 @@ export function EffectPanel(p: Props) {
   const featLocked = (id: FeatureId) => PLAYER_FEATURES.includes(id) && !p.clipSelected;
   const readyForSelected = p.clipSelected && (isPose ? p.poseReady : playersReady);
   const selPose = p.selectedOverlay?.type === 'pose' ? (p.selectedOverlay as PoseOverlay) : null;
+  const poseSet = (patch: Partial<PoseOverlay>) => { if (selPose) p.onPatchOverlay(selPose.id, patch); };
+  const setTarget = (id: PoseAngleId, range: [number, number]) => { if (selPose) p.onPatchOverlay(selPose.id, { targets: { ...(selPose.targets ?? {}), [id]: range } }); };
+  const clearTarget = (id: PoseAngleId) => { if (!selPose) return; const t = { ...(selPose.targets ?? {}) }; delete t[id]; p.onPatchOverlay(selPose.id, { targets: t }); };
 
   // Path: a selected path is edited live; otherwise the buttons/slider set defaults for new paths.
   const selPath = p.selectedPath;
@@ -283,21 +290,88 @@ export function EffectPanel(p: Props) {
                     <button className={`btn sm ${selPose.side === 'left' ? 'active' : ''}`} onClick={() => p.onPatchOverlay(selPose.id, { side: 'left' })}>왼쪽</button>
                     <button className={`btn sm ${selPose.side === 'right' ? 'active' : ''}`} onClick={() => p.onPatchOverlay(selPose.id, { side: 'right' })}>오른쪽</button>
                   </div></div>
-                <div className="field-label" style={{ marginTop: 4 }}>표시할 각도</div>
+                {/* ── 표시 스타일 ── */}
+                <div className="field"><label>선 두께 {(selPose.strokeWidth ?? 3)}px</label>
+                  <input type="range" min="1" max="8" step="1" value={selPose.strokeWidth ?? 3} onChange={(e) => poseSet({ strokeWidth: Number(e.target.value) })} /></div>
+                <div className="field"><label>투명도 {(selPose.opacity ?? 1).toFixed(2)}</label>
+                  <input type="range" min="0.2" max="1" step="0.05" value={selPose.opacity ?? 1} onChange={(e) => poseSet({ opacity: Number(e.target.value) })} /></div>
+                <div className="field"><label>관절점</label>
+                  <div className="btn-row">
+                    <button className={`btn sm ${(selPose.showJoints ?? true) ? 'active' : ''}`} onClick={() => poseSet({ showJoints: true })}>표시</button>
+                    <button className={`btn sm ${!(selPose.showJoints ?? true) ? 'active' : ''}`} onClick={() => poseSet({ showJoints: false })}>숨김</button>
+                  </div></div>
+                {(selPose.showJoints ?? true) && (
+                  <div className="field"><label>관절점 크기 {(selPose.jointSize ?? 3)}</label>
+                    <input type="range" min="2" max="8" step="1" value={selPose.jointSize ?? 3} onChange={(e) => poseSet({ jointSize: Number(e.target.value) })} /></div>
+                )}
+                <div className="field"><label>색상</label>
+                  <input type="color" value={selPose.color ?? '#E4EF3D'} onChange={(e) => poseSet({ color: e.target.value })} /></div>
+
+                {/* ── 각도 ── */}
+                <div className="field-label" style={{ marginTop: 6 }}>표시할 각도</div>
                 <div className="chip-row">
                   {POSE_ANGLES.map((a) => {
                     const on = selPose.angles.includes(a.id);
                     return (
                       <button key={a.id} className={`chip ${on ? 'on' : ''}`}
-                        onClick={() => p.onPatchOverlay(selPose.id, { angles: on ? selPose.angles.filter((x) => x !== a.id) : [...selPose.angles, a.id] })}>
+                        onClick={() => poseSet({ angles: on ? selPose.angles.filter((x) => x !== a.id) : [...selPose.angles, a.id] })}>
                         {a.label}
                       </button>
                     );
                   })}
                 </div>
-                <div className="field"><label>색상</label>
-                  <input type="color" value={selPose.color ?? '#E4EF3D'} onChange={(e) => p.onPatchOverlay(selPose.id, { color: e.target.value })} /></div>
-                <div className="muted-note">선택하면 화면에서 골격이 강조됩니다. 타임라인에서 구간을 조절하세요.</div>
+                {selPose.angles.length > 0 && (
+                  <>
+                    <div className="field"><label>각도 표시</label>
+                      <div className="btn-row">
+                        <button className={`btn sm ${(selPose.angleDisplay ?? 'both') === 'both' ? 'active' : ''}`} onClick={() => poseSet({ angleDisplay: 'both' })}>호+숫자</button>
+                        <button className={`btn sm ${selPose.angleDisplay === 'number' ? 'active' : ''}`} onClick={() => poseSet({ angleDisplay: 'number' })}>숫자</button>
+                        <button className={`btn sm ${selPose.angleDisplay === 'arc' ? 'active' : ''}`} onClick={() => poseSet({ angleDisplay: 'arc' })}>호</button>
+                      </div></div>
+                    {(selPose.angleDisplay ?? 'both') !== 'arc' && (
+                      <div className="field"><label>글자 크기 {(selPose.angleFontSize ?? 14)}px</label>
+                        <input type="range" min="10" max="28" step="1" value={selPose.angleFontSize ?? 14} onChange={(e) => poseSet({ angleFontSize: Number(e.target.value) })} /></div>
+                    )}
+                    {/* 목표 범위: in-range 초록 / out-of-range 빨강 */}
+                    <div className="field-label" style={{ marginTop: 4 }}>목표 범위 (맞으면 초록·벗어나면 빨강)</div>
+                    {selPose.angles.map((aid) => {
+                      const range = selPose.targets?.[aid];
+                      return (
+                        <div className="field" key={aid}><label>{POSE_ANGLE_LABEL[aid]}</label>
+                          {range ? (
+                            <div className="btn-row" style={{ alignItems: 'center' }}>
+                              <input type="number" style={{ width: 52 }} value={range[0]} onChange={(e) => setTarget(aid, [Number(e.target.value), range[1]])} />
+                              <span style={{ opacity: 0.6 }}>~</span>
+                              <input type="number" style={{ width: 52 }} value={range[1]} onChange={(e) => setTarget(aid, [range[0], Number(e.target.value)])} />
+                              <button className="btn sm" onClick={() => clearTarget(aid)}>끄기</button>
+                            </div>
+                          ) : (
+                            <button className="btn sm" onClick={() => setTarget(aid, DEFAULT_TARGET[aid])}>목표 설정</button>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </>
+                )}
+
+                {/* ── 코칭: 궤적 / 프레임 고정 ── */}
+                <div className="field-label" style={{ marginTop: 6 }}>궤적 (스윙 경로)</div>
+                <div className="field"><label>추적 관절</label>
+                  <select value={selPose.trailJoint ?? ''} onChange={(e) => poseSet({ trailJoint: e.target.value === '' ? null : Number(e.target.value) })}>
+                    <option value="">없음</option>
+                    {TRAIL_JOINTS.map((j) => <option key={j.id} value={j.id}>{j.label}</option>)}
+                  </select></div>
+                {selPose.trailJoint != null && (
+                  <div className="field"><label>길이 {(selPose.trailSec ?? 1.2).toFixed(1)}s</label>
+                    <input type="range" min="0.3" max="4" step="0.1" value={selPose.trailSec ?? 1.2} onChange={(e) => poseSet({ trailSec: Number(e.target.value) })} /></div>
+                )}
+                <div className="field"><label>프레임 고정</label>
+                  {selPose.freeze != null ? (
+                    <div className="btn-row"><span className="analyze-badge">고정됨</span><button className="btn sm" onClick={() => poseSet({ freeze: null })}>해제</button></div>
+                  ) : (
+                    <button className="btn sm block" disabled={!p.onFreezePose} onClick={() => p.onFreezePose?.(selPose.id)} title="현재 프레임의 포즈로 고정 (임팩트 순간 등)">이 프레임 고정</button>
+                  )}</div>
+                <div className="muted-note">타임라인에서 구간을 조절하세요.</div>
               </>
             )}
           </>
