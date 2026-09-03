@@ -1131,7 +1131,7 @@ export default function App() {
       onCancelPlayerCalib={cancelPlayerCalibration}
       onGoAnalyze={undefined}
       selected={selectedFeature}
-      onSelect={setSelectedFeature}
+      onSelect={(id) => { setSelectedFeature(id); setSelectedClipId(null); }}
       mode={mode}
       draftCount={mode === 'drawing-path' ? (pathDraft ? 1 : 0) : draftZone.length}
       circleParams={circleParams}
