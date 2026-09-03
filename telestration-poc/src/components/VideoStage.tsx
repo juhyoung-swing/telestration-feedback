@@ -45,7 +45,8 @@ type Props = {
   calibration: CourtCalibration | null;
   overlays: Overlay[];
   mode: Mode;
-  currentTime: number; // seconds — overlays render only within their [start,end]
+  currentTime: number; // TIMELINE seconds — overlays render only within their [start,end]
+  sourceTime: number;  // SOURCE (video) seconds for the clip under the playhead — used for tracking/pose lookups (identity EDL → == currentTime)
   hint: string | null; // on-canvas guidance for the active placement/drawing mode
   selectedId: string | null; // timeline-selected overlay → highlighted on the canvas
   onSelectOverlay: (id: string | null) => void; // click an overlay on the canvas → select it
@@ -80,6 +81,7 @@ export function VideoStage({
   hint,
   selectedId,
   onSelectOverlay,
+  sourceTime,
   players,
   poseData,
   fragments,
@@ -170,7 +172,7 @@ export function VideoStage({
   if (activeZoom && view && calibration) {
     let zx = activeZoom.courtX, zy = activeZoom.courtY;
     if (activeZoom.trackId && players) {
-      const foot = footAt(players[activeZoom.trackId] ?? [], currentTime);
+      const foot = footAt(players[activeZoom.trackId] ?? [], sourceTime);
       if (foot) { const c = unprojectToCourt(calibration.inverseHomography, foot[0], foot[1]); zx = c.x; zy = c.y; }
     }
     const sc = project(zx, zy);
@@ -189,7 +191,7 @@ export function VideoStage({
     const o = overlays.find((x) => x.id === selectedId);
     if (!o || !o.visible || currentTime < o.startTime || currentTime > o.endTime) return null;
     const atFoot = (id: string): Pt | null => {
-      const f = footAt(players?.[id] ?? [], currentTime);
+      const f = footAt(players?.[id] ?? [], sourceTime);
       if (!f) return null;
       const c = unprojectToCourt(calibration.inverseHomography, f[0], f[1]);
       return project(c.x, c.y);
@@ -204,7 +206,7 @@ export function VideoStage({
       case 'spotlight': return atFoot(o.trackId);
       case 'pose': {
         const s = poseData?.players[o.trackId];
-        const fr = s ? poseAt(s, currentTime) : null;
+        const fr = s ? poseAt(s, sourceTime) : null;
         if (!fr) return null;
         const lh = fr.pts[11], rh = fr.pts[12]; // mid-hip
         return vToD({ x: (lh.x + rh.x) / 2, y: (lh.y + rh.y) / 2 });
@@ -228,7 +230,7 @@ export function VideoStage({
         case 'ground-halo': {
           let cx = o.courtX, cy = o.courtY;
           if (o.trackId && players) {
-            const foot = footAt(players[o.trackId] ?? [], currentTime);
+            const foot = footAt(players[o.trackId] ?? [], sourceTime);
             if (!foot) break;
             const c = unprojectToCourt(calibration.inverseHomography, foot[0], foot[1]);
             cx = c.x; cy = c.y;
@@ -332,7 +334,7 @@ export function VideoStage({
               {calibration && (() => {
                 const spots = overlays.filter((s): s is Spotlight => s.type === 'spotlight' && s.visible && currentTime >= s.startTime && currentTime <= s.endTime);
                 return spots.length > 0 ? (
-                  <SpotlightDim spotlights={spots} players={players} inverseH={calibration.inverseHomography} currentTime={currentTime} project={project} width={size.width} height={size.height} />
+                  <SpotlightDim spotlights={spots} players={players} inverseH={calibration.inverseHomography} currentTime={sourceTime} project={project} width={size.width} height={size.height} />
                 ) : null;
               })()}
 
@@ -363,7 +365,7 @@ export function VideoStage({
                         return null; // rendered by SpotlightDim above
                       case 'pose': {
                         const samples = poseData?.players[o.trackId];
-                        const frame = samples ? poseAt(samples, currentTime) : null;
+                        const frame = samples ? poseAt(samples, sourceTime) : null;
                         if (!frame) return null;
                         return <PoseFigure key={o.id} frame={frame} toDisplay={vToD} color={o.color}
                           skeleton={o.skeleton} angles={o.angles} side={o.side} selected={selectedId === o.id} />;
@@ -377,7 +379,7 @@ export function VideoStage({
                         // foot at the current time (foot → H⁻¹ → court meters).
                         let cx = o.courtX, cy = o.courtY;
                         if (o.trackId && players) {
-                          const foot = footAt(players[o.trackId] ?? [], currentTime);
+                          const foot = footAt(players[o.trackId] ?? [], sourceTime);
                           if (!foot) return null;
                           const c = unprojectToCourt(calibration.inverseHomography, foot[0], foot[1]);
                           cx = c.x; cy = c.y;
@@ -412,7 +414,7 @@ export function VideoStage({
 
               {/* player-calibration: detected boxes to click + anchored labels */}
               {mode === 'player-calibrating' && fragments && (
-                <CalibBoxes fragments={fragments} frame={Math.round(currentTime * fps)} anchors={playerAnchors} toDisplay={vToD} />
+                <CalibBoxes fragments={fragments} frame={Math.round(sourceTime * fps)} anchors={playerAnchors} toDisplay={vToD} />
               )}
 
               {/* line-calibration: drawn lines + active draft */}

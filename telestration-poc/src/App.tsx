@@ -981,7 +981,7 @@ export default function App() {
   const videoStage = (
     <VideoStage
       src={src} videoRef={videoRef} calibration={calibration} overlays={overlays} mode={mode}
-      currentTime={cur} hint={stageHint} selectedId={selectedOverlayId} onSelectOverlay={setSelectedOverlayId}
+      currentTime={cur} sourceTime={clips.length ? srcAt(clips, cur) : cur} hint={stageHint} selectedId={selectedOverlayId} onSelectOverlay={setSelectedOverlayId}
       players={players} fragments={fragments} playerAnchors={playerAnchors} fps={trackFps}
       poseData={poseData}
       draftCalib={draftCalib} draftZone={draftZone} pathDraft={pathDraft}
