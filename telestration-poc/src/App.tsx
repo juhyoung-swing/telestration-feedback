@@ -18,7 +18,7 @@ import { COURT_CORNERS } from './geometry/court';
 import { courtLineDef, fitImageLine, homographyFromLines, familiesCovered } from './geometry/lineCalib';
 import { PLAYER_COLORS, playerColor, hitTestFragment, assignFragments } from './geometry/tracking';
 import { defaultSide } from './lib/pose';
-import { singleClip } from './lib/clips';
+import { singleClip, totalDuration, clipAt, srcAt } from './lib/clips';
 import type { Clip } from './lib/clips';
 import type {
   CircleParams, CourtCalibration, DrawnLine, FeatureId, FragmentData, Fragments, GroundHalo, Mode, Overlay,
@@ -109,6 +109,8 @@ export default function App() {
   const [calibMethod, setCalibMethod] = useState<'corner' | 'line' | null>(null);
   const [overlays, setOverlays] = useState<Overlay[]>([]);
   const [clips, setClips] = useState<Clip[]>([]); // base-video EDL; empty until video duration is known (→ single identity clip)
+  const clipsRef = useRef<Clip[]>([]); clipsRef.current = clips; // read by the rAF loop without re-binding
+  const activeClipRef = useRef<string | null>(null); // clip currently playing (disambiguates duplicated source ranges)
   const [past, setPast] = useState<Overlay[][]>([]);   // undo stack (snapshots before each edit)
   const [future, setFuture] = useState<Overlay[][]>([]); // redo stack
   const [mode, setMode] = useState<Mode>('idle');
@@ -159,6 +161,17 @@ export default function App() {
   const [analyzeSkip, setAnalyzeSkip] = useState<{ pos: boolean; pose: boolean }>({ pos: false, pose: false });
   const hasML = typeof window !== 'undefined' && !!window.ml; // Electron desktop build only
   const [playerAnchors, setPlayerAnchors] = useState<PlayerAnchor[]>([]);
+  // Video's source currentTime → TIMELINE time, via the clip currently playing.
+  // Identity EDL (one clip at 0) → returns v.currentTime unchanged.
+  const timelineNow = (v: HTMLVideoElement): number => {
+    const cs = clipsRef.current;
+    if (!cs.length) return v.currentTime;
+    const active = cs.find((c) => c.id === activeClipRef.current) ?? cs[0];
+    activeClipRef.current = active.id;
+    return active.timelineStart + (v.currentTime - active.srcStart);
+  };
+  const timelineTotal = () => { const cs = clipsRef.current; return cs.length ? totalDuration(cs) : (videoRef.current?.duration || dur || 0); };
+
   // Load a project's player-tracking into state: prefer its own analysis (in
   // IndexedDB); for the bundled sample (no uploaded video) fall back to the
   // shipped court.mp4 JSON; otherwise leave empty (needs analysis).
@@ -240,6 +253,7 @@ export default function App() {
     } else { setCalibration(null); setCalibMethod(null); }
     setOverlays(p.overlays ?? []);
     setClips(p.clips ?? []); // filled from video duration on metadata load if empty
+    activeClipRef.current = null;
     seedIdCounter(p.overlays ?? []);
     setPast([]); setFuture([]);
     setPlayerAnchors(p.playerAnchors ?? []);
@@ -353,7 +367,7 @@ export default function App() {
     if (!v) return;
     const onPlay = () => setPlaying(true);
     const onPause = () => setPlaying(false);
-    const onTime = () => setCur(v.currentTime);
+    const onTime = () => setCur(timelineNow(v));
     const onMeta = () => setDur(v.duration || 0);
     v.addEventListener('play', onPlay);
     v.addEventListener('pause', onPause);
@@ -399,9 +413,18 @@ export default function App() {
     const loop = () => {
       const v = videoRef.current;
       if (v) {
-        const lr = loopRef.current; // A-B repeat: jump back to start when the region's end is reached
-        if (lr && v.currentTime >= lr.end - 0.02 && lr.end > lr.start) v.currentTime = lr.start;
-        setCur(v.currentTime);
+        const cs = clipsRef.current;
+        let active = cs.find((c) => c.id === activeClipRef.current) ?? cs[0] ?? null;
+        // reached the end of the active clip's source range → jump to the next clip (only when edited)
+        if (active && cs.length > 1 && v.currentTime >= active.srcEnd - 0.03) {
+          const idx = cs.findIndex((c) => c.id === active!.id);
+          const next = cs[idx + 1];
+          if (next) { active = next; activeClipRef.current = next.id; v.currentTime = next.srcStart; }
+        }
+        const T = active ? active.timelineStart + (v.currentTime - active.srcStart) : v.currentTime;
+        const lr = loopRef.current; // A-B repeat (timeline time): jump back to the region start
+        if (lr && T >= lr.end - 0.02 && lr.end > lr.start) seek(lr.start);
+        else setCur(T);
       }
       raf = requestAnimationFrame(loop);
     };
@@ -419,9 +442,18 @@ export default function App() {
     if (v.playbackRate !== rate) v.playbackRate = rate;
   }, [cur, overlays, speed]);
 
+  // seek to a TIMELINE time: pick the clip under it, set the video to the mapped
+  // source time, and remember it as the active clip. Identity EDL → v.currentTime = t.
   const seek = (t: number) => {
     const v = videoRef.current;
-    if (v) v.currentTime = t;
+    const cs = clipsRef.current;
+    if (cs.length) {
+      const c = clipAt(cs, t);
+      if (c) activeClipRef.current = c.id;
+      if (v) v.currentTime = srcAt(cs, t);
+    } else if (v) {
+      v.currentTime = t;
+    }
     setCur(t);
   };
   const changeRange = (id: string, startTime: number, endTime: number) =>
@@ -449,10 +481,13 @@ export default function App() {
     setSelectedOverlayId((s) => (next.some((x) => x.id === s) ? s : null));
   };
 
+  // Total length of the timeline (sum of clip durations). Identity EDL → == video duration.
+  const timelineDur = clips.length ? totalDuration(clips) : dur;
+
   // New effects land at the playhead with a default duration (video-editor convention),
   // instead of spanning the whole clip and piling up on top of each other.
   const spanAtPlayhead = (len = DEFAULT_LEN) => {
-    const total = dur > 0 ? dur : cur + len;
+    const total = timelineDur > 0 ? timelineDur : cur + len;
     const L = Math.min(len, total);
     const s = clampT(cur, 0, total - L);
     return { startTime: s, endTime: s + L };
@@ -808,7 +843,7 @@ export default function App() {
   // A-B repeat: click adds a loop band at the playhead (drag its edges on the timeline); click again clears it.
   const toggleLoop = () => {
     if (loopRegion) { setLoopRegion(null); return; }
-    const total = dur > 0 ? dur : cur + 3;
+    const total = timelineDur > 0 ? timelineDur : cur + 3;
     const start = clampT(cur, 0, Math.max(0, total - 0.5));
     const end = clampT(start + 3, start + 0.5, total);
     setLoopRegion({ start, end });
@@ -880,10 +915,10 @@ export default function App() {
         togglePlay();
       } else if (e.key === 'ArrowLeft') {
         e.preventDefault();
-        if (v) seek(Math.max(0, v.currentTime - (e.shiftKey ? 1 : FRAME)));
+        if (v) seek(Math.max(0, timelineNow(v) - (e.shiftKey ? 1 : FRAME)));
       } else if (e.key === 'ArrowRight') {
         e.preventDefault();
-        if (v) seek(Math.min(v.duration || dur || 0, v.currentTime + (e.shiftKey ? 1 : FRAME)));
+        if (v) seek(Math.min(timelineTotal(), timelineNow(v) + (e.shiftKey ? 1 : FRAME)));
       } else if (e.key === '+' || e.key === '=') {
         e.preventDefault();
         setTlZoom((z) => Math.min(16, +(z * 1.5).toFixed(3)));
@@ -1165,7 +1200,7 @@ export default function App() {
           onDelete={deleteSelected}
           canDelete={!!selectedOverlayId}
           cur={cur}
-          dur={dur}
+          dur={timelineDur}
           speed={speed}
           onSpeed={setSpeed}
           zoom={tlZoom}
@@ -1178,7 +1213,7 @@ export default function App() {
 
         <Timeline
           overlays={overlays}
-          duration={dur}
+          duration={timelineDur}
           currentTime={cur}
           selectedId={selectedOverlayId}
           videoName={videoName}
