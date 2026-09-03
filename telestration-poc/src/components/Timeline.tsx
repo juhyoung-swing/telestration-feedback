@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useElementSize } from '../hooks/useElementSize';
 import { clipDur } from '../lib/clips';
 import type { Clip } from '../lib/clips';
-import type { Overlay } from '../types';
+import type { Narration, Overlay } from '../types';
 
 const MIN_LEN = 0.2;       // seconds
 const SNAP_PX = 7;         // snap radius in screen px
@@ -38,6 +38,9 @@ type Props = {
   onDeleteClip: (id: string) => void;
   onMoveClip: (id: string, toIndex: number) => void;
   onInsertGap: (afterId: string) => void; // insert a black gap clip after this one
+  narrations: Narration[];             // voice-over segments → their own timeline track
+  onMoveNarration: (id: string, startTime: number) => void;
+  onDeleteNarration: (id: string) => void;
   onBeginHistory: () => void; // called once at drag-start so a whole drag is one undo step
   onSelect: (id: string) => void;
   onSeek: (t: number) => void;
@@ -179,6 +182,17 @@ export function Timeline(p: Props) {
     window.addEventListener('mouseup', up);
   };
 
+  // Drag a narration bar to reposition its start time (snaps to edges/playhead).
+  const startNarrDrag = (e: React.MouseEvent, n: Narration) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const startX = e.clientX, s0 = n.startTime;
+    const move = (ev: MouseEvent) => p.onMoveNarration(n.id, Math.max(0, snapTime(s0 + (ev.clientX - startX) / pxPerSec, '')));
+    const up = () => { window.removeEventListener('mousemove', move); window.removeEventListener('mouseup', up); };
+    window.addEventListener('mousemove', move);
+    window.addEventListener('mouseup', up);
+  };
+
   const ordered = [...p.overlays].reverse(); // latest on top
   const step = tickStep(pxPerSec);
   const ticks: number[] = [];
@@ -195,6 +209,20 @@ export function Timeline(p: Props) {
           </div>
 
           <div className="tl-tracks" onMouseDown={startPlayheadDrag}>
+            {p.narrations.length > 0 && (
+              <div className="tl-row tl-narrrow">
+                {p.narrations.map((n) => (
+                  <div key={n.id} className="tl-narr"
+                    style={{ left: x(n.startTime), width: Math.max(8, x(n.dur)) }}
+                    onMouseDown={(e) => startNarrDrag(e, n)}
+                    onContextMenu={(e) => { e.preventDefault(); p.onDeleteNarration(n.id); }}
+                    title={`나레이션 ${fmt(n.startTime)} · ${n.dur.toFixed(1)}s (우클릭: 삭제)`}
+                  >
+                    <span className="tl-narr-label">🎙 {n.dur.toFixed(1)}s</span>
+                  </div>
+                ))}
+              </div>
+            )}
             {ordered.map((o) => (
               <div className="tl-row" key={o.id}>
                 <div

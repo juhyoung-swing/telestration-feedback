@@ -20,6 +20,8 @@ export function EditingToolbar({
   onZoom,
   loopOn,
   onToggleLoop,
+  recording,
+  onToggleRecord,
 }: {
   playing: boolean;
   onPlayPause: () => void;
@@ -39,6 +41,8 @@ export function EditingToolbar({
   onZoom: (z: number) => void;
   loopOn: boolean;
   onToggleLoop: () => void;
+  recording: boolean;
+  onToggleRecord: () => void;
 }) {
   const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
   const clampZ = (z: number) => Math.max(ZMIN, Math.min(ZMAX, +z.toFixed(3)));
@@ -56,6 +60,11 @@ export function EditingToolbar({
         onClick={onToggleLoop}
         title={loopOn ? '구간 반복 끄기 (타임라인 밴드 드래그로 조절)' : '구간 반복 — 재생헤드에 반복 밴드 추가'}
       >🔁</button>
+      <button
+        className={`tool ${recording ? 'rec' : ''}`}
+        onClick={onToggleRecord}
+        title={recording ? '녹음 중지' : '음성 나레이션 녹음 — 재생헤드부터 재생되며 마이크 녹음'}
+      >{recording ? '⏺ 녹음중' : '🎙'}</button>
 
       <span className="time">{fmt(cur)} <span className="muted">/ {fmt(dur)}</span></span>
 

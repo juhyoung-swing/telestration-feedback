@@ -73,6 +73,11 @@ export type PoseData = {
   players: PosePlayers;
 };
 
+// A recorded voice-over segment placed on the timeline (coach feedback narration).
+// The audio blob lives in IndexedDB, keyed by `key`; it plays while the playhead is
+// within [startTime, startTime + dur] (timeline seconds).
+export type Narration = { id: string; startTime: number; dur: number; key: string };
+
 export type ZoneFill = 'solid' | 'hatch' | 'none';
 export type CoverageZone = TimeSpan & {
   id: string;

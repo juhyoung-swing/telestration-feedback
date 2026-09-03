@@ -9,7 +9,7 @@ import { Timeline } from './components/Timeline';
 import { ExportDropdown } from './components/ExportDropdown';
 import { SettingsDropdown } from './components/SettingsDropdown';
 import { ProjectList } from './components/ProjectList';
-import { listProjects, saveProject, deleteProject as deleteProjectRec, newProject, newVideoKey, saveVideoBlob, loadVideoBlob, saveAnalysis, loadAnalysis } from './lib/projects';
+import { listProjects, saveProject, deleteProject as deleteProjectRec, newProject, newVideoKey, saveVideoBlob, loadVideoBlob, saveAnalysis, loadAnalysis, newNarrationKey, saveNarrationBlob, loadNarrationBlob, deleteNarrationBlob } from './lib/projects';
 import { screenshotCanvas, canvasToBlob, downloadBlob, recordCompositeWebM } from './lib/exportMedia';
 import type { Project } from './lib/projects';
 import { getPerspectiveTransform, invert3x3, projectCourtPoint, unprojectToCourt } from './geometry/homography';
@@ -22,7 +22,7 @@ import { singleClip, totalDuration, clipAt, clipDur, srcAt, splitClip, duplicate
 import type { Clip } from './lib/clips';
 import type {
   CircleParams, CourtCalibration, DrawnLine, FeatureId, FragmentData, Fragments, GroundHalo, Mode, Overlay,
-  PathParams, PlayerAnchor, Players, PoseData, RailTab, TextParams, TrackingData, ZoneParams, ZoomParams,
+  Narration, PathParams, PlayerAnchor, Players, PoseData, RailTab, TextParams, TrackingData, ZoneParams, ZoomParams,
 } from './types';
 
 // Local ML bridge exposed by the Electron preload (absent in the plain web build).
@@ -113,6 +113,14 @@ export default function App() {
   const [calibMethod, setCalibMethod] = useState<'corner' | 'line' | null>(null);
   const [overlays, setOverlays] = useState<Overlay[]>([]);
   const [clips, setClips] = useState<Clip[]>([]); // base-video EDL; empty until video duration is known (→ single identity clip)
+  // ── voice narration (coach feedback) ──
+  const [narrations, setNarrations] = useState<Narration[]>([]);
+  const [recording, setRecording] = useState(false);
+  const recRef = useRef<MediaRecorder | null>(null);
+  const recStartRef = useRef(0);         // timeline time at record start
+  const narrAudioRef = useRef<HTMLAudioElement | null>(null); // hidden element that plays the active narration
+  const narrUrlsRef = useRef<Record<string, string>>({});     // narration id → object URL (lazy)
+  const narrActiveRef = useRef<string | null>(null);          // narration currently loaded in the audio element
   const clipsRef = useRef<Clip[]>([]); clipsRef.current = clips; // read by the rAF loop without re-binding
   const activeClipRef = useRef<string | null>(null); // clip currently playing (disambiguates duplicated source ranges)
   const [selectedClipId, setSelectedClipId] = useState<string | null>(null);
@@ -267,6 +275,9 @@ export default function App() {
     const seenIds = new Set<string>();
     setClips(rawClips.map((c) => { let id = c.id; while (seenIds.has(id)) id = uid('clip'); seenIds.add(id); return id === c.id ? c : { ...c, id }; }));
     activeClipRef.current = null;
+    Object.values(narrUrlsRef.current).forEach((u) => URL.revokeObjectURL(u));
+    narrUrlsRef.current = {}; narrActiveRef.current = null;
+    setNarrations(p.narrations ?? []);
     setPast([]); setFuture([]);
     setPlayerAnchors(p.playerAnchors ?? []);
     setPlayerStyles({});
@@ -380,13 +391,13 @@ export default function App() {
     const t = setTimeout(() => {
       saveProject({
         id: projectId, name: projectName, updatedAt: Date.now(), videoName, videoKey,
-        corners: calibration?.imagePoints ?? null, calibMethod, overlays, clips, playerAnchors,
+        corners: calibration?.imagePoints ?? null, calibMethod, overlays, clips, narrations, playerAnchors,
         thumbnail: thumbnail ?? undefined, analyzed, poseAnalyzed, trackFps,
       });
     }, 500);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [view, projectId, projectName, videoName, videoKey, calibration, calibMethod, overlays, clips, playerAnchors, thumbnail, analyzed, poseAnalyzed, trackFps]);
+  }, [view, projectId, projectName, videoName, videoKey, calibration, calibMethod, overlays, clips, narrations, playerAnchors, thumbnail, analyzed, poseAnalyzed, trackFps]);
 
   useEffect(() => {
     const v = videoRef.current;
@@ -931,6 +942,72 @@ export default function App() {
     setLoopRegion({ start, end });
   };
 
+  // ── voice narration ────────────────────────────────────────────────────────
+  const narrUrl = async (n: Narration): Promise<string | null> => {
+    if (narrUrlsRef.current[n.id]) return narrUrlsRef.current[n.id];
+    const blob = await loadNarrationBlob(n.key);
+    if (!blob) return null;
+    const url = URL.createObjectURL(blob);
+    narrUrlsRef.current[n.id] = url;
+    return url;
+  };
+  const startRecording = async () => {
+    if (recording) return;
+    let stream: MediaStream;
+    try { stream = await navigator.mediaDevices.getUserMedia({ audio: true }); }
+    catch { window.alert('마이크 권한이 필요합니다.'); return; }
+    const mime = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4'].find((m) => MediaRecorder.isTypeSupported(m)) || '';
+    const rec = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined);
+    const chunks: BlobPart[] = [];
+    const startT = cur, t0 = performance.now();
+    rec.ondataavailable = (e) => { if (e.data.size) chunks.push(e.data); };
+    rec.onstop = async () => {
+      stream.getTracks().forEach((t) => t.stop());
+      const blob = new Blob(chunks, { type: 'audio/webm' });
+      const durSec = Math.max(0.3, (performance.now() - t0) / 1000);
+      const key = newNarrationKey();
+      try { await saveNarrationBlob(key, blob); } catch { /* quota */ }
+      setNarrations((ns) => [...ns, { id: uid('narr'), startTime: startT, dur: durSec, key }]);
+    };
+    recRef.current = rec;
+    recStartRef.current = startT;
+    setRecording(true);
+    rec.start();
+    if (!playing) togglePlay(); // play the timeline so the coach narrates over the video
+  };
+  const stopRecording = () => {
+    if (!recording) return;
+    setRecording(false);
+    try { recRef.current?.stop(); } catch { /* ignore */ }
+    recRef.current = null;
+    if (playing) togglePlay();
+  };
+  const toggleRecord = () => (recording ? stopRecording() : void startRecording());
+  const deleteNarration = (id: string) => {
+    const n = narrations.find((x) => x.id === id);
+    setNarrations((ns) => ns.filter((x) => x.id !== id));
+    if (n) { void deleteNarrationBlob(n.key); const u = narrUrlsRef.current[id]; if (u) { URL.revokeObjectURL(u); delete narrUrlsRef.current[id]; } }
+  };
+  const moveNarration = (id: string, startTime: number) =>
+    setNarrations((ns) => ns.map((x) => (x.id === id ? { ...x, startTime: Math.max(0, startTime) } : x)));
+
+  // Preview: play the active narration in sync with the playhead (muted while recording).
+  useEffect(() => {
+    const a = narrAudioRef.current;
+    if (!a) return;
+    const n = narrations.find((x) => cur >= x.startTime && cur < x.startTime + x.dur);
+    if (!n || !playing || recording) { if (!a.paused) a.pause(); narrActiveRef.current = n ? narrActiveRef.current : null; return; }
+    const offset = cur - n.startTime;
+    if (narrActiveRef.current !== n.id) {
+      narrActiveRef.current = n.id;
+      void narrUrl(n).then((url) => { const el = narrAudioRef.current; if (url && el) { el.src = url; el.currentTime = offset; el.play().catch(() => {}); } });
+    } else {
+      if (Math.abs(a.currentTime - offset) > 0.25) a.currentTime = offset;
+      if (a.paused) a.play().catch(() => {});
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cur, playing, recording, narrations]);
+
   // ── export (screenshot / video) ─────────────────────────────────────────
   const exportBaseName = () => (projectName || videoName || 'telestration').replace(/\.[^.]+$/, '');
   const nextFrame = () => new Promise((r) => requestAnimationFrame(() => r(null)));
@@ -1270,6 +1347,8 @@ export default function App() {
           onZoom={setTlZoom}
           loopOn={!!loopRegion}
           onToggleLoop={toggleLoop}
+          recording={recording}
+          onToggleRecord={toggleRecord}
         />
 
         <Timeline
@@ -1292,6 +1371,9 @@ export default function App() {
           onDeleteClip={deleteClipAction}
           onMoveClip={moveClipAction}
           onInsertGap={insertGapAfter}
+          narrations={narrations}
+          onMoveNarration={moveNarration}
+          onDeleteNarration={deleteNarration}
           onBeginHistory={beginHistory}
           onSelect={setSelectedOverlayId}
           onSeek={seek}
@@ -1300,6 +1382,7 @@ export default function App() {
           onDuplicate={duplicateOverlay}
           onChangeRange={changeRange}
         />
+        <audio ref={narrAudioRef} hidden />
       </main>
 
       {activeTab === 'effect' && (

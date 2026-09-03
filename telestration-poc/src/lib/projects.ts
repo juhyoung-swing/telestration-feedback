@@ -1,6 +1,6 @@
 import type { Pt } from '../geometry/homography';
 import type { Clip } from './clips';
-import type { Fragments, Overlay, PlayerAnchor, Players, PoseData } from '../types';
+import type { Fragments, Narration, Overlay, PlayerAnchor, Players, PoseData } from '../types';
 
 // A project is one self-contained work unit: a video + its court calibration + all effects.
 // Metadata lives in localStorage; the (large) video blob lives in IndexedDB, keyed by videoKey.
@@ -14,6 +14,7 @@ export type Project = {
   calibMethod: 'corner' | 'line' | null;
   overlays: Overlay[];
   clips?: Clip[];                     // base-video EDL; absent/empty = identity (whole video, one clip)
+  narrations?: Narration[];          // recorded voice-over segments (audio blobs in IndexedDB)
   playerAnchors: PlayerAnchor[];
   thumbnail?: string;                 // small JPEG data URL captured from a video frame
   analyzed?: boolean;                 // 선수 위치 분석 has been run (data in IndexedDB 'analysis')
@@ -101,6 +102,12 @@ export function newVideoKey(): string { return `v-${uid()}`; }
 export const saveVideoBlob = (key: string, blob: Blob) => idbPut(VIDEOS, key, blob);
 export const loadVideoBlob = (key: string) => idbGet<Blob>(VIDEOS, key);
 export const deleteVideoBlob = (key: string) => idbDel(VIDEOS, key);
+
+// Narration audio blobs share the VIDEOS store (keyed 'n-…') — no schema bump needed.
+export function newNarrationKey(): string { return `n-${uid()}`; }
+export const saveNarrationBlob = (key: string, blob: Blob) => idbPut(VIDEOS, key, blob);
+export const loadNarrationBlob = (key: string) => idbGet<Blob>(VIDEOS, key);
+export const deleteNarrationBlob = (key: string) => idbDel(VIDEOS, key);
 
 // analysis keyed by project id (survives video re-uploads within a project)
 export const saveAnalysis = (id: string, data: AnalysisData) => idbPut(ANALYSIS, id, data);
