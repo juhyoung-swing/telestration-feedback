@@ -257,9 +257,12 @@ export default function App() {
       setCalibMethod(p.calibMethod);
     } else { setCalibration(null); setCalibMethod(null); }
     setOverlays(p.overlays ?? []);
-    setClips(p.clips ?? []); // filled from video duration on metadata load if empty
+    const rawClips = p.clips ?? [];
+    seedIdCounter([...(p.overlays ?? []), ...rawClips]); // clip ids too, or uid() collides after reload
+    // repair any duplicate clip ids from the earlier id-seeding bug (overlays bind by time, so re-id is safe)
+    const seenIds = new Set<string>();
+    setClips(rawClips.map((c) => { let id = c.id; while (seenIds.has(id)) id = uid('clip'); seenIds.add(id); return id === c.id ? c : { ...c, id }; }));
     activeClipRef.current = null;
-    seedIdCounter(p.overlays ?? []);
     setPast([]); setFuture([]);
     setPlayerAnchors(p.playerAnchors ?? []);
     setPlayerStyles({});
