@@ -21,9 +21,11 @@ export type CourtCalibration = {
   inverseHomography: Mat3; // video(②) -> court(③)
 };
 
-// Every render object now carries a time window [startTime, endTime] in seconds.
-// It is drawn only while the video's currentTime falls inside that window.
-export type TimeSpan = { startTime: number; endTime: number };
+// Every render object now carries a time window [startTime, endTime] in TIMELINE
+// seconds. It is drawn only while the playhead falls inside that window. `clipId`
+// binds it to a base-video clip instance (so a duplicated/repeated clip does NOT
+// inherit the original's annotations); absent = the sole identity clip.
+export type TimeSpan = { startTime: number; endTime: number; clipId?: string };
 
 export type GroundHalo = TimeSpan & {
   id: string;

@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useElementSize } from '../hooks/useElementSize';
+import { clipDur } from '../lib/clips';
+import type { Clip } from '../lib/clips';
 import type { Overlay } from '../types';
 
 const MIN_LEN = 0.2;       // seconds
@@ -27,6 +29,13 @@ type Props = {
   speed: number;              // preview playback rate (shown on the base track)
   loop: { start: number; end: number } | null; // A-B repeat band (null = off)
   onSetLoop: (l: { start: number; end: number } | null) => void;
+  clips: Clip[];                       // base-video EDL → clip bars on the base track
+  selectedClipId: string | null;
+  onSelectClip: (id: string | null) => void;
+  onSplitClip: () => void;             // split the clip under the playhead
+  onDuplicateClip: (id: string) => void;
+  onDeleteClip: (id: string) => void;
+  onMoveClip: (id: string, toIndex: number) => void;
   onBeginHistory: () => void; // called once at drag-start so a whole drag is one undo step
   onSelect: (id: string) => void;
   onSeek: (t: number) => void;
@@ -40,6 +49,8 @@ export function Timeline(p: Props) {
   const { ref: scrollRef, size } = useElementSize<HTMLDivElement>();
   const contentRef = useRef<HTMLDivElement>(null);
   const [menu, setMenu] = useState<{ x: number; y: number; id: string } | null>(null);
+  const [clipMenu, setClipMenu] = useState<{ x: number; y: number; id: string } | null>(null);
+  const [clipDrag, setClipDrag] = useState<{ id: string; dx: number } | null>(null);
   const dur = p.duration > 0 ? p.duration : 1;
 
   // px/second: zoom==1 fills the viewport exactly; higher zoom overflows → horizontal scroll.
@@ -49,11 +60,11 @@ export function Timeline(p: Props) {
   const x = (t: number) => t * pxPerSec;
 
   useEffect(() => {
-    if (!menu) return;
-    const close = () => setMenu(null);
+    if (!menu && !clipMenu) return;
+    const close = () => { setMenu(null); setClipMenu(null); };
     window.addEventListener('click', close);
     return () => window.removeEventListener('click', close);
-  }, [menu]);
+  }, [menu, clipMenu]);
 
   // Keep the playhead in view when it moves off-screen (follow during playback / far scrubs).
   useEffect(() => {
@@ -141,6 +152,31 @@ export function Timeline(p: Props) {
     window.addEventListener('mouseup', up);
   };
 
+  // Drag a base-video clip horizontally to reorder it (contiguous). A plain click
+  // (no drag) just selects it. Drop position → insertion index among the other clips.
+  const startClipDrag = (e: React.MouseEvent, clip: Clip) => {
+    e.preventDefault();
+    e.stopPropagation();
+    p.onSelectClip(clip.id);
+    const startX = e.clientX;
+    let moved = false;
+    const move = (ev: MouseEvent) => { const dx = ev.clientX - startX; if (Math.abs(dx) > 3) moved = true; setClipDrag({ id: clip.id, dx }); };
+    const up = (ev: MouseEvent) => {
+      window.removeEventListener('mousemove', move);
+      window.removeEventListener('mouseup', up);
+      setClipDrag(null);
+      if (moved) {
+        const dropT = timeAt(ev.clientX);
+        const others = p.clips.filter((c) => c.id !== clip.id);
+        let idx = 0;
+        for (const c of others) if (dropT > c.timelineStart + clipDur(c) / 2) idx++;
+        p.onMoveClip(clip.id, idx);
+      }
+    };
+    window.addEventListener('mousemove', move);
+    window.addEventListener('mouseup', up);
+  };
+
   const ordered = [...p.overlays].reverse(); // latest on top
   const step = tickStep(pxPerSec);
   const ticks: number[] = [];
@@ -175,11 +211,28 @@ export function Timeline(p: Props) {
 
             {p.overlays.length === 0 && <div className="tl-empty">효과를 만들면 여기 타임라인에 트랙으로 표시됩니다 (Effect → Create)</div>}
 
-            <div className="tl-row">
-              <div className="tl-bar base" style={{ left: 0, width: contentW }} onMouseDown={(e) => e.stopPropagation()}>
-                <span className="tl-bar-label">{p.videoName}</span>
-                <span className="tl-badge">{p.speed}×</span>
-              </div>
+            <div className="tl-row tl-cliprow">
+              {p.clips.map((c, i) => {
+                const dragging = clipDrag?.id === c.id;
+                return (
+                  <div
+                    key={c.id}
+                    className={`tl-clip ${p.selectedClipId === c.id ? 'selected' : ''} ${dragging ? 'dragging' : ''}`}
+                    style={{ left: x(c.timelineStart) + (dragging ? clipDrag!.dx : 0), width: Math.max(6, x(clipDur(c))), zIndex: dragging ? 6 : 1 }}
+                    onMouseDown={(e) => startClipDrag(e, c)}
+                    onContextMenu={(e) => { e.preventDefault(); p.onSelectClip(c.id); setClipMenu({ x: e.clientX, y: e.clientY, id: c.id }); }}
+                    title={`${p.videoName} · 클립 ${i + 1} · ${fmt(c.srcStart)}–${fmt(c.srcEnd)} (우클릭: 분할·복제·삭제)`}
+                  >
+                    <span className="tl-clip-label">🎬 {i + 1}</span>
+                    {i === 0 && <span className="tl-badge">{p.speed}×</span>}
+                  </div>
+                );
+              })}
+              {p.clips.length === 0 && (
+                <div className="tl-bar base" style={{ left: 0, width: contentW }} onMouseDown={(e) => e.stopPropagation()}>
+                  <span className="tl-bar-label">{p.videoName}</span>
+                </div>
+              )}
             </div>
           </div>
 
@@ -209,6 +262,15 @@ export function Timeline(p: Props) {
           </li>
           <li onClick={() => { p.onDuplicate(menu.id); setMenu(null); }}>Duplicate ⌘K</li>
           <li onClick={() => { p.onRemove(menu.id); setMenu(null); }}>Remove ⌫</li>
+        </ul>
+      )}
+
+      {clipMenu && (
+        <ul className="ctx-menu" style={{ left: clipMenu.x, top: clipMenu.y }} onClick={(e) => e.stopPropagation()}>
+          <li onClick={() => { p.onSplitClip(); setClipMenu(null); }}>재생헤드에서 분할 ✂</li>
+          <li onClick={() => { p.onDuplicateClip(clipMenu.id); setClipMenu(null); }}>복제 · 반복 ⧉</li>
+          <li className={p.clips.length <= 1 ? 'disabled' : ''}
+            onClick={() => { if (p.clips.length > 1) { p.onDeleteClip(clipMenu.id); setClipMenu(null); } }}>삭제 ⌫</li>
         </ul>
       )}
     </div>

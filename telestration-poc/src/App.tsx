@@ -18,7 +18,7 @@ import { COURT_CORNERS } from './geometry/court';
 import { courtLineDef, fitImageLine, homographyFromLines, familiesCovered } from './geometry/lineCalib';
 import { PLAYER_COLORS, playerColor, hitTestFragment, assignFragments } from './geometry/tracking';
 import { defaultSide } from './lib/pose';
-import { singleClip, totalDuration, clipAt, srcAt } from './lib/clips';
+import { singleClip, totalDuration, clipAt, srcAt, splitClip, duplicateClip, deleteClip, moveClip } from './lib/clips';
 import type { Clip } from './lib/clips';
 import type {
   CircleParams, CourtCalibration, DrawnLine, FeatureId, FragmentData, Fragments, GroundHalo, Mode, Overlay,
@@ -111,6 +111,7 @@ export default function App() {
   const [clips, setClips] = useState<Clip[]>([]); // base-video EDL; empty until video duration is known (→ single identity clip)
   const clipsRef = useRef<Clip[]>([]); clipsRef.current = clips; // read by the rAF loop without re-binding
   const activeClipRef = useRef<string | null>(null); // clip currently playing (disambiguates duplicated source ranges)
+  const [selectedClipId, setSelectedClipId] = useState<string | null>(null);
   const [past, setPast] = useState<Overlay[][]>([]);   // undo stack (snapshots before each edit)
   const [future, setFuture] = useState<Overlay[][]>([]); // redo stack
   const [mode, setMode] = useState<Mode>('idle');
@@ -458,6 +459,24 @@ export default function App() {
   };
   const changeRange = (id: string, startTime: number, endTime: number) =>
     setOverlays((o) => o.map((x) => (x.id === id ? { ...x, startTime, endTime } : x)));
+
+  // ── base-video clip edits (EDL) ─────────────────────────────────────────────
+  // Overlays bind to a clip by their start time at edit time; the pure ops in
+  // lib/clips shift/reassign them so annotations stay glued to their clip instance.
+  // (Clip edits are not in the overlay undo stack in this version.)
+  const bindOverlays = (): Overlay[] => overlays.map((o) => { const c = clipAt(clips, o.startTime); return c ? { ...o, clipId: c.id } : o; });
+  const applyClipEdit = (res: { clips: Clip[]; items: Overlay[] }) => { activeClipRef.current = null; setClips(res.clips); setOverlays(res.items); };
+  const splitClipAtPlayhead = () => applyClipEdit(splitClip(clips, bindOverlays(), cur, uid('clip')));
+  const duplicateClipAction = (id: string) => applyClipEdit(duplicateClip(clips, bindOverlays(), id, uid('clip')));
+  const deleteClipAction = (id: string) => { applyClipEdit(deleteClip(clips, bindOverlays(), id)); setSelectedClipId(null); };
+  const moveClipAction = (id: string, toIndex: number) => applyClipEdit(moveClip(clips, bindOverlays(), id, toIndex));
+
+  // Keep the playhead inside the (possibly shortened) timeline after a clip edit.
+  useEffect(() => {
+    const total = timelineTotal();
+    if (cur > total + 0.001) seek(total);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [clips]);
 
   // ── undo / redo history ─────────────────────────────────────────────────
   // Snapshot the current overlays before an edit. Discrete edits go through mutate();
@@ -1222,6 +1241,13 @@ export default function App() {
           snap={snap}
           loop={loopRegion}
           onSetLoop={setLoopRegion}
+          clips={clips}
+          selectedClipId={selectedClipId}
+          onSelectClip={setSelectedClipId}
+          onSplitClip={splitClipAtPlayhead}
+          onDuplicateClip={duplicateClipAction}
+          onDeleteClip={deleteClipAction}
+          onMoveClip={moveClipAction}
           onBeginHistory={beginHistory}
           onSelect={setSelectedOverlayId}
           onSeek={seek}
