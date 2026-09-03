@@ -211,9 +211,6 @@ export function EffectPanel(p: Props) {
               );
             })}
           </div>
-          {g === 'Player' && (!playersReady || !p.poseReady) && (
-            <div className="lock-note">🔒 {!playersReady && '따라가기·스포트라이트는 위치 분석'}{!playersReady && !p.poseReady && ' · '}{!p.poseReady && '폼 추적은 자세 분석'} 후 사용 — 타임라인에서 클립을 선택해 분석하세요.</div>
-          )}
         </div>
       ))}
       </>
