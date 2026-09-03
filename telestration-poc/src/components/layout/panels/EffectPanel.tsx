@@ -239,7 +239,7 @@ export function EffectPanel(p: Props) {
             const kindKo = isPose ? '자세' : '위치';
             return (
               <div className="clip-ana">
-                <div className="muted-note"><b>{def.label}</b>를 추가하려면 이 클립의 {kindKo} 분석이 필요해요.</div>
+                <div className="muted-note" style={{ marginBottom: 10 }}><b>{def.label}</b>를 추가하려면 이 클립의 {kindKo} 분석이 필요해요.</div>
                 {running ? (
                   <div className="analyze-progress"><div className="analyze-bar"><div className="analyze-bar-fill" style={{ width: `${Math.round((st?.pct ?? 0) * 100)}%` }} /></div>
                     <div className="analyze-pct">{Math.round((st?.pct ?? 0) * 100)}% · 분석 중…</div></div>

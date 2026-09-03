@@ -18,8 +18,6 @@ export function EditingToolbar({
   onSpeed,
   zoom,
   onZoom,
-  snap,
-  onToggleSnap,
   loopOn,
   onToggleLoop,
 }: {
@@ -39,8 +37,6 @@ export function EditingToolbar({
   onSpeed: (s: number) => void;
   zoom: number;
   onZoom: (z: number) => void;
-  snap: boolean;
-  onToggleSnap: () => void;
   loopOn: boolean;
   onToggleLoop: () => void;
 }) {
@@ -55,11 +51,6 @@ export function EditingToolbar({
         {playing ? '❚❚' : '▶'}
       </button>
       <button className="tool danger" onClick={onDelete} disabled={!canDelete} title="선택 레이어 삭제 (⌫)">🗑</button>
-      <button
-        className={`tool ${snap ? 'on' : ''}`}
-        onClick={onToggleSnap}
-        title={`스냅 ${snap ? '켜짐' : '꺼짐'} (S) — 드래그 시 플레이헤드·경계에 붙음`}
-      >🧲</button>
       <button
         className={`tool ${loopOn ? 'on' : ''}`}
         onClick={onToggleLoop}

@@ -149,7 +149,7 @@ export default function App() {
   const [cur, setCur] = useState(0);
   const [dur, setDur] = useState(0);
   const [tlZoom, setTlZoom] = useState(1); // timeline horizontal zoom (1 = fit whole clip)
-  const [snap, setSnap] = useState(true);  // snap dragged bars to playhead / edges
+  const snap = true; // timeline snapping is always on (bars/clips snap to playhead & edges)
   const [speed, setSpeed] = useState(1);   // preview playback rate (0.25×–2×)
   const [loopRegion, setLoopRegion] = useState<{ start: number; end: number } | null>(null); // A-B repeat band
   const loopRef = useRef<{ start: number; end: number } | null>(null);
@@ -969,8 +969,6 @@ export default function App() {
       } else if (e.key === '-' || e.key === '_') {
         e.preventDefault();
         setTlZoom((z) => Math.max(1, +(z / 1.5).toFixed(3)));
-      } else if (e.key === 's' || e.key === 'S') {
-        setSnap((s) => !s);
       }
     };
     window.addEventListener('keydown', onKey);
@@ -1219,8 +1217,6 @@ export default function App() {
           onSpeed={setSpeed}
           zoom={tlZoom}
           onZoom={setTlZoom}
-          snap={snap}
-          onToggleSnap={() => setSnap((s) => !s)}
           loopOn={!!loopRegion}
           onToggleLoop={toggleLoop}
         />
