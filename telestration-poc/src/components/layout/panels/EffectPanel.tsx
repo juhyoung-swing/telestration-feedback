@@ -132,6 +132,11 @@ export function EffectPanel(p: Props) {
   const featLocked = (id: FeatureId) => PLAYER_FEATURES.includes(id) && !p.clipSelected;
   const readyForSelected = p.clipSelected && (isPose ? p.poseReady : playersReady);
   const selPose = p.selectedOverlay?.type === 'pose' ? (p.selectedOverlay as PoseOverlay) : null;
+  // Editing an already-placed Player effect → show its inspector regardless of the
+  // clip/analysis gate (that gate is only for ADDING a new one).
+  const editingPlayerOverlay = !!(selPose
+    || (p.selectedOverlay?.type === 'ground-halo' && p.selectedOverlay.trackId)
+    || p.selectedOverlay?.type === 'spotlight');
   const poseSet = (patch: Partial<PoseOverlay>) => { if (selPose) p.onPatchOverlay(selPose.id, patch); };
   const setTarget = (id: PoseAngleId, range: [number, number]) => { if (selPose) p.onPatchOverlay(selPose.id, { targets: { ...(selPose.targets ?? {}), [id]: range } }); };
   const clearTarget = (id: PoseAngleId) => { if (!selPose) return; const t = { ...(selPose.targets ?? {}) }; delete t[id]; p.onPatchOverlay(selPose.id, { targets: t }); };
@@ -236,7 +241,7 @@ export function EffectPanel(p: Props) {
 
       {/* ── lower section ── player-effect → pick a player (+선수 지정); court effect → settings/Create */}
       {isPlayer ? (
-        !readyForSelected ? (
+        (!readyForSelected && !editingPlayerOverlay) ? (
           !p.clipSelected ? (
             <div className="warn-note">타임라인에서 <b>원본 클립</b>을 선택하면 <b>{def.label}</b>를 그 구간에 추가할 수 있어요.</div>
           ) : (() => {
