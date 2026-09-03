@@ -1141,6 +1141,9 @@ export default function App() {
       onGoAnalyze={undefined}
       selected={selectedFeature}
       clipSelected={!!selectedClipId}
+      onAnalyzeClip={(kind) => { const c = clips.find((x) => x.id === selectedClipId); if (c) void analyzeClip(c, kind); }}
+      posAnalyzing={analyzing}
+      poseAnalyzing={poseAnalyzing}
       onSelect={(id) => {
         setSelectedFeature(id);
         setShowClipPanel(false);                 // right panel → effect detail

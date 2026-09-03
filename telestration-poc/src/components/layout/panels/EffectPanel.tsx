@@ -25,6 +25,9 @@ type Props = {
   onToggleSpotlight: (id: string) => void;
   spotlightIds: Set<string>;
   clipSelected: boolean;       // Player effects require a base-video clip selected (they bind to it)
+  onAnalyzeClip?: (kind: 'position' | 'pose') => void; // analyze the SELECTED clip inline
+  posAnalyzing: { pct: number; error?: string } | null;
+  poseAnalyzing: { pct: number; error?: string } | null;
   poseReady: boolean;          // 자세 분석 data present → 폼 추적 unlocked
   poseAnalyzed: boolean;
   posePlayerIds: string[];     // player labels available in the pose cache
@@ -227,13 +230,26 @@ export function EffectPanel(p: Props) {
       {/* ── lower section ── player-effect → pick a player (+선수 지정); court effect → settings/Create */}
       {isPlayer ? (
         !readyForSelected ? (
-          <div className="warn-note">
-            {!p.clipSelected ? (
-              <>타임라인에서 <b>원본 클립</b>을 선택하면 <b>{def.label}</b>를 그 구간에 추가할 수 있어요.</>
-            ) : (
-              <><b>{def.label}</b>는 {isPose ? '자세 분석' : '선수 위치 분석'} 데이터가 필요합니다. 선택한 클립을 <b>{isPose ? '자세' : '위치'} 분석</b>하세요 (우측 클립 패널).</>
-            )}
-          </div>
+          !p.clipSelected ? (
+            <div className="warn-note">타임라인에서 <b>원본 클립</b>을 선택하면 <b>{def.label}</b>를 그 구간에 추가할 수 있어요.</div>
+          ) : (() => {
+            // clip selected but not yet analyzed → analyze it right here (no context switch)
+            const st = isPose ? p.poseAnalyzing : p.posAnalyzing;
+            const running = !!st && !st.error;
+            const kindKo = isPose ? '자세' : '위치';
+            return (
+              <div className="clip-ana">
+                <div className="muted-note"><b>{def.label}</b>를 추가하려면 이 클립의 {kindKo} 분석이 필요해요.</div>
+                {running ? (
+                  <div className="analyze-progress"><div className="analyze-bar"><div className="analyze-bar-fill" style={{ width: `${Math.round((st?.pct ?? 0) * 100)}%` }} /></div>
+                    <div className="analyze-pct">{Math.round((st?.pct ?? 0) * 100)}% · 분석 중…</div></div>
+                ) : (
+                  <button className="btn primary block" disabled={!p.onAnalyzeClip} onClick={() => p.onAnalyzeClip?.(isPose ? 'pose' : 'position')}>이 구간 {kindKo} 분석</button>
+                )}
+                {st?.error && <div className="analyze-error">실패: {st.error}</div>}
+              </div>
+            );
+          })()
         ) : isPose ? (
           <>
             <div className="field-label">선수</div>
