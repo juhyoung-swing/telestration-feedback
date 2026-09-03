@@ -17,9 +17,10 @@ import type { Pt } from './geometry/homography';
 import { COURT_CORNERS } from './geometry/court';
 import { courtLineDef, fitImageLine, homographyFromLines, familiesCovered } from './geometry/lineCalib';
 import { PLAYER_COLORS, playerColor, hitTestFragment, assignFragments } from './geometry/tracking';
+import { defaultSide } from './lib/pose';
 import type {
   CircleParams, CourtCalibration, DrawnLine, FeatureId, FragmentData, Fragments, GroundHalo, Mode, Overlay,
-  PathParams, PlayerAnchor, Players, RailTab, TextParams, TrackingData, ZoneParams, ZoomParams,
+  PathParams, PlayerAnchor, Players, PoseData, RailTab, TextParams, TrackingData, ZoneParams, ZoomParams,
 } from './types';
 
 // Local ML bridge exposed by the Electron preload (absent in the plain web build).
@@ -32,6 +33,11 @@ declare global {
         stats?: { trackCount: number; playerCount: number; provider: string; framesProcessed: number };
       }>;
       onProgress: (cb: (p: number) => void) => () => void;
+      analyzePose: (video: ArrayBuffer, options?: { step?: number }) => Promise<{
+        pose: PoseData;
+        stats?: { playerCount: number; provider: string; framesProcessed: number };
+      }>;
+      onPoseProgress: (cb: (p: number) => void) => () => void;
     };
     // Export bridge exposed by the Electron preload (absent on the web → download fallback).
     exportApi?: {
@@ -68,6 +74,7 @@ function featureForOverlay(o: Overlay): FeatureId {
   switch (o.type) {
     case 'ground-halo': return o.trackId ? 'follow-circle' : 'circle';
     case 'spotlight': return 'spotlight';
+    case 'pose': return 'pose';
     case 'marker': return 'marker';
     case 'text': return 'text';
     case 'coverage-zone': return 'zone';
@@ -141,17 +148,26 @@ export default function App() {
   const [players, setPlayers] = useState<Players | null>(null);
   const [fragments, setFragments] = useState<Fragments | null>(null);
   const [trackFps, setTrackFps] = useState(30);
-  const [analyzed, setAnalyzed] = useState(false); // this project's player tracking has been run
+  const [analyzed, setAnalyzed] = useState(false); // 선수 위치 분석 has been run
   const [analyzing, setAnalyzing] = useState<{ pct: number; error?: string } | null>(null);
+  const [poseData, setPoseData] = useState<PoseData | null>(null); // 자세 분석 keypoint cache
+  const [poseAnalyzed, setPoseAnalyzed] = useState(false);
+  const [poseAnalyzing, setPoseAnalyzing] = useState<{ pct: number; error?: string } | null>(null);
+  const [analyzeSkip, setAnalyzeSkip] = useState<{ pos: boolean; pose: boolean }>({ pos: false, pose: false });
   const hasML = typeof window !== 'undefined' && !!window.ml; // Electron desktop build only
   const [playerAnchors, setPlayerAnchors] = useState<PlayerAnchor[]>([]);
   // Load a project's player-tracking into state: prefer its own analysis (in
   // IndexedDB); for the bundled sample (no uploaded video) fall back to the
   // shipped court.mp4 JSON; otherwise leave empty (needs analysis).
   const loadTracking = async (p: Project) => {
-    if (p.analyzed) {
+    // Position and pose share one IndexedDB 'analysis' record; load whichever exists.
+    if (p.analyzed || p.poseAnalyzed) {
       const a = await loadAnalysis(p.id);
-      if (a) { setFragments(a.fragments); setPlayers(a.players); setTrackFps(a.fps || 30); return; }
+      if (a) {
+        setFragments(a.fragments ?? null); setPlayers(a.players ?? null);
+        setPoseData(a.pose ?? null); setTrackFps(a.fps || 30);
+        if (a.fragments || a.players) return; // position present → done
+      }
     }
     if (!p.videoKey) {
       try {
@@ -163,7 +179,7 @@ export default function App() {
         return;
       } catch { /* ignore */ }
     }
-    setFragments(null); setPlayers(null); setTrackFps(30);
+    if (!p.poseAnalyzed) { setFragments(null); setPlayers(null); setTrackFps(30); }
   };
 
   // ── projects ─────────────────────────────────────────────────────────────
@@ -230,6 +246,8 @@ export default function App() {
     setActiveTab('effect');
     setProjectId(p.id); setProjectName(p.name);
     setAnalyzed(!!p.analyzed); setAnalyzing(null);
+    setPoseAnalyzed(!!p.poseAnalyzed); setPoseAnalyzing(null); setPoseData(null);
+    setAnalyzeSkip({ pos: false, pose: false });
     await loadTracking(p);
     // Calibration is required — an un-calibrated project always opens into the wizard's
     // calibration step, never straight into the editor.
@@ -259,26 +277,51 @@ export default function App() {
     if (videoKey) { const blob = await loadVideoBlob(videoKey); return blob ? await blob.arrayBuffer() : null; }
     const r = await fetch(DEFAULT_SRC); return r.ok ? await r.arrayBuffer() : null;
   };
+  // Position and pose share one analysis record; merge so running one keeps the other.
+  const persistAnalysis = async (patch: { fps?: number; fragments?: Fragments | null; players?: Players | null; pose?: PoseData | null }) => {
+    if (!projectId) return;
+    const prev = (await loadAnalysis(projectId)) ?? { fps: trackFps };
+    await saveAnalysis(projectId, {
+      fps: patch.fps ?? prev.fps ?? trackFps,
+      fragments: (patch.fragments ?? prev.fragments) ?? undefined,
+      players: (patch.players ?? prev.players) ?? undefined,
+      pose: (patch.pose ?? prev.pose) ?? undefined,
+    });
+  };
   const runAnalysis = async () => {
-    if (!window.ml || !projectId) { setView('editor'); return; }
+    if (!window.ml || !projectId) return;
     setAnalyzing({ pct: 0 });
     const off = window.ml.onProgress((p) => setAnalyzing({ pct: p }));
     try {
       const bytes = await currentVideoBytes();
       if (!bytes) throw new Error('영상을 불러올 수 없습니다');
       const res = await window.ml.analyze(bytes, { step: 3 });
-      const data = { fragments: res.fragments.tracks, players: res.players.players, fps: res.fragments.fps };
-      await saveAnalysis(projectId, data);
-      setFragments(data.fragments); setPlayers(data.players); setTrackFps(data.fps);
-      setAnalyzed(true); setAnalyzing(null); setView('editor');
+      const fps = res.fragments.fps;
+      await persistAnalysis({ fps, fragments: res.fragments.tracks, players: res.players.players });
+      setFragments(res.fragments.tracks); setPlayers(res.players.players); setTrackFps(fps);
+      setAnalyzed(true); setAnalyzing(null);
     } catch (e) {
       setAnalyzing({ pct: 0, error: e instanceof Error ? e.message : String(e) });
+    } finally { off(); }
+  };
+  const runPoseAnalysis = async () => {
+    if (!window.ml?.analyzePose || !projectId) return;
+    setPoseAnalyzing({ pct: 0 });
+    const off = window.ml.onPoseProgress((p) => setPoseAnalyzing({ pct: p }));
+    try {
+      const bytes = await currentVideoBytes();
+      if (!bytes) throw new Error('영상을 불러올 수 없습니다');
+      const res = await window.ml.analyzePose(bytes, { step: 3 });
+      await persistAnalysis({ fps: res.pose.fps, pose: res.pose });
+      setPoseData(res.pose); setPoseAnalyzed(true); setPoseAnalyzing(null);
+    } catch (e) {
+      setPoseAnalyzing({ pct: 0, error: e instanceof Error ? e.message : String(e) });
     } finally { off(); }
   };
   // after court calibration → analysis step (desktop, first time), else the editor
   const goAfterCalibrate = () => {
     captureThumb();
-    setView(hasML && !analyzed ? 'analyze' : 'editor');
+    setView(hasML && !analyzed && !poseAnalyzed ? 'analyze' : 'editor');
   };
 
   // re-apply user player-calibration once fragments load for an opened project
@@ -294,12 +337,12 @@ export default function App() {
       saveProject({
         id: projectId, name: projectName, updatedAt: Date.now(), videoName, videoKey,
         corners: calibration?.imagePoints ?? null, calibMethod, overlays, playerAnchors,
-        thumbnail: thumbnail ?? undefined, analyzed, trackFps,
+        thumbnail: thumbnail ?? undefined, analyzed, poseAnalyzed, trackFps,
       });
     }, 500);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [view, projectId, projectName, videoName, videoKey, calibration, calibMethod, overlays, playerAnchors, thumbnail, analyzed, trackFps]);
+  }, [view, projectId, projectName, videoName, videoKey, calibration, calibMethod, overlays, playerAnchors, thumbnail, analyzed, poseAnalyzed, trackFps]);
 
   useEffect(() => {
     const v = videoRef.current;
@@ -580,6 +623,26 @@ export default function App() {
     overlays.filter((o) => o.type === 'spotlight').map((o) => (o as { trackId: string }).trackId),
   );
 
+  // Add a pose/form overlay for a player (like follow-circle: each click adds one).
+  // Sourced from the pose cache; span = the player's tracked span; angles default to all.
+  const addPose = (playerId: string) => {
+    if (!poseData) return;
+    const pts = poseData.players[playerId];
+    if (!pts || pts.length === 0) return;
+    const span = followSpan(pts[0].t, pts[pts.length - 1].t);
+    const id = uid('pose');
+    mutate((o) => [...o, {
+      id, type: 'pose', name: `폼 P${playerId}`, visible: true, ...span,
+      trackId: playerId, color: playerColor(playerId) ?? '#E4EF3D',
+      skeleton: true, angles: ['elbow', 'knee', 'rotation', 'trunk'], side: defaultSide(pts),
+    }]);
+    setSelectedOverlayId(id);
+    if (cur < span.startTime || cur > span.endTime) seek(span.startTime);
+  };
+  const posedIds = new Set(
+    overlays.filter((o) => o.type === 'pose').map((o) => (o as { trackId: string }).trackId),
+  );
+
   // ── player calibration (user-anchored re-ID) ────────────────────────────
   const startPlayerCalibration = () => {
     videoRef.current?.pause();
@@ -705,7 +768,7 @@ export default function App() {
       if (src.type === 'ground-halo' || src.type === 'marker' || src.type === 'text' || src.type === 'zoom-in' || src.type === 'sector') {
         return [...o, { ...src, id: newId, name, courtX: src.courtX + 0.6, courtY: src.courtY + 0.6 }];
       }
-      if (src.type === 'spotlight' || src.type === 'speed') return [...o, { ...src, id: newId, name }];
+      if (src.type === 'spotlight' || src.type === 'speed' || src.type === 'pose') return [...o, { ...src, id: newId, name }];
       if (src.type === 'path') {
         const off = src.space === 'screen' ? 24 : 0.4;
         return [...o, { ...src, id: newId, name, points: src.points.map((p) => ({ x: p.x + off, y: p.y + off })) }];
@@ -874,6 +937,7 @@ export default function App() {
       src={src} videoRef={videoRef} calibration={calibration} overlays={overlays} mode={mode}
       currentTime={cur} hint={stageHint} selectedId={selectedOverlayId} onSelectOverlay={setSelectedOverlayId}
       players={players} fragments={fragments} playerAnchors={playerAnchors} fps={trackFps}
+      poseData={poseData}
       draftCalib={draftCalib} draftZone={draftZone} pathDraft={pathDraft}
       onUpdatePathPoints={(id, points) => updatePath(id, { points })} onUpdateText={updateText} onUpdateSector={updateSector}
       onPatchOverlay={patchOverlay}
@@ -922,47 +986,76 @@ export default function App() {
   }
 
   if (view === 'analyze') {
-    const pct = Math.round((analyzing?.pct ?? 0) * 100);
-    const running = !!analyzing && !analyzing.error;
+    const anyRunning = (!!analyzing && !analyzing.error) || (!!poseAnalyzing && !poseAnalyzing.error);
+    type CardArgs = {
+      icon: string; title: string; desc: string; unlocks: string;
+      done: boolean; skipped: boolean; state: { pct: number; error?: string } | null;
+      onStart: () => void; onSkip: () => void; onUnskip: () => void; onRerun: () => void;
+    };
+    const analyzeCard = (a: CardArgs) => {
+      const running = !!a.state && !a.state.error;
+      const pct = Math.round((a.state?.pct ?? 0) * 100);
+      return (
+        <div className={`analyze-card ${a.done ? 'is-done' : ''}`}>
+          <div className="analyze-icon">{a.icon}</div>
+          <h2>{a.title}</h2>
+          <p className="analyze-desc">{a.desc}<br /><span className="analyze-unlocks">{a.unlocks}</span></p>
+          {a.done ? (
+            <div className="analyze-donerow"><span className="analyze-badge">✓ 완료</span>
+              <button className="btn subtle sm" disabled={anyRunning} onClick={a.onRerun}>다시 분석</button></div>
+          ) : running ? (
+            <div className="analyze-progress">
+              <div className="analyze-bar"><div className="analyze-bar-fill" style={{ width: `${pct}%` }} /></div>
+              <div className="analyze-pct">{pct}% · 분석 중…</div>
+            </div>
+          ) : a.state?.error ? (
+            <div className="analyze-error">
+              <div>분석 실패: {a.state.error}</div>
+              <div className="analyze-actions"><button className="btn sm" disabled={anyRunning} onClick={a.onStart}>다시 시도</button></div>
+            </div>
+          ) : a.skipped ? (
+            <div className="analyze-donerow"><span className="analyze-skip">건너뜀</span>
+              <button className="btn subtle sm" disabled={anyRunning} onClick={a.onUnskip}>실행</button></div>
+          ) : (
+            <div className="btn-row analyze-actions">
+              <button className="btn primary" disabled={anyRunning} onClick={a.onStart}>시작</button>
+              <button className="btn" disabled={anyRunning} onClick={a.onSkip}>건너뛰기</button>
+            </div>
+          )}
+        </div>
+      );
+    };
     return (
       <div className="calibrate-view">
         <header className="calibrate-head">
-          <button className="btn ghost sm" onClick={backToProjects} disabled={running} title="프로젝트 목록으로">← 프로젝트</button>
+          <button className="btn ghost sm" onClick={backToProjects} disabled={anyRunning} title="프로젝트 목록으로">← 프로젝트</button>
           {wizardSteps('analyze')}
-          <span className="calib-head-spacer" />
+          <button className="btn primary sm" onClick={() => setView('editor')} disabled={anyRunning}
+            title="선택한 분석을 마치고 편집기로 이동">에디터로 →</button>
         </header>
-        <div className="analyze-body">
-          <div className="analyze-card">
-            <div className="analyze-icon">🏃‍➡️</div>
-            <h2>AI 선수 추적</h2>
-            <p className="analyze-desc">
-              영상에서 선수를 추적하는 <b>따라가기</b> 기능들을 사용할 수 있습니다.<br />
-              영상 길이에 따라 처리에 수십 초~몇 분 걸립니다.
-            </p>
-            {!analyzing && (
-              <div className="btn-row analyze-actions">
-                <button className="btn primary" onClick={() => void runAnalysis()}>선수 분석 시작</button>
-                <button className="btn" onClick={() => setView('editor')}>건너뛰기</button>
-              </div>
-            )}
-            {running && (
-              <div className="analyze-progress">
-                <div className="analyze-bar"><div className="analyze-bar-fill" style={{ width: `${pct}%` }} /></div>
-                <div className="analyze-pct">{pct}% · 분석 중…</div>
-              </div>
-            )}
-            {analyzing?.error && (
-              <div className="analyze-error">
-                <div>분석 실패: {analyzing.error}</div>
-                <div className="analyze-actions">
-                  <button className="btn sm" onClick={() => setAnalyzing(null)}>다시 시도</button>
-                  <button className="btn sm" onClick={() => setView('editor')}>건너뛰기</button>
-                </div>
-              </div>
-            )}
-            <div className="analyze-note">나중에 에디터 상단 <b>선수 분석</b>에서 다시 실행할 수 있습니다.</div>
-          </div>
+        <div className="analyze-body analyze-two">
+          {analyzeCard({
+            icon: '🏃‍➡️', title: '선수 위치 분석',
+            desc: '영상에서 선수의 위치·이동 경로를 추적합니다.',
+            unlocks: '→ 따라가기 원 · 스포트라이트',
+            done: analyzed, skipped: analyzeSkip.pos, state: analyzing,
+            onStart: () => void runAnalysis(),
+            onSkip: () => setAnalyzeSkip((s) => ({ ...s, pos: true })),
+            onUnskip: () => setAnalyzeSkip((s) => ({ ...s, pos: false })),
+            onRerun: () => { setAnalyzed(false); setAnalyzing(null); },
+          })}
+          {analyzeCard({
+            icon: '🤸', title: '자세 분석',
+            desc: '선수의 골격·관절 각도를 프레임별로 추출합니다.',
+            unlocks: '→ 폼 추적 (골격 + 각도)',
+            done: poseAnalyzed, skipped: analyzeSkip.pose, state: poseAnalyzing,
+            onStart: () => void runPoseAnalysis(),
+            onSkip: () => setAnalyzeSkip((s) => ({ ...s, pose: true })),
+            onUnskip: () => setAnalyzeSkip((s) => ({ ...s, pose: false })),
+            onRerun: () => { setPoseAnalyzed(false); setPoseAnalyzing(null); setPoseData(null); },
+          })}
         </div>
+        <div className="analyze-foot">각 분석은 독립적이에요 — 둘 다, 하나만, 또는 건너뛸 수 있고 나중에 에디터에서 다시 실행할 수 있습니다.</div>
       </div>
     );
   }
@@ -978,6 +1071,11 @@ export default function App() {
       onSetPlayerStyle={setPlayerStyleFor}
       onToggleSpotlight={toggleSpotlight}
       spotlightIds={spotlightIds}
+      poseReady={!!poseData}
+      poseAnalyzed={poseAnalyzed}
+      posePlayerIds={poseData ? Object.keys(poseData.players) : []}
+      onAddPose={addPose}
+      posedIds={posedIds}
       colors={PLAYER_COLORS}
       hasFragments={!!fragments}
       anchorCount={playerAnchors.length}

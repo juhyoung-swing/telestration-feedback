@@ -16,10 +16,12 @@ import { PathArrow } from './overlays/PathArrow';
 import { Connector } from './overlays/Connector';
 import { Sector } from './overlays/Sector';
 import { SpotlightDim } from './overlays/SpotlightDim';
+import { PoseFigure } from './overlays/PoseFigure';
+import { poseAt } from '../lib/pose';
 import { CalibrationPoints } from './overlays/CalibrationPoints';
 import { CalibLines } from './overlays/CalibLines';
 import { CalibBoxes } from './overlays/CalibBoxes';
-import type { CourtCalibration, Overlay, Mode, DrawnLine, Players, Fragments, PlayerAnchor, Spotlight, ZoomIn } from '../types';
+import type { CourtCalibration, Overlay, Mode, DrawnLine, Players, Fragments, PlayerAnchor, PoseData, Spotlight, ZoomIn } from '../types';
 
 // hit-test helpers (display px)
 const pointInPoly = (px: number, py: number, poly: number[]): boolean => {
@@ -48,6 +50,7 @@ type Props = {
   selectedId: string | null; // timeline-selected overlay → highlighted on the canvas
   onSelectOverlay: (id: string | null) => void; // click an overlay on the canvas → select it
   players: Players | null; // tracked player trajectories (foot points in video px)
+  poseData: PoseData | null; // per-player keypoint sequences (video px) for pose overlays
   fragments: Fragments | null; // raw fragments (for player-calibration hit-testing)
   playerAnchors: PlayerAnchor[]; // clicked player anchors during player-calibration
   fps: number;
@@ -78,6 +81,7 @@ export function VideoStage({
   selectedId,
   onSelectOverlay,
   players,
+  poseData,
   fragments,
   playerAnchors,
   fps,
@@ -198,6 +202,13 @@ export function VideoStage({
       case 'coverage-zone': case 'connector': return o.points[0] ? project(o.points[0].courtX, o.points[0].courtY) : null;
       case 'sector': { const r = (o.dir * Math.PI) / 180; return project(o.courtX + 0.5 * o.radiusM * Math.cos(r), o.courtY + 0.5 * o.radiusM * Math.sin(r)); } // ring at the fan's middle, not the apex
       case 'spotlight': return atFoot(o.trackId);
+      case 'pose': {
+        const s = poseData?.players[o.trackId];
+        const fr = s ? poseAt(s, currentTime) : null;
+        if (!fr) return null;
+        const lh = fr.pts[11], rh = fr.pts[12]; // mid-hip
+        return vToD({ x: (lh.x + rh.x) / 2, y: (lh.y + rh.y) / 2 });
+      }
       default: return null;
     }
   })();
@@ -350,6 +361,13 @@ export function VideoStage({
                         return <Connector key={o.id} points={o.points} project={project} color={o.color} />;
                       case 'spotlight':
                         return null; // rendered by SpotlightDim above
+                      case 'pose': {
+                        const samples = poseData?.players[o.trackId];
+                        const frame = samples ? poseAt(samples, currentTime) : null;
+                        if (!frame) return null;
+                        return <PoseFigure key={o.id} frame={frame} toDisplay={vToD} color={o.color}
+                          skeleton={o.skeleton} angles={o.angles} side={o.side} selected={selectedId === o.id} />;
+                      }
                       case 'zoom-in':
                         return null; // applied as a CSS transform on the whole stage
                       case 'speed':

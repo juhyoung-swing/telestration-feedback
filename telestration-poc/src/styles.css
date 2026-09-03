@@ -354,3 +354,19 @@ body {
 .analyze-error { margin-top: 8px; color: #ff8a8a; font-size: 13px; }
 .analyze-actions { display: flex; gap: 8px; justify-content: center; margin-top: 12px; }
 .analyze-note { margin-top: 22px; font-size: 12px; color: var(--text-dim); opacity: 0.8; }
+
+/* two-card analyze step (선수 위치 분석 / 자세 분석) */
+.analyze-two { gap: 18px; align-items: stretch; flex-wrap: wrap; }
+.analyze-two .analyze-card { width: min(340px, 100%); display: flex; flex-direction: column; padding: 26px 22px; }
+.analyze-card.is-done { border-color: var(--accent); }
+.analyze-unlocks { color: var(--accent); font-weight: 600; }
+.analyze-donerow { display: flex; gap: 10px; align-items: center; justify-content: center; margin-top: auto; padding-top: 10px; }
+.analyze-badge { color: var(--accent-ink); background: var(--accent); font-weight: 700; font-size: 12px; border-radius: 999px; padding: 3px 12px; }
+.analyze-skip { color: var(--muted); font-size: 12px; border: 1px dashed var(--border); border-radius: 999px; padding: 3px 12px; }
+.analyze-two .analyze-actions { margin-top: auto; }
+.analyze-foot { text-align: center; font-size: 12px; color: var(--text-dim); padding: 0 24px 22px; }
+
+/* angle toggle chips (pose inspector) */
+.chip-row { display: flex; flex-wrap: wrap; gap: 6px; margin: 2px 0 4px; }
+.chip { font-size: 12px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--border); background: var(--panel-2); color: var(--text-dim); cursor: pointer; }
+.chip.on { border-color: var(--accent); background: var(--accent-weak); color: var(--accent); font-weight: 600; }

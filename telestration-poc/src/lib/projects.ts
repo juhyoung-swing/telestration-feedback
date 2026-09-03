@@ -1,5 +1,5 @@
 import type { Pt } from '../geometry/homography';
-import type { Fragments, Overlay, PlayerAnchor, Players } from '../types';
+import type { Fragments, Overlay, PlayerAnchor, Players, PoseData } from '../types';
 
 // A project is one self-contained work unit: a video + its court calibration + all effects.
 // Metadata lives in localStorage; the (large) video blob lives in IndexedDB, keyed by videoKey.
@@ -14,12 +14,14 @@ export type Project = {
   overlays: Overlay[];
   playerAnchors: PlayerAnchor[];
   thumbnail?: string;                 // small JPEG data URL captured from a video frame
-  analyzed?: boolean;                 // player tracking has been run (data in IndexedDB 'analysis')
+  analyzed?: boolean;                 // 선수 위치 분석 has been run (data in IndexedDB 'analysis')
+  poseAnalyzed?: boolean;             // 자세(폼) 분석 has been run (pose in IndexedDB 'analysis')
   trackFps?: number;                  // fps the tracking data was sampled at
 };
 
-// Player-tracking output for one project (produced in-app by the Electron ML pipeline).
-export type AnalysisData = { fragments: Fragments; players: Players; fps: number };
+// Analysis output for one project (produced in-app by the Electron ML pipeline).
+// Position (fragments/players) and pose are independent — either may be absent.
+export type AnalysisData = { fps: number; fragments?: Fragments; players?: Players; pose?: PoseData };
 
 const KEY = 'tele.projects.v1';
 

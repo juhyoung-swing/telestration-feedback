@@ -60,6 +60,17 @@ export type Fragments = Record<string, Fragment>;
 export type FragmentData = { video: string; fps: number; width: number; height: number; step: number; tracks: Fragments };
 export type PlayerAnchor = { label: string; desc: [number, number, number]; fragId: string };
 
+// ── pose / form analysis (from electron/ml/pose.cjs) ─────────────────────────
+// 17 COCO keypoints per person per sampled frame, in video px. Keyed by the same
+// player labels ("1".."K", nearest = P1) as the position pipeline's Players.
+export type PoseKpt = [number, number, number]; // x, y, score (video px)
+export type PoseSample = { f: number; t: number; foot: [number, number]; kpts: PoseKpt[] };
+export type PosePlayers = Record<string, PoseSample[]>;
+export type PoseData = {
+  video: string; fps: number; width: number; height: number; step: number;
+  players: PosePlayers;
+};
+
 export type ZoneFill = 'solid' | 'hatch' | 'none';
 export type CoverageZone = TimeSpan & {
   id: string;
@@ -138,6 +149,17 @@ export type Spotlight = TimeSpan & {
   id: string; type: 'spotlight'; name: string; visible: boolean;
   trackId: string;
 };
+// Pose (form) overlay: draw a player's skeleton + annotate joint angles, sourced
+// from the pose-analysis cache (PoseData) by trackId, per the video currentTime.
+export type PoseAngleId = 'elbow' | 'knee' | 'rotation' | 'trunk';
+export type PoseOverlay = TimeSpan & {
+  id: string; type: 'pose'; name: string; visible: boolean;
+  trackId: string;              // pose player label ("1".."K")
+  color?: string;
+  skeleton: boolean;            // draw the stick figure
+  angles: PoseAngleId[];        // which joint angles to annotate
+  side: 'left' | 'right';       // which arm/leg for elbow/knee angles
+};
 // Speed segment: while the playhead is inside [start,end], the video plays at `rate`
 // (slow-motion < 1, fast > 1). Not drawn on the canvas — a playback modifier on the timeline.
 export type SpeedSegment = TimeSpan & {
@@ -152,7 +174,7 @@ export type ZoomIn = TimeSpan & {
   courtX: number; courtY: number; scale: number; trackId?: string;
 };
 
-export type Overlay = GroundHalo | CoverageZone | Marker | TextLabel | PathArrow | Connector | Sector | Spotlight | ZoomIn | SpeedSegment;
+export type Overlay = GroundHalo | CoverageZone | Marker | TextLabel | PathArrow | Connector | Sector | Spotlight | PoseOverlay | ZoomIn | SpeedSegment;
 
 // ── UI (SportsBuddy-style shell) ────────────────────────────────────────────
 // Media/Court were removed: video import + court calibration happen at project creation.
@@ -161,7 +183,7 @@ export type RailTab = 'effect' | 'narrative';
 // SportsBuddy feature set as Effect-tab tiles. Player-group tiles (follow-circle /
 // spotlight) apply to a player picked in the panel's lower section; the rest place on the court.
 export type FeatureId =
-  | 'follow-circle' | 'spotlight'                     // Player group (apply to a selected player)
+  | 'follow-circle' | 'spotlight' | 'pose'            // Player group (apply to a selected player)
   | 'circle' | 'path' | 'zone' | 'marker' | 'connector' | 'sector' // Tactic group (place on court)
   | 'text' | 'zoom-in' | 'slowmo';                      // Action group
 

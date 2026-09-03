@@ -1,14 +1,18 @@
 import { useState } from 'react';
 import { FEATURES, FEATURE_GROUPS } from '../features';
 import { playersBySpan } from '../../../geometry/tracking';
-import type { CircleParams, FeatureId, Mode, Overlay, PathArrow, PathParams, Players, SpeedSegment, TextLabel, TextParams, ZoneParams, ZoomParams } from '../../../types';
+import type { CircleParams, FeatureId, Mode, Overlay, PathArrow, PathParams, Players, PoseAngleId, PoseOverlay, SpeedSegment, TextLabel, TextParams, ZoneParams, ZoomParams } from '../../../types';
 
 const FEATURE_MODE: Record<string, Mode> = {
   circle: 'placing-halo', marker: 'placing-marker', text: 'placing-text',
   zone: 'drawing-zone', path: 'drawing-path', connector: 'drawing-connector',
   sector: 'drawing-sector', 'zoom-in': 'placing-zoom',
 };
-const PLAYER_FEATURES: FeatureId[] = ['follow-circle', 'spotlight'];
+const PLAYER_FEATURES: FeatureId[] = ['follow-circle', 'spotlight', 'pose'];
+const POSE_ANGLES: { id: PoseAngleId; label: string }[] = [
+  { id: 'elbow', label: '팔꿈치' }, { id: 'knee', label: '무릎' },
+  { id: 'rotation', label: '어깨-엉덩이' }, { id: 'trunk', label: '몸통' },
+];
 
 type Props = {
   hasCalibration: boolean;
@@ -20,6 +24,11 @@ type Props = {
   onSetPlayerStyle: (id: string, patch: Partial<{ color: string; dashed: boolean }>) => void;
   onToggleSpotlight: (id: string) => void;
   spotlightIds: Set<string>;
+  poseReady: boolean;          // 자세 분석 data present → 폼 추적 unlocked
+  poseAnalyzed: boolean;
+  posePlayerIds: string[];     // player labels available in the pose cache
+  onAddPose: (id: string) => void;
+  posedIds: Set<string>;
   colors: string[];
   hasFragments: boolean;
   anchorCount: number;
@@ -108,7 +117,12 @@ export function EffectPanel(p: Props) {
   const isTwoClick = p.selected === 'connector' || p.selected === 'path' || p.selected === 'sector'; // start + end
   const isPoint = p.selected === 'circle' || p.selected === 'marker' || p.selected === 'text' || p.selected === 'zoom-in';
   const isPlayer = PLAYER_FEATURES.includes(p.selected);
-  const playersReady = !!p.players; // false when 선수 분석 was skipped / not run → player effects are locked
+  const isPose = p.selected === 'pose';
+  const playersReady = !!p.players; // false when 위치 분석 was skipped / not run → follow/spotlight locked
+  // per-feature gate: 폼 추적 needs 자세 분석; the others need 위치 분석
+  const featLocked = (id: FeatureId) => (id === 'pose' ? !p.poseReady : (PLAYER_FEATURES.includes(id) && !playersReady));
+  const readyForSelected = isPose ? p.poseReady : playersReady;
+  const selPose = p.selectedOverlay?.type === 'pose' ? (p.selectedOverlay as PoseOverlay) : null;
 
   // Path: a selected path is edited live; otherwise the buttons/slider set defaults for new paths.
   const selPath = p.selectedPath;
@@ -181,13 +195,13 @@ export function EffectPanel(p: Props) {
           <div className="field-label">{g}</div>
           <div className="feature-grid">
             {FEATURES.filter((f) => f.group === g).map((f) => {
-              const locked = PLAYER_FEATURES.includes(f.id) && !playersReady;
+              const locked = featLocked(f.id);
               return (
                 <button
                   key={f.id}
                   className={`feature-tile ${p.selected === f.id ? 'active' : ''} ${f.implemented ? '' : 'soon'} ${locked ? 'locked' : ''}`}
                   onClick={() => { p.onSelect(f.id); if (!PLAYER_FEATURES.includes(f.id)) p.onCreate(f.id); }}
-                  title={locked ? '선수 분석을 실행해야 사용할 수 있어요' : f.hint}
+                  title={locked ? (f.id === 'pose' ? '자세 분석을 실행해야 사용할 수 있어요' : '선수 위치 분석을 실행해야 사용할 수 있어요') : f.hint}
                 >
                   <span className="feature-icon">{f.icon}</span>
                   <span className="feature-name">{f.label}</span>
@@ -197,8 +211,8 @@ export function EffectPanel(p: Props) {
               );
             })}
           </div>
-          {g === 'Player' && !playersReady && (
-            <div className="lock-note">🔒 선수 분석을 실행하면 사용할 수 있어요{p.onGoAnalyze ? ' — 상단 ⚙ 설정 → 선수 분석' : ''}.</div>
+          {g === 'Player' && (!playersReady || !p.poseReady) && (
+            <div className="lock-note">🔒 {!playersReady && '따라가기·스포트라이트는 위치 분석'}{!playersReady && !p.poseReady && ' · '}{!p.poseReady && '폼 추적은 자세 분석'} 실행 후 사용{p.onGoAnalyze ? ' (⚙ 설정 → 선수 분석)' : ''}.</div>
           )}
         </div>
       ))}
@@ -213,16 +227,67 @@ export function EffectPanel(p: Props) {
 
       {/* ── lower section ── player-effect → pick a player (+선수 지정); court effect → settings/Create */}
       {isPlayer ? (
-        !playersReady ? (
+        !readyForSelected ? (
           <div className="warn-note">
-            <b>{def.label}</b>는 선수 추적 데이터가 필요합니다.{' '}
-            {p.onGoAnalyze ? (<>상단 <b>⚙ 설정 → 선수 분석</b>에서 실행하세요.</>) : (<>선수 분석을 먼저 실행하세요.</>)}
+            <b>{def.label}</b>는 {isPose ? '자세 분석' : '선수 위치 분석'} 데이터가 필요합니다.{' '}
+            {p.onGoAnalyze ? (<>상단 <b>⚙ 설정 → 선수 분석</b>에서 실행하세요.</>) : (<>먼저 분석을 실행하세요.</>)}
             {p.onGoAnalyze && (
               <div className="btn-row" style={{ marginTop: 8 }}>
                 <button className="btn sm primary" onClick={p.onGoAnalyze}>선수 분석 실행</button>
               </div>
             )}
           </div>
+        ) : isPose ? (
+          <>
+            <div className="field-label">선수</div>
+            <div className="muted-note">선수를 눌러 폼 추적을 추가합니다 — P1·P2를 각각 추가할 수 있어요.</div>
+            <div className="player-list">
+              {p.posePlayerIds.map((id) => {
+                const paletteColor = p.colors[(Number(id) - 1) % p.colors.length];
+                const has = p.posedIds.has(id);
+                return (
+                  <div key={id} className="player-row">
+                    <span className="player-dot" style={{ background: paletteColor }} />
+                    <span className="player-tag">P{id}</span>
+                    {has && <span className="player-badge">추가됨</span>}
+                    <span className="player-spacer" />
+                    <button className="btn sm primary" onClick={() => p.onAddPose(id)} title="이 선수의 폼 추적 추가">폼 추가</button>
+                  </div>
+                );
+              })}
+              {p.posePlayerIds.length === 0 && <div className="muted-note">자세 분석에서 감지된 선수가 없습니다.</div>}
+            </div>
+            {selPose && (
+              <>
+                <div className="field-label" style={{ marginTop: 8 }}>폼 P{selPose.trackId} 편집</div>
+                <div className="field"><label>골격</label>
+                  <div className="btn-row">
+                    <button className={`btn sm ${selPose.skeleton ? 'active' : ''}`} onClick={() => p.onPatchOverlay(selPose.id, { skeleton: true })}>표시</button>
+                    <button className={`btn sm ${!selPose.skeleton ? 'active' : ''}`} onClick={() => p.onPatchOverlay(selPose.id, { skeleton: false })}>숨김</button>
+                  </div></div>
+                <div className="field"><label>팔·다리 기준</label>
+                  <div className="btn-row">
+                    <button className={`btn sm ${selPose.side === 'left' ? 'active' : ''}`} onClick={() => p.onPatchOverlay(selPose.id, { side: 'left' })}>왼쪽</button>
+                    <button className={`btn sm ${selPose.side === 'right' ? 'active' : ''}`} onClick={() => p.onPatchOverlay(selPose.id, { side: 'right' })}>오른쪽</button>
+                  </div></div>
+                <div className="field-label" style={{ marginTop: 4 }}>표시할 각도</div>
+                <div className="chip-row">
+                  {POSE_ANGLES.map((a) => {
+                    const on = selPose.angles.includes(a.id);
+                    return (
+                      <button key={a.id} className={`chip ${on ? 'on' : ''}`}
+                        onClick={() => p.onPatchOverlay(selPose.id, { angles: on ? selPose.angles.filter((x) => x !== a.id) : [...selPose.angles, a.id] })}>
+                        {a.label}
+                      </button>
+                    );
+                  })}
+                </div>
+                <div className="field"><label>색상</label>
+                  <input type="color" value={selPose.color ?? '#E4EF3D'} onChange={(e) => p.onPatchOverlay(selPose.id, { color: e.target.value })} /></div>
+                <div className="muted-note">선택하면 화면에서 골격이 강조됩니다. 타임라인에서 구간을 조절하세요.</div>
+              </>
+            )}
+          </>
         ) : (
         <>
           {p.selected === 'follow-circle' && (
