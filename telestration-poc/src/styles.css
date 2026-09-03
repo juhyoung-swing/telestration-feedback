@@ -185,7 +185,9 @@ body {
 .video-stage {
   position: relative;
   width: 100%;
-  max-width: calc((100vh - 320px) * 16 / 9); /* leave more vertical room for the timeline */
+  /* Height cap is applied inline in VideoStage using the video's real aspect ratio
+     (portrait clips fit vertically). This 16:9 value is only a pre-metadata fallback. */
+  max-width: calc((100vh - 320px) * 16 / 9);
   margin: 0 auto;
   background: #000;
   border: 1px solid var(--border);
