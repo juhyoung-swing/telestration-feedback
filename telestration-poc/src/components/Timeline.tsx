@@ -37,6 +37,7 @@ type Props = {
   onDuplicateClip: (id: string) => void;
   onDeleteClip: (id: string) => void;
   onMoveClip: (id: string, toIndex: number) => void;
+  onInsertGap: (afterId: string) => void; // insert a black gap clip after this one
   onBeginHistory: () => void; // called once at drag-start so a whole drag is one undo step
   onSelect: (id: string) => void;
   onSeek: (t: number) => void;
@@ -216,19 +217,20 @@ export function Timeline(p: Props) {
               {p.clips.map((c, i) => {
                 const dragging = clipDrag?.id === c.id;
                 const a = p.clipAnalyzed[c.id];
+                const isGapClip = c.kind === 'gap';
                 return (
                   <div
                     key={c.id}
-                    className={`tl-clip ${p.selectedClipId === c.id ? 'selected' : ''} ${dragging ? 'dragging' : ''}`}
+                    className={`tl-clip ${isGapClip ? 'gap' : ''} ${p.selectedClipId === c.id ? 'selected' : ''} ${dragging ? 'dragging' : ''}`}
                     style={{ left: x(c.timelineStart) + (dragging ? clipDrag!.dx : 0), width: Math.max(6, x(clipDur(c))), zIndex: dragging ? 6 : 1 }}
                     onMouseDown={(e) => startClipDrag(e, c)}
                     onContextMenu={(e) => { e.preventDefault(); p.onSelectClip(c.id); setClipMenu({ x: e.clientX, y: e.clientY, id: c.id }); }}
-                    title={`${p.videoName} · 클립 ${i + 1} · ${fmt(c.srcStart)}–${fmt(c.srcEnd)}${a?.pos ? ' · 위치분석✓' : ''}${a?.pose ? ' · 자세분석✓' : ''} (우클릭: 분할·복제·삭제)`}
+                    title={isGapClip ? `빈 구간(검정) · ${clipDur(c).toFixed(1)}s` : `${p.videoName} · 클립 ${i + 1} · ${fmt(c.srcStart)}–${fmt(c.srcEnd)}${a?.pos ? ' · 위치분석✓' : ''}${a?.pose ? ' · 자세분석✓' : ''} (우클릭: 분할·복제·삭제)`}
                   >
-                    <span className="tl-clip-label">🎬 {i + 1}</span>
-                    {a?.pos && <span className="clip-dot pos" title="위치 분석됨" />}
-                    {a?.pose && <span className="clip-dot pose" title="자세 분석됨" />}
-                    {i === 0 && <span className="tl-badge">{p.speed}×</span>}
+                    <span className="tl-clip-label">{isGapClip ? '⬛ 빈 구간' : `🎬 ${i + 1}`}</span>
+                    {!isGapClip && a?.pos && <span className="clip-dot pos" title="위치 분석됨" />}
+                    {!isGapClip && a?.pose && <span className="clip-dot pose" title="자세 분석됨" />}
+                    {i === 0 && !isGapClip && <span className="tl-badge">{p.speed}×</span>}
                   </div>
                 );
               })}
@@ -273,6 +275,7 @@ export function Timeline(p: Props) {
         <ul className="ctx-menu" style={{ left: clipMenu.x, top: clipMenu.y }} onClick={(e) => e.stopPropagation()}>
           <li onClick={() => { p.onSplitClip(); setClipMenu(null); }}>재생헤드에서 분할 ✂</li>
           <li onClick={() => { p.onDuplicateClip(clipMenu.id); setClipMenu(null); }}>복제 · 반복 ⧉</li>
+          <li onClick={() => { p.onInsertGap(clipMenu.id); setClipMenu(null); }}>뒤에 빈 구간(검정) 추가 ⬛</li>
           <li className={p.clips.length <= 1 ? 'disabled' : ''}
             onClick={() => { if (p.clips.length > 1) { p.onDeleteClip(clipMenu.id); setClipMenu(null); } }}>삭제 ⌫</li>
         </ul>

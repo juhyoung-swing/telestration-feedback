@@ -18,7 +18,7 @@ import { COURT_CORNERS } from './geometry/court';
 import { courtLineDef, fitImageLine, homographyFromLines, familiesCovered } from './geometry/lineCalib';
 import { PLAYER_COLORS, playerColor, hitTestFragment, assignFragments } from './geometry/tracking';
 import { defaultSide } from './lib/pose';
-import { singleClip, totalDuration, clipAt, clipDur, srcAt, splitClip, duplicateClip, deleteClip, moveClip } from './lib/clips';
+import { singleClip, totalDuration, clipAt, clipDur, srcAt, splitClip, duplicateClip, deleteClip, moveClip, insertGap, isGap, relayout } from './lib/clips';
 import type { Clip } from './lib/clips';
 import type {
   CircleParams, CourtCalibration, DrawnLine, FeatureId, FragmentData, Fragments, GroundHalo, Mode, Overlay,
@@ -154,6 +154,10 @@ export default function App() {
   const [loopRegion, setLoopRegion] = useState<{ start: number; end: number } | null>(null); // A-B repeat band
   const loopRef = useRef<{ start: number; end: number } | null>(null);
   loopRef.current = loopRegion; // read by the rAF loop without re-binding it
+  const curRef = useRef(0);       // latest timeline time, read by the rAF loop (for gap wall-clock)
+  const inGapRef = useRef(false); // playhead is inside a black gap (video paused, time advances by wall clock)
+  const lastTsRef = useRef(0);    // rAF timestamp for wall-clock delta during gaps
+  curRef.current = cur;
 
   // tracking (players.json auto-4, and fragments.json for user-anchored re-ID)
   const [players, setPlayers] = useState<Players | null>(null);
@@ -388,7 +392,7 @@ export default function App() {
     const v = videoRef.current;
     if (!v) return;
     const onPlay = () => setPlaying(true);
-    const onPause = () => setPlaying(false);
+    const onPause = () => { if (!inGapRef.current) setPlaying(false); }; // a gap pauses the video but keeps playing
     const onTime = () => setCur(timelineNow(v));
     const onMeta = () => setDur(v.duration || 0);
     v.addEventListener('play', onPlay);
@@ -433,21 +437,44 @@ export default function App() {
   useEffect(() => {
     if (!playing) return;
     let raf = 0;
-    const loop = () => {
+    lastTsRef.current = 0;
+    const loop = (ts: number) => {
       const v = videoRef.current;
       if (v) {
         const cs = clipsRef.current;
-        let active = cs.find((c) => c.id === activeClipRef.current) ?? cs[0] ?? null;
-        // reached the end of the active clip's source range → jump to the next clip (only when edited)
-        if (active && cs.length > 1 && v.currentTime >= active.srcEnd - 0.03) {
-          const idx = cs.findIndex((c) => c.id === active!.id);
-          const next = cs[idx + 1];
-          if (next) { active = next; activeClipRef.current = next.id; v.currentTime = next.srcStart; }
+        const dt = lastTsRef.current ? Math.min(0.12, (ts - lastTsRef.current) / 1000) : 0;
+        lastTsRef.current = ts;
+        let T: number;
+        const here = cs.length ? clipAt(cs, curRef.current) : null;
+        if (isGap(here)) {
+          // ── black gap: video paused, time advances by wall clock ──
+          if (!inGapRef.current) { inGapRef.current = true; v.pause(); }
+          T = curRef.current + dt * (v.playbackRate || 1);
+          const gapEnd = here!.timelineStart + clipDur(here!);
+          if (T >= gapEnd - 1e-3) {
+            const nx = clipAt(cs, gapEnd + 1e-4);
+            if (nx && !isGap(nx) && gapEnd < totalDuration(cs) - 1e-3) {
+              inGapRef.current = false; activeClipRef.current = nx.id; v.currentTime = nx.srcStart; void v.play().catch(() => {});
+              T = nx.timelineStart;
+            } else { T = gapEnd; } // next is another gap (keep advancing) or end of timeline
+          }
+        } else {
+          // ── video clip (unchanged when there are no gaps) ──
+          if (inGapRef.current) inGapRef.current = false;
+          let active = cs.find((c) => c.id === activeClipRef.current) ?? cs[0] ?? null;
+          if (active && cs.length > 1 && v.currentTime >= active.srcEnd - 0.03) {
+            const nextT = active.timelineStart + clipDur(active);
+            const nx = clipAt(cs, nextT + 1e-4);
+            if (nx && isGap(nx)) { v.pause(); inGapRef.current = true; activeClipRef.current = nx.id; T = nextT; }
+            else if (nx) { activeClipRef.current = nx.id; v.currentTime = nx.srcStart; T = nx.timelineStart; }
+            else { T = nextT; }
+          } else {
+            T = active ? active.timelineStart + (v.currentTime - active.srcStart) : v.currentTime;
+          }
         }
-        const T = active ? active.timelineStart + (v.currentTime - active.srcStart) : v.currentTime;
         const lr = loopRef.current; // A-B repeat (timeline time): jump back to the region start
-        if (lr && T >= lr.end - 0.02 && lr.end > lr.start) seek(lr.start);
-        else setCur(T);
+        if (lr && T >= lr.end - 0.02 && lr.end > lr.start) { seek(lr.start); T = lr.start; }
+        setCur(T);
       }
       raf = requestAnimationFrame(loop);
     };
@@ -473,7 +500,8 @@ export default function App() {
     if (cs.length) {
       const c = clipAt(cs, t);
       if (c) activeClipRef.current = c.id;
-      if (v) v.currentTime = srcAt(cs, t);
+      if (isGap(c)) { inGapRef.current = true; if (v) v.pause(); } // gap → black, video paused
+      else { inGapRef.current = false; if (v) { v.currentTime = srcAt(cs, t); if (playing && v.paused) void v.play().catch(() => {}); } }
     } else if (v) {
       v.currentTime = t;
     }
@@ -492,6 +520,9 @@ export default function App() {
   const duplicateClipAction = (id: string) => applyClipEdit(duplicateClip(clips, bindOverlays(), id, uid('clip')));
   const deleteClipAction = (id: string) => { applyClipEdit(deleteClip(clips, bindOverlays(), id)); setSelectedClipId(null); };
   const moveClipAction = (id: string, toIndex: number) => applyClipEdit(moveClip(clips, bindOverlays(), id, toIndex));
+  const insertGapAfter = (afterId: string | null) => applyClipEdit(insertGap(clips, bindOverlays(), afterId, uid('clip'), 2));
+  const setGapDuration = (id: string, seconds: number) =>
+    applyClipEdit(relayout(clips, clips.map((c) => (c.id === id ? { ...c, srcEnd: Math.max(0.2, seconds) } : c)), bindOverlays()));
 
   // Keep the playhead inside the (possibly shortened) timeline after a clip edit.
   useEffect(() => {
@@ -883,8 +914,12 @@ export default function App() {
   const togglePlay = () => {
     const v = videoRef.current;
     if (!v) return;
-    if (v.paused) void v.play().catch(() => {});
-    else v.pause();
+    if (playing) { inGapRef.current = false; v.pause(); setPlaying(false); }
+    else {
+      const here = clips.length ? clipAt(clips, cur) : null;
+      if (isGap(here)) setPlaying(true); // gap: rAF advances by wall clock; the video stays paused (black)
+      else void v.play().catch(() => {});
+    }
   };
 
   // A-B repeat: click adds a loop band at the playhead (drag its edges on the timeline); click again clears it.
@@ -1026,7 +1061,7 @@ export default function App() {
   const videoStage = (
     <VideoStage
       src={src} videoRef={videoRef} calibration={calibration} overlays={overlays} mode={mode}
-      currentTime={cur} sourceTime={clips.length ? srcAt(clips, cur) : cur} hint={stageHint} selectedId={selectedOverlayId} onSelectOverlay={setSelectedOverlayId}
+      currentTime={cur} sourceTime={clips.length ? srcAt(clips, cur) : cur} gap={clips.length ? isGap(clipAt(clips, cur)) : false} hint={stageHint} selectedId={selectedOverlayId} onSelectOverlay={setSelectedOverlayId}
       players={players} fragments={fragments} playerAnchors={playerAnchors} fps={trackFps}
       poseData={poseData}
       draftCalib={draftCalib} draftZone={draftZone} pathDraft={pathDraft}
@@ -1093,6 +1128,17 @@ export default function App() {
       </div>
     );
     return (
+      isGap(clip) ? (
+        <div className="panel panel-inspector">
+          <div className="panel-title">⬛ 빈 구간</div>
+          <div className="panel-desc" style={{ marginTop: 0 }}>재생·내보내기에서 검은 화면. 나중에 다른 영상을 끼울 자리로도 쓸 수 있어요.</div>
+          <div className="field" style={{ marginTop: 8 }}><label>길이 {clipDur(clip).toFixed(1)}s</label>
+            <input type="range" min="0.5" max="15" step="0.5" value={clipDur(clip)} onChange={(e) => setGapDuration(clip.id, Number(e.target.value))} /></div>
+          <div className="field-label" style={{ marginTop: 10 }}>편집</div>
+          <button className="btn sm danger block" disabled={clips.length <= 1} onClick={() => deleteClipAction(clip.id)}>삭제 🗑</button>
+          <button className="btn subtle sm block" style={{ marginTop: 10 }} onClick={() => setSelectedClipId(null)}>선택 해제</button>
+        </div>
+      ) : (
       <div className="panel panel-inspector">
         <div className="panel-title">클립 {idx}</div>
         <div className="panel-desc" style={{ marginTop: 0 }}>원본 {fmtT(clip.srcStart)}–{fmtT(clip.srcEnd)} · 길이 {(clip.srcEnd - clip.srcStart).toFixed(1)}s</div>
@@ -1114,6 +1160,7 @@ export default function App() {
         </div>
         <button className="btn subtle sm block" style={{ marginTop: 10 }} onClick={() => setSelectedClipId(null)}>선택 해제</button>
       </div>
+      )
     );
   })();
 
@@ -1244,6 +1291,7 @@ export default function App() {
           onDuplicateClip={duplicateClipAction}
           onDeleteClip={deleteClipAction}
           onMoveClip={moveClipAction}
+          onInsertGap={insertGapAfter}
           onBeginHistory={beginHistory}
           onSelect={setSelectedOverlayId}
           onSeek={seek}

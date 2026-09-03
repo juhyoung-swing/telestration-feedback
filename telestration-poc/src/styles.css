@@ -197,6 +197,7 @@ body {
 }
 .video-el { display: block; width: 100%; height: 100%; object-fit: contain; }
 .konva-overlay { position: absolute; inset: 0; }
+.gap-black { position: absolute; inset: 0; background: #000; } /* black gap clip covers the video (overlays still render on top) */
 .zoom-content { will-change: transform; } /* Zoom In: CSS punch-in of video + overlays together */
 .stage-hint {
   position: absolute; top: 12px; left: 50%; transform: translateX(-50%); z-index: 20; pointer-events: none;
@@ -258,6 +259,7 @@ body {
   background: var(--panel-3); color: var(--text); border: 1px solid var(--border);
   background-image: repeating-linear-gradient(90deg, rgba(255,255,255,.035) 0 2px, transparent 2px 10px); }
 .tl-clip:active { cursor: grabbing; }
+.tl-clip.gap { background: #0a0c0f; background-image: repeating-linear-gradient(45deg, rgba(255,255,255,.06) 0 6px, transparent 6px 12px); color: var(--muted); }
 .tl-clip.selected { border-color: var(--accent); outline: 1px solid var(--accent); }
 .tl-clip.dragging { opacity: .85; box-shadow: 0 6px 18px rgba(0,0,0,.5); }
 .tl-clip-label { opacity: .85; }

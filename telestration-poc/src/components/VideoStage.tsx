@@ -47,6 +47,7 @@ type Props = {
   mode: Mode;
   currentTime: number; // TIMELINE seconds — overlays render only within their [start,end]
   sourceTime: number;  // SOURCE (video) seconds for the clip under the playhead — used for tracking/pose lookups (identity EDL → == currentTime)
+  gap?: boolean;       // playhead is inside a black gap clip → cover the video with black
   hint: string | null; // on-canvas guidance for the active placement/drawing mode
   selectedId: string | null; // timeline-selected overlay → highlighted on the canvas
   onSelectOverlay: (id: string | null) => void; // click an overlay on the canvas → select it
@@ -82,6 +83,7 @@ export function VideoStage({
   selectedId,
   onSelectOverlay,
   sourceTime,
+  gap,
   players,
   poseData,
   fragments,
@@ -315,6 +317,7 @@ export function VideoStage({
           onDimensions(v.videoWidth, v.videoHeight);
         }}
       />
+      {gap && <div className="gap-black" />}
 
       {view && (
         <div

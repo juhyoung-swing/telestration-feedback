@@ -10,10 +10,13 @@
 // unchanged until a clip is actually split / duplicated / moved.
 export type Clip = {
   id: string;
-  srcStart: number;      // source in-point (seconds)
+  kind?: 'video' | 'gap'; // 'gap' = a black/empty segment (no source video); default 'video'
+  srcStart: number;      // source in-point (seconds) — for a gap, 0..duration is just its length
   srcEnd: number;        // source out-point (seconds)
   timelineStart: number; // position on the timeline (seconds) — derived by normalizeClips
 };
+
+export const isGap = (c: Clip | null | undefined) => c?.kind === 'gap';
 
 export const clipDur = (c: Clip) => Math.max(0, c.srcEnd - c.srcStart);
 export const totalDuration = (clips: Clip[]) => clips.reduce((s, c) => s + clipDur(c), 0);
@@ -96,6 +99,15 @@ export function splitClip<T extends TimedItem>(clips: Clip[], items: T[], atTime
   const c2: Clip = { ...c, id: newId, srcStart: srcSplit, timelineStart: c.timelineStart + EPS };
   const reassigned = items.map((it) => (it.clipId === c.id && it.startTime >= atTimeline - 1e-6 ? { ...it, clipId: newId } : it));
   return relayout(clips, [...clips.map((x) => (x.id === c.id ? c1 : x)), c2], reassigned);
+}
+
+/** Insert a black GAP clip right after `afterId` (or at the end). Ripples following clips + overlays. */
+export function insertGap<T extends TimedItem>(clips: Clip[], items: T[], afterId: string | null, newId: string, seconds = 2): { clips: Clip[]; items: T[] } {
+  const idx = afterId ? clips.findIndex((c) => c.id === afterId) : clips.length - 1;
+  const after = idx >= 0 ? clips[idx] : null;
+  const at = after ? after.timelineStart + clipDur(after) : totalDuration(clips);
+  const gap: Clip = { id: newId, kind: 'gap', srcStart: 0, srcEnd: Math.max(0.2, seconds), timelineStart: at + EPS };
+  return relayout(clips, [...clips, gap], items);
 }
 
 /** Reorder: move a clip to a new index (contiguous re-lay). Bound overlays follow. */
