@@ -381,3 +381,8 @@ body {
 .chip-row { display: flex; flex-wrap: wrap; gap: 6px; margin: 2px 0 4px; }
 .chip { font-size: 12px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--border); background: var(--panel-2); color: var(--text-dim); cursor: pointer; }
 .chip.on { border-color: var(--accent); background: var(--accent-weak); color: var(--accent); font-weight: 600; }
+
+/* clip inspector (right panel when a base-video clip is selected) */
+.clip-ana { margin: 6px 0 10px; }
+.clip-ana-head { display: flex; align-items: center; gap: 8px; font-size: 13px; margin-bottom: 5px; }
+.clip-ana-head .analyze-badge { font-size: 10px; padding: 1px 8px; }

@@ -1,11 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 
-// Top-right ⚙ Settings dropdown (next to Export) — project-level actions:
-// re-calibrate the court and (desktop only) re-run player analysis.
-export function SettingsDropdown({ onRecalibrate, onReanalyze, analyzed }: {
+// Top-right ⚙ Settings dropdown (next to Export) — project-level actions.
+// (Player/pose analysis is now per-clip, done from the clip inspector.)
+export function SettingsDropdown({ onRecalibrate }: {
   onRecalibrate: () => void;
-  onReanalyze?: () => void; // undefined when local ML (Electron) is unavailable
-  analyzed: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -26,11 +24,6 @@ export function SettingsDropdown({ onRecalibrate, onReanalyze, analyzed }: {
         <div className="export-pop settings-pop">
           <div className="panel-subtitle">설정</div>
           <button className="btn block" onClick={() => { setOpen(false); onRecalibrate(); }}>🎯 바닥면 재보정</button>
-          {onReanalyze && (
-            <button className="btn block" onClick={() => { setOpen(false); onReanalyze(); }}>
-              🏃 {analyzed ? '선수 재분석' : '선수 분석'}
-            </button>
-          )}
         </div>
       )}
     </div>

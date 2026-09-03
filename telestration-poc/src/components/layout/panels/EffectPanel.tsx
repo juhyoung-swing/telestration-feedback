@@ -212,7 +212,7 @@ export function EffectPanel(p: Props) {
             })}
           </div>
           {g === 'Player' && (!playersReady || !p.poseReady) && (
-            <div className="lock-note">🔒 {!playersReady && '따라가기·스포트라이트는 위치 분석'}{!playersReady && !p.poseReady && ' · '}{!p.poseReady && '폼 추적은 자세 분석'} 실행 후 사용{p.onGoAnalyze ? ' (⚙ 설정 → 선수 분석)' : ''}.</div>
+            <div className="lock-note">🔒 {!playersReady && '따라가기·스포트라이트는 위치 분석'}{!playersReady && !p.poseReady && ' · '}{!p.poseReady && '폼 추적은 자세 분석'} 후 사용 — 타임라인에서 클립을 선택해 분석하세요.</div>
           )}
         </div>
       ))}
@@ -230,12 +230,7 @@ export function EffectPanel(p: Props) {
         !readyForSelected ? (
           <div className="warn-note">
             <b>{def.label}</b>는 {isPose ? '자세 분석' : '선수 위치 분석'} 데이터가 필요합니다.{' '}
-            {p.onGoAnalyze ? (<>상단 <b>⚙ 설정 → 선수 분석</b>에서 실행하세요.</>) : (<>먼저 분석을 실행하세요.</>)}
-            {p.onGoAnalyze && (
-              <div className="btn-row" style={{ marginTop: 8 }}>
-                <button className="btn sm primary" onClick={p.onGoAnalyze}>선수 분석 실행</button>
-              </div>
-            )}
+            타임라인에서 <b>원본 클립</b>을 선택해 <b>{isPose ? '자세' : '위치'} 분석</b>을 실행하세요.
           </div>
         ) : isPose ? (
           <>

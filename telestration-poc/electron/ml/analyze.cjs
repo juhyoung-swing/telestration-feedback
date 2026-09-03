@@ -162,11 +162,15 @@ async function analyzeVideo(videoPath, opts = {}) {
   const ffprobePath = opts.ffprobePath || 'ffprobe';
   const detWidth = opts.detWidth || 640; // downscale for detection (model input is 640 anyway)
   const { onProgress, maxFrames = null, modelPath } = opts;
+  const ss = Math.max(0, opts.ss || 0);        // analyze only [ss, to] of the source (clip-scoped)
+  const to = opts.to && opts.to > ss ? opts.to : null;
 
   const { w, h, fps, nbFrames } = probe(ffprobePath, videoPath);
   const det = await createDetector(modelPath);
   const tracker = new Tracker({ iouThr: opts.iouThr || 0.3, buffer: opts.buffer || 30 });
-  const expected = maxFrames || (nbFrames ? Math.ceil(nbFrames / step) : null);
+  const rangeFrames = to ? Math.ceil(((to - ss) * fps) / step) : (nbFrames ? Math.ceil(nbFrames / step) : null);
+  const expected = maxFrames || rangeFrames;
+  const f0 = Math.round(ss * fps); // source frame index of the first decoded frame
 
   // Detect on a downscaled frame (ffmpeg scales — better + faster than JS), then
   // map boxes back to ORIGINAL coords so the app's 1920×1080 homography holds.
@@ -175,7 +179,9 @@ async function analyzeVideo(videoPath, opts = {}) {
   const scale = w / sw;
   const frameSize = sw * sh * 3;
 
-  const args = ['-nostdin', '-loglevel', 'error', '-i', videoPath,
+  const args = ['-nostdin', '-loglevel', 'error',
+    ...(ss > 0 ? ['-ss', String(ss)] : []), '-i', videoPath,
+    ...(to ? ['-t', String(to - ss)] : []),
     '-vf', `select='not(mod(n\\,${step}))',scale=${sw}:${sh}`, '-vsync', '0',
     '-f', 'rawvideo', '-pix_fmt', 'rgb24', 'pipe:1'];
   const proc = spawn(ffmpegPath, args, { stdio: ['ignore', 'pipe', 'ignore'] });
@@ -204,7 +210,7 @@ async function analyzeVideo(videoPath, opts = {}) {
     while (have >= frameSize) {
       const fb = takeFrame(); have -= frameSize;
       const rgb = new Uint8Array(fb.buffer, fb.byteOffset, frameSize);
-      const f = idx * step, t = f / fps;
+      const f = f0 + idx * step, t = f / fps; // SOURCE frame/time (offset by the range start)
       const dets = await detect(det, rgb, sw, sh, { scoreThr });
       for (const d of dets) {
         d.hsv = torsoHSV(rgb, sw, sh, d.box);                 // color on the scaled frame

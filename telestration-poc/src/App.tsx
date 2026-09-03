@@ -94,7 +94,7 @@ export default function App() {
   const blobUrlRef = useRef<string | null>(null);
 
   // project shell: 'projects' landing → 'calibrate' (import-time court setup) → 'editor'
-  const [view, setView] = useState<'projects' | 'calibrate' | 'analyze' | 'editor'>('projects');
+  const [view, setView] = useState<'projects' | 'calibrate' | 'editor'>('projects');
   const [projects, setProjects] = useState<Project[]>([]);
   const [projectId, setProjectId] = useState<string | null>(null);
   const [projectName, setProjectName] = useState('');
@@ -159,7 +159,6 @@ export default function App() {
   const [poseData, setPoseData] = useState<PoseData | null>(null); // 자세 분석 keypoint cache
   const [poseAnalyzed, setPoseAnalyzed] = useState(false);
   const [poseAnalyzing, setPoseAnalyzing] = useState<{ pct: number; error?: string } | null>(null);
-  const [analyzeSkip, setAnalyzeSkip] = useState<{ pos: boolean; pose: boolean }>({ pos: false, pose: false });
   const hasML = typeof window !== 'undefined' && !!window.ml; // Electron desktop build only
   const [playerAnchors, setPlayerAnchors] = useState<PlayerAnchor[]>([]);
   // Video's source currentTime → TIMELINE time, via the clip currently playing.
@@ -266,7 +265,7 @@ export default function App() {
     setProjectId(p.id); setProjectName(p.name);
     setAnalyzed(!!p.analyzed); setAnalyzing(null);
     setPoseAnalyzed(!!p.poseAnalyzed); setPoseAnalyzing(null); setPoseData(null);
-    setAnalyzeSkip({ pos: false, pose: false });
+    setSelectedClipId(null);
     await loadTracking(p);
     // Calibration is required — an un-calibrated project always opens into the wizard's
     // calibration step, never straight into the editor.
@@ -307,40 +306,54 @@ export default function App() {
       pose: (patch.pose ?? prev.pose) ?? undefined,
     });
   };
-  const runAnalysis = async () => {
+  // Merge a freshly-analyzed SOURCE range into a per-label cache: drop the old
+  // samples inside [ss,to] (idempotent re-analysis) and add the new ones, sorted.
+  const mergeRange = <T extends { t: number }>(existing: Record<string, T[]> | null, incoming: Record<string, T[]>, ss: number, to: number): Record<string, T[]> => {
+    const out: Record<string, T[]> = {};
+    const labels = new Set<string>([...(existing ? Object.keys(existing) : []), ...Object.keys(incoming)]);
+    for (const L of labels) {
+      const keep = (existing?.[L] ?? []).filter((s) => s.t < ss - 1e-6 || s.t > to + 1e-6);
+      out[L] = [...keep, ...(incoming[L] ?? [])].sort((a, b) => a.t - b.t);
+    }
+    return out;
+  };
+  // Analyze ONE clip's source range (no upfront wizard). Results merge into the
+  // source-indexed cache so follow/pose read them regardless of clip arrangement.
+  const analyzeClip = async (clip: Clip, kind: 'position' | 'pose') => {
     if (!window.ml || !projectId) return;
-    setAnalyzing({ pct: 0 });
-    const off = window.ml.onProgress((p) => setAnalyzing({ pct: p }));
-    try {
-      const bytes = await currentVideoBytes();
-      if (!bytes) throw new Error('영상을 불러올 수 없습니다');
-      const res = await window.ml.analyze(bytes, { step: 3 });
-      const fps = res.fragments.fps;
-      await persistAnalysis({ fps, fragments: res.fragments.tracks, players: res.players.players });
-      setFragments(res.fragments.tracks); setPlayers(res.players.players); setTrackFps(fps);
-      setAnalyzed(true); setAnalyzing(null);
-    } catch (e) {
-      setAnalyzing({ pct: 0, error: e instanceof Error ? e.message : String(e) });
-    } finally { off(); }
+    const bytes = await currentVideoBytes();
+    if (!bytes) { (kind === 'pose' ? setPoseAnalyzing : setAnalyzing)({ pct: 0, error: '영상을 불러올 수 없습니다' }); return; }
+    const opts = { step: 3, ss: clip.srcStart, to: clip.srcEnd };
+    if (kind === 'position') {
+      setAnalyzing({ pct: 0 });
+      const off = window.ml.onProgress((p) => setAnalyzing({ pct: p }));
+      try {
+        const res = await window.ml.analyze(bytes, opts);
+        const players2 = mergeRange(players, res.players.players, clip.srcStart, clip.srcEnd) as Players;
+        const tag = `${Math.round(clip.srcStart)}_${Math.round(clip.srcEnd)}`;
+        const newFrags: Fragments = Object.fromEntries(Object.entries(res.fragments.tracks).map(([k, v]) => [`${tag}:${k}`, v]));
+        const frags2: Fragments = { ...(fragments ?? {}), ...newFrags };
+        setPlayers(players2); setFragments(frags2); setTrackFps(res.fragments.fps); setAnalyzed(true);
+        await persistAnalysis({ fps: res.fragments.fps, players: players2, fragments: frags2 });
+        setAnalyzing(null);
+      } catch (e) { setAnalyzing({ pct: 0, error: e instanceof Error ? e.message : String(e) }); } finally { off(); }
+    } else {
+      setPoseAnalyzing({ pct: 0 });
+      const off = window.ml.onPoseProgress((p) => setPoseAnalyzing({ pct: p }));
+      try {
+        const res = await window.ml.analyzePose(bytes, opts);
+        const merged = mergeRange(poseData?.players ?? null, res.pose.players, clip.srcStart, clip.srcEnd) as PoseData['players'];
+        const pose2: PoseData = { ...res.pose, players: merged };
+        setPoseData(pose2); setPoseAnalyzed(true);
+        await persistAnalysis({ fps: res.pose.fps, pose: pose2 });
+        setPoseAnalyzing(null);
+      } catch (e) { setPoseAnalyzing({ pct: 0, error: e instanceof Error ? e.message : String(e) }); } finally { off(); }
+    }
   };
-  const runPoseAnalysis = async () => {
-    if (!window.ml?.analyzePose || !projectId) return;
-    setPoseAnalyzing({ pct: 0 });
-    const off = window.ml.onPoseProgress((p) => setPoseAnalyzing({ pct: p }));
-    try {
-      const bytes = await currentVideoBytes();
-      if (!bytes) throw new Error('영상을 불러올 수 없습니다');
-      const res = await window.ml.analyzePose(bytes, { step: 3 });
-      await persistAnalysis({ fps: res.pose.fps, pose: res.pose });
-      setPoseData(res.pose); setPoseAnalyzed(true); setPoseAnalyzing(null);
-    } catch (e) {
-      setPoseAnalyzing({ pct: 0, error: e instanceof Error ? e.message : String(e) });
-    } finally { off(); }
-  };
-  // after court calibration → analysis step (desktop, first time), else the editor
+  // after court calibration → straight to the editor (analysis is now per-clip, in-editor)
   const goAfterCalibrate = () => {
     captureThumb();
-    setView(hasML && !analyzed && !poseAnalyzed ? 'analyze' : 'editor');
+    setView('editor');
   };
 
   // re-apply user player-calibration once fragments load for an opened project
@@ -400,6 +413,7 @@ export default function App() {
   // Selecting an overlay (canvas or timeline) opens its editor: switch to its feature tile + Effect tab.
   useEffect(() => {
     if (!selectedOverlayId) return;
+    setSelectedClipId(null); // overlay and clip selection are mutually exclusive
     const o = overlays.find((x) => x.id === selectedOverlayId);
     if (!o) return;
     setSelectedFeature(featureForOverlay(o));
@@ -1012,20 +1026,16 @@ export default function App() {
     />
   );
 
-  // new-project wizard step indicator (영상 → 코트 보정 → 선수 분석)
-  const wizardSteps = (current: 'calibrate' | 'analyze') => {
-    const steps = hasML ? ['영상', '바닥면 보정', '선수 분석'] : ['영상', '바닥면 보정'];
-    const cur = current === 'calibrate' ? 1 : 2;
-    return (
-      <div className="wizard-steps">
-        {steps.map((s, i) => (
-          <span key={i} className={`wizard-step ${i < cur ? 'done' : i === cur ? 'now' : ''}`}>
-            <span className="wizard-num">{i + 1}</span>{s}
-          </span>
-        ))}
-      </div>
-    );
-  };
+  // new-project wizard step indicator (영상 → 바닥면 보정). Analysis is now per-clip in the editor.
+  const wizardSteps = () => (
+    <div className="wizard-steps">
+      {['영상', '바닥면 보정'].map((s, i) => (
+        <span key={i} className={`wizard-step ${i < 1 ? 'done' : i === 1 ? 'now' : ''}`}>
+          <span className="wizard-num">{i + 1}</span>{s}
+        </span>
+      ))}
+    </div>
+  );
 
   if (view === 'projects') {
     return <ProjectList projects={projects} onOpen={(p) => void openProject(p)} onCreate={(name, file) => void createProject(name, file)} onDelete={removeProject} onRename={renameProject} />;
@@ -1036,11 +1046,9 @@ export default function App() {
       <div className="calibrate-view">
         <header className="calibrate-head">
           <button className="btn ghost sm" onClick={backToProjects} title="프로젝트 목록으로">← 프로젝트</button>
-          {wizardSteps('calibrate')}
+          {wizardSteps()}
           <button className="btn primary sm" onClick={goAfterCalibrate} disabled={!calibration}
-            title={calibration ? '' : '바닥면 보정을 먼저 완료하세요'}>
-            {hasML && !analyzed ? '다음 · 선수 분석 →' : '완료 · 에디터로 →'}
-          </button>
+            title={calibration ? '' : '바닥면 보정을 먼저 완료하세요'}>완료 · 에디터로 →</button>
         </header>
         <div className="calibrate-body">
           <aside className="calibrate-side">{courtPanel}</aside>
@@ -1050,80 +1058,54 @@ export default function App() {
     );
   }
 
-  if (view === 'analyze') {
-    const anyRunning = (!!analyzing && !analyzing.error) || (!!poseAnalyzing && !poseAnalyzing.error);
-    type CardArgs = {
-      icon: string; title: string; desc: string; unlocks: string;
-      done: boolean; skipped: boolean; state: { pct: number; error?: string } | null;
-      onStart: () => void; onSkip: () => void; onUnskip: () => void; onRerun: () => void;
-    };
-    const analyzeCard = (a: CardArgs) => {
-      const running = !!a.state && !a.state.error;
-      const pct = Math.round((a.state?.pct ?? 0) * 100);
-      return (
-        <div className={`analyze-card ${a.done ? 'is-done' : ''}`}>
-          <div className="analyze-icon">{a.icon}</div>
-          <h2>{a.title}</h2>
-          <p className="analyze-desc">{a.desc}<br /><span className="analyze-unlocks">{a.unlocks}</span></p>
-          {a.done ? (
-            <div className="analyze-donerow"><span className="analyze-badge">✓ 완료</span>
-              <button className="btn subtle sm" disabled={anyRunning} onClick={a.onRerun}>다시 분석</button></div>
-          ) : running ? (
-            <div className="analyze-progress">
-              <div className="analyze-bar"><div className="analyze-bar-fill" style={{ width: `${pct}%` }} /></div>
-              <div className="analyze-pct">{pct}% · 분석 중…</div>
-            </div>
-          ) : a.state?.error ? (
-            <div className="analyze-error">
-              <div>분석 실패: {a.state.error}</div>
-              <div className="analyze-actions"><button className="btn sm" disabled={anyRunning} onClick={a.onStart}>다시 시도</button></div>
-            </div>
-          ) : a.skipped ? (
-            <div className="analyze-donerow"><span className="analyze-skip">건너뜀</span>
-              <button className="btn subtle sm" disabled={anyRunning} onClick={a.onUnskip}>실행</button></div>
-          ) : (
-            <div className="btn-row analyze-actions">
-              <button className="btn primary" disabled={anyRunning} onClick={a.onStart}>시작</button>
-              <button className="btn" disabled={anyRunning} onClick={a.onSkip}>건너뛰기</button>
-            </div>
-          )}
-        </div>
-      );
-    };
-    return (
-      <div className="calibrate-view">
-        <header className="calibrate-head">
-          <button className="btn ghost sm" onClick={backToProjects} disabled={anyRunning} title="프로젝트 목록으로">← 프로젝트</button>
-          {wizardSteps('analyze')}
-          <button className="btn primary sm" onClick={() => setView('editor')} disabled={anyRunning}
-            title="선택한 분석을 마치고 편집기로 이동">에디터로 →</button>
-        </header>
-        <div className="analyze-body analyze-two">
-          {analyzeCard({
-            icon: '🏃‍➡️', title: '선수 위치 분석',
-            desc: '영상에서 선수의 위치·이동 경로를 추적합니다.',
-            unlocks: '→ 따라가기 원 · 스포트라이트',
-            done: analyzed, skipped: analyzeSkip.pos, state: analyzing,
-            onStart: () => void runAnalysis(),
-            onSkip: () => setAnalyzeSkip((s) => ({ ...s, pos: true })),
-            onUnskip: () => setAnalyzeSkip((s) => ({ ...s, pos: false })),
-            onRerun: () => { setAnalyzed(false); setAnalyzing(null); },
-          })}
-          {analyzeCard({
-            icon: '🤸', title: '자세 분석',
-            desc: '선수의 골격·관절 각도를 프레임별로 추출합니다.',
-            unlocks: '→ 폼 추적 (골격 + 각도)',
-            done: poseAnalyzed, skipped: analyzeSkip.pose, state: poseAnalyzing,
-            onStart: () => void runPoseAnalysis(),
-            onSkip: () => setAnalyzeSkip((s) => ({ ...s, pose: true })),
-            onUnskip: () => setAnalyzeSkip((s) => ({ ...s, pose: false })),
-            onRerun: () => { setPoseAnalyzed(false); setPoseAnalyzing(null); setPoseData(null); },
-          })}
-        </div>
-        <div className="analyze-foot">각 분석은 독립적이에요 — 둘 다, 하나만, 또는 건너뛸 수 있고 나중에 에디터에서 다시 실행할 수 있습니다.</div>
+
+  // Right-panel inspector for a selected base-video clip: source range + per-clip
+  // 위치/자세 analysis + quick clip ops. Replaces the removed upfront analysis wizard.
+  const clipInspector = (() => {
+    const clip = clips.find((c) => c.id === selectedClipId);
+    if (!clip) return null;
+    const fmtT = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+    const idx = clips.findIndex((c) => c.id === clip.id) + 1;
+    const covered = (rec: Record<string, { t: number }[]> | null | undefined) =>
+      !!rec && Object.values(rec).some((arr) => arr.some((s) => s.t >= clip.srcStart - 0.5 && s.t <= clip.srcEnd + 0.5));
+    const posOn = covered(players), poseOn = covered(poseData?.players);
+    const posRun = !!analyzing && !analyzing.error, poseRun = !!poseAnalyzing && !poseAnalyzing.error;
+    const anaRow = (label: string, on: boolean, run: boolean, state: { pct: number; error?: string } | null, kind: 'position' | 'pose') => (
+      <div className="clip-ana">
+        <div className="clip-ana-head"><b>{label}</b>{on && !run && <span className="analyze-badge">✓ 완료</span>}</div>
+        {run ? (
+          <div className="analyze-progress"><div className="analyze-bar"><div className="analyze-bar-fill" style={{ width: `${Math.round((state?.pct ?? 0) * 100)}%` }} /></div>
+            <div className="analyze-pct">{Math.round((state?.pct ?? 0) * 100)}% · 분석 중…</div></div>
+        ) : (
+          <button className="btn sm block" disabled={posRun || poseRun} onClick={() => void analyzeClip(clip, kind)}>{on ? '이 구간 다시 분석' : '이 구간 분석'}</button>
+        )}
+        {state?.error && <div className="analyze-error">실패: {state.error}</div>}
       </div>
     );
-  }
+    return (
+      <div className="panel panel-inspector">
+        <div className="panel-title">클립 {idx}</div>
+        <div className="panel-desc" style={{ marginTop: 0 }}>원본 {fmtT(clip.srcStart)}–{fmtT(clip.srcEnd)} · 길이 {(clip.srcEnd - clip.srcStart).toFixed(1)}s</div>
+        {hasML ? (
+          <>
+            <div className="field-label" style={{ marginTop: 8 }}>이 구간 분석</div>
+            {anaRow('선수 위치', posOn, posRun, analyzing, 'position')}
+            {anaRow('자세(폼)', poseOn, poseRun, poseAnalyzing, 'pose')}
+            <div className="muted-note">선택한 클립 구간만 분석합니다 (전체 영상 불필요). 결과는 따라가기·폼 추적에 바로 반영돼요.</div>
+          </>
+        ) : (
+          <div className="muted-note">분석은 데스크톱(Electron) 앱에서만 가능합니다.</div>
+        )}
+        <div className="field-label" style={{ marginTop: 10 }}>편집</div>
+        <div className="btn-row">
+          <button className="btn sm" onClick={splitClipAtPlayhead} title="재생헤드에서 분할">분할 ✂</button>
+          <button className="btn sm" onClick={() => duplicateClipAction(clip.id)} title="복제해 반복 구간 만들기">복제 ⧉</button>
+          <button className="btn sm danger" disabled={clips.length <= 1} onClick={() => deleteClipAction(clip.id)}>삭제 🗑</button>
+        </div>
+        <button className="btn subtle sm block" style={{ marginTop: 10 }} onClick={() => setSelectedClipId(null)}>선택 해제</button>
+      </div>
+    );
+  })();
 
   const effectPanel = (section: 'tiles' | 'detail') => (
     <EffectPanel
@@ -1147,7 +1129,7 @@ export default function App() {
       onStartPlayerCalib={startPlayerCalibration}
       onFinishPlayerCalib={finishPlayerCalibration}
       onCancelPlayerCalib={cancelPlayerCalibration}
-      onGoAnalyze={hasML ? () => setView('analyze') : undefined}
+      onGoAnalyze={undefined}
       selected={selectedFeature}
       onSelect={setSelectedFeature}
       mode={mode}
@@ -1196,11 +1178,7 @@ export default function App() {
             <span className="center-title">{projectName || videoName}</span>
           </div>
           <div className="center-head-r">
-            <SettingsDropdown
-              onRecalibrate={() => setView('calibrate')}
-              onReanalyze={hasML ? () => setView('analyze') : undefined}
-              analyzed={analyzed}
-            />
+            <SettingsDropdown onRecalibrate={() => setView('calibrate')} />
             <ExportDropdown onScreenshot={exportScreenshot} onExportVideo={exportVideo} />
           </div>
         </div>
@@ -1243,7 +1221,7 @@ export default function App() {
           onSetLoop={setLoopRegion}
           clips={clips}
           selectedClipId={selectedClipId}
-          onSelectClip={setSelectedClipId}
+          onSelectClip={(id) => { setSelectedClipId(id); if (id) setSelectedOverlayId(null); }}
           onSplitClip={splitClipAtPlayhead}
           onDuplicateClip={duplicateClipAction}
           onDeleteClip={deleteClipAction}
@@ -1259,7 +1237,7 @@ export default function App() {
       </main>
 
       {activeTab === 'effect' && (
-        <aside className="right-panel">{effectPanel('detail')}</aside>
+        <aside className="right-panel">{selectedClipId && clipInspector ? clipInspector : effectPanel('detail')}</aside>
       )}
     </div>
   );
