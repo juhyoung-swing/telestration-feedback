@@ -30,6 +30,7 @@ type Props = {
   loop: { start: number; end: number } | null; // A-B repeat band (null = off)
   onSetLoop: (l: { start: number; end: number } | null) => void;
   clips: Clip[];                       // base-video EDL → clip bars on the base track
+  clipAnalyzed: Record<string, { pos: boolean; pose: boolean }>; // per-clip analysis coverage
   selectedClipId: string | null;
   onSelectClip: (id: string | null) => void;
   onSplitClip: () => void;             // split the clip under the playhead
@@ -214,6 +215,7 @@ export function Timeline(p: Props) {
             <div className="tl-row tl-cliprow">
               {p.clips.map((c, i) => {
                 const dragging = clipDrag?.id === c.id;
+                const a = p.clipAnalyzed[c.id];
                 return (
                   <div
                     key={c.id}
@@ -221,9 +223,11 @@ export function Timeline(p: Props) {
                     style={{ left: x(c.timelineStart) + (dragging ? clipDrag!.dx : 0), width: Math.max(6, x(clipDur(c))), zIndex: dragging ? 6 : 1 }}
                     onMouseDown={(e) => startClipDrag(e, c)}
                     onContextMenu={(e) => { e.preventDefault(); p.onSelectClip(c.id); setClipMenu({ x: e.clientX, y: e.clientY, id: c.id }); }}
-                    title={`${p.videoName} · 클립 ${i + 1} · ${fmt(c.srcStart)}–${fmt(c.srcEnd)} (우클릭: 분할·복제·삭제)`}
+                    title={`${p.videoName} · 클립 ${i + 1} · ${fmt(c.srcStart)}–${fmt(c.srcEnd)}${a?.pos ? ' · 위치분석✓' : ''}${a?.pose ? ' · 자세분석✓' : ''} (우클릭: 분할·복제·삭제)`}
                   >
                     <span className="tl-clip-label">🎬 {i + 1}</span>
+                    {a?.pos && <span className="clip-dot pos" title="위치 분석됨" />}
+                    {a?.pose && <span className="clip-dot pose" title="자세 분석됨" />}
                     {i === 0 && <span className="tl-badge">{p.speed}×</span>}
                   </div>
                 );

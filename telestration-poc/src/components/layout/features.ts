@@ -14,7 +14,7 @@ export type FeatureDef = {
 // Tile features in the Effect tab. Player-group tiles apply to a player chosen in the lower
 // section (선수 지정 + P1~P4); the static court Circle lives separately under Tactic.
 export const FEATURES: FeatureDef[] = [
-  { id: 'follow-circle', label: 'Circle', group: 'Player', icon: '◎', implemented: true, hint: '선수를 따라다니는 바닥 원. 아래에서 선수를 선택해 적용합니다.' },
+  { id: 'follow-circle', label: '따라가기', group: 'Player', icon: '◎', implemented: true, hint: '선수를 따라다니는 바닥 원. 아래에서 선수를 선택해 적용합니다.' },
   { id: 'spotlight', label: 'Spotlight', group: 'Player', icon: '🔦', implemented: true, hint: '배경 어둡게 + 선수 강조. 아래에서 선수를 선택해 적용합니다.' },
   { id: 'pose', label: '폼 추적', group: 'Player', icon: '🤸', implemented: true, hint: '선수의 골격·관절 각도를 표시합니다. 아래에서 선수를 선택해 추가합니다.' },
   { id: 'circle', label: 'Circle', group: 'Tactic', icon: '◎', implemented: true, hint: '코트를 클릭해 바닥에 고정 헤일로(원)를 놓습니다.' },

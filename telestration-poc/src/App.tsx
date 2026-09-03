@@ -18,7 +18,7 @@ import { COURT_CORNERS } from './geometry/court';
 import { courtLineDef, fitImageLine, homographyFromLines, familiesCovered } from './geometry/lineCalib';
 import { PLAYER_COLORS, playerColor, hitTestFragment, assignFragments } from './geometry/tracking';
 import { defaultSide } from './lib/pose';
-import { singleClip, totalDuration, clipAt, srcAt, splitClip, duplicateClip, deleteClip, moveClip } from './lib/clips';
+import { singleClip, totalDuration, clipAt, clipDur, srcAt, splitClip, duplicateClip, deleteClip, moveClip } from './lib/clips';
 import type { Clip } from './lib/clips';
 import type {
   CircleParams, CourtCalibration, DrawnLine, FeatureId, FragmentData, Fragments, GroundHalo, Mode, Overlay,
@@ -71,6 +71,10 @@ const FEATURE_MODE = {
   sector: 'drawing-sector', 'zoom-in': 'placing-zoom',
 } as const;
 
+// Player-group features apply to a tracked player within a selected clip.
+const PLAYER_FEATURE_IDS: FeatureId[] = ['follow-circle', 'spotlight', 'pose'];
+const isPlayerFeat = (id: FeatureId) => PLAYER_FEATURE_IDS.includes(id);
+
 // Which Effect-tab feature owns an overlay (so selecting it opens the right editor).
 function featureForOverlay(o: Overlay): FeatureId {
   switch (o.type) {
@@ -112,6 +116,7 @@ export default function App() {
   const clipsRef = useRef<Clip[]>([]); clipsRef.current = clips; // read by the rAF loop without re-binding
   const activeClipRef = useRef<string | null>(null); // clip currently playing (disambiguates duplicated source ranges)
   const [selectedClipId, setSelectedClipId] = useState<string | null>(null);
+  const [showClipPanel, setShowClipPanel] = useState(false); // right panel: clip inspector (true) vs effect detail (false)
   const [past, setPast] = useState<Overlay[][]>([]);   // undo stack (snapshots before each edit)
   const [future, setFuture] = useState<Overlay[][]>([]); // redo stack
   const [mode, setMode] = useState<Mode>('idle');
@@ -413,7 +418,7 @@ export default function App() {
   // Selecting an overlay (canvas or timeline) opens its editor: switch to its feature tile + Effect tab.
   useEffect(() => {
     if (!selectedOverlayId) return;
-    setSelectedClipId(null); // overlay and clip selection are mutually exclusive
+    setSelectedClipId(null); setShowClipPanel(false); // overlay and clip selection are mutually exclusive
     const o = overlays.find((x) => x.id === selectedOverlayId);
     if (!o) return;
     setSelectedFeature(featureForOverlay(o));
@@ -517,6 +522,13 @@ export default function App() {
   // Total length of the timeline (sum of clip durations). Identity EDL → == video duration.
   const timelineDur = clips.length ? totalDuration(clips) : dur;
 
+  // Which clips have position / pose analysis covering their source range (for the
+  // clip inspector + a badge on the timeline clip bar).
+  const clipCovered = (rec: Record<string, { t: number }[]> | null | undefined, c: Clip) =>
+    !!rec && Object.values(rec).some((arr) => arr.some((s) => s.t >= c.srcStart - 0.5 && s.t <= c.srcEnd + 0.5));
+  const clipAnalyzed: Record<string, { pos: boolean; pose: boolean }> = {};
+  for (const c of clips) clipAnalyzed[c.id] = { pos: clipCovered(players, c), pose: clipCovered(poseData?.players, c) };
+
   // New effects land at the playhead with a default duration (video-editor convention),
   // instead of spanning the whole clip and piling up on top of each other.
   const spanAtPlayhead = (len = DEFAULT_LEN) => {
@@ -525,11 +537,12 @@ export default function App() {
     const s = clampT(cur, 0, total - L);
     return { startTime: s, endTime: s + L };
   };
-  // Player-follow effects land at the playhead too, but clamped to the player's tracked span.
-  const followSpan = (t0: number, t1: number, len = FOLLOW_LEN) => {
-    const L = Math.min(len, Math.max(0.001, t1 - t0));
-    const s = clampT(cur, t0, Math.max(t0, t1 - L));
-    return { startTime: s, endTime: s + L };
+  // A Player effect binds to the SELECTED clip: it spans that clip's timeline range
+  // and carries its clipId (so it lives only in that clip instance — Q1-a).
+  const selectedClipSpan = (): { startTime: number; endTime: number; clipId?: string } => {
+    const c = clips.find((x) => x.id === selectedClipId);
+    if (c) return { startTime: c.timelineStart, endTime: c.timelineStart + clipDur(c), clipId: c.id };
+    return spanAtPlayhead(FOLLOW_LEN); // fallback (no clip context)
   };
 
   // ── calibration (corners) ──────────────────────────────────────────────
@@ -670,8 +683,7 @@ export default function App() {
     if (!calibration || !players) return;
     const pts = players[playerId];
     if (!pts || pts.length === 0) return;
-    const t0 = pts[0].t, t1 = pts[pts.length - 1].t;
-    const span = followSpan(t0, t1);
+    const span = selectedClipSpan();
     const st = playerStyleFor(playerId);
     mutate((o) => [...o, {
       id: uid('halo'), type: 'ground-halo', name: `Player ${playerId}`, visible: true,
@@ -693,8 +705,7 @@ export default function App() {
     if (existing) { removeOverlay(existing.id); return; }
     const pts = players[playerId];
     if (!pts || pts.length === 0) return;
-    const t0 = pts[0].t, t1 = pts[pts.length - 1].t;
-    const span = followSpan(t0, t1);
+    const span = selectedClipSpan();
     mutate((o) => [...o, { id: uid('spot'), type: 'spotlight', name: `Spotlight ${playerId}`, visible: true, ...span, trackId: playerId }]);
     if (cur < span.startTime || cur > span.endTime) seek(span.startTime);
   };
@@ -708,7 +719,7 @@ export default function App() {
     if (!poseData) return;
     const pts = poseData.players[playerId];
     if (!pts || pts.length === 0) return;
-    const span = followSpan(pts[0].t, pts[pts.length - 1].t);
+    const span = selectedClipSpan();
     const id = uid('pose');
     mutate((o) => [...o, {
       id, type: 'pose', name: `폼 P${playerId}`, visible: true, ...span,
@@ -1066,9 +1077,7 @@ export default function App() {
     if (!clip) return null;
     const fmtT = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
     const idx = clips.findIndex((c) => c.id === clip.id) + 1;
-    const covered = (rec: Record<string, { t: number }[]> | null | undefined) =>
-      !!rec && Object.values(rec).some((arr) => arr.some((s) => s.t >= clip.srcStart - 0.5 && s.t <= clip.srcEnd + 0.5));
-    const posOn = covered(players), poseOn = covered(poseData?.players);
+    const posOn = clipCovered(players, clip), poseOn = clipCovered(poseData?.players, clip);
     const posRun = !!analyzing && !analyzing.error, poseRun = !!poseAnalyzing && !poseAnalyzing.error;
     const anaRow = (label: string, on: boolean, run: boolean, state: { pct: number; error?: string } | null, kind: 'position' | 'pose') => (
       <div className="clip-ana">
@@ -1131,7 +1140,12 @@ export default function App() {
       onCancelPlayerCalib={cancelPlayerCalibration}
       onGoAnalyze={undefined}
       selected={selectedFeature}
-      onSelect={(id) => { setSelectedFeature(id); setSelectedClipId(null); }}
+      clipSelected={!!selectedClipId}
+      onSelect={(id) => {
+        setSelectedFeature(id);
+        setShowClipPanel(false);                 // right panel → effect detail
+        if (!isPlayerFeat(id)) setSelectedClipId(null); // Player effects keep the clip as binding context
+      }}
       mode={mode}
       draftCount={mode === 'drawing-path' ? (pathDraft ? 1 : 0) : draftZone.length}
       circleParams={circleParams}
@@ -1220,8 +1234,9 @@ export default function App() {
           loop={loopRegion}
           onSetLoop={setLoopRegion}
           clips={clips}
+          clipAnalyzed={clipAnalyzed}
           selectedClipId={selectedClipId}
-          onSelectClip={(id) => { setSelectedClipId(id); if (id) setSelectedOverlayId(null); }}
+          onSelectClip={(id) => { setSelectedClipId(id); setShowClipPanel(!!id); if (id) setSelectedOverlayId(null); }}
           onSplitClip={splitClipAtPlayhead}
           onDuplicateClip={duplicateClipAction}
           onDeleteClip={deleteClipAction}
@@ -1237,7 +1252,7 @@ export default function App() {
       </main>
 
       {activeTab === 'effect' && (
-        <aside className="right-panel">{selectedClipId && clipInspector ? clipInspector : effectPanel('detail')}</aside>
+        <aside className="right-panel">{selectedClipId && showClipPanel && clipInspector ? clipInspector : effectPanel('detail')}</aside>
       )}
     </div>
   );

@@ -261,6 +261,9 @@ body {
 .tl-clip.selected { border-color: var(--accent); outline: 1px solid var(--accent); }
 .tl-clip.dragging { opacity: .85; box-shadow: 0 6px 18px rgba(0,0,0,.5); }
 .tl-clip-label { opacity: .85; }
+.clip-dot { width: 7px; height: 7px; border-radius: 50%; flex: 0 0 auto; box-shadow: 0 0 0 1px rgba(0,0,0,.4); }
+.clip-dot.pos { background: #35c1e8; }   /* 위치 분석됨 */
+.clip-dot.pose { background: var(--accent); } /* 자세 분석됨 */
 .tl-handle { position: absolute; top: 0; width: 7px; height: 100%; cursor: ew-resize; z-index: 4; }
 .tl-handle.l { left: 0; } .tl-handle.r { right: 0; }
 .tl-handle:hover { background: rgba(255,255,255,.4); }

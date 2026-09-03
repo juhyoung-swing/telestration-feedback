@@ -24,6 +24,7 @@ type Props = {
   onSetPlayerStyle: (id: string, patch: Partial<{ color: string; dashed: boolean }>) => void;
   onToggleSpotlight: (id: string) => void;
   spotlightIds: Set<string>;
+  clipSelected: boolean;       // Player effects require a base-video clip selected (they bind to it)
   poseReady: boolean;          // 자세 분석 data present → 폼 추적 unlocked
   poseAnalyzed: boolean;
   posePlayerIds: string[];     // player labels available in the pose cache
@@ -119,9 +120,10 @@ export function EffectPanel(p: Props) {
   const isPlayer = PLAYER_FEATURES.includes(p.selected);
   const isPose = p.selected === 'pose';
   const playersReady = !!p.players; // false when 위치 분석 was skipped / not run → follow/spotlight locked
-  // per-feature gate: 폼 추적 needs 자세 분석; the others need 위치 분석
-  const featLocked = (id: FeatureId) => (id === 'pose' ? !p.poseReady : (PLAYER_FEATURES.includes(id) && !playersReady));
-  const readyForSelected = isPose ? p.poseReady : playersReady;
+  // Player effects activate when a clip is selected (they bind to it). The analysis
+  // requirement is then surfaced inside the panel, not as a tile lock.
+  const featLocked = (id: FeatureId) => PLAYER_FEATURES.includes(id) && !p.clipSelected;
+  const readyForSelected = p.clipSelected && (isPose ? p.poseReady : playersReady);
   const selPose = p.selectedOverlay?.type === 'pose' ? (p.selectedOverlay as PoseOverlay) : null;
 
   // Path: a selected path is edited live; otherwise the buttons/slider set defaults for new paths.
@@ -201,7 +203,7 @@ export function EffectPanel(p: Props) {
                   key={f.id}
                   className={`feature-tile ${p.selected === f.id ? 'active' : ''} ${f.implemented ? '' : 'soon'} ${locked ? 'locked' : ''}`}
                   onClick={() => { p.onSelect(f.id); if (!PLAYER_FEATURES.includes(f.id)) p.onCreate(f.id); }}
-                  title={locked ? (f.id === 'pose' ? '자세 분석을 실행해야 사용할 수 있어요' : '선수 위치 분석을 실행해야 사용할 수 있어요') : f.hint}
+                  title={locked ? '타임라인에서 원본 클립을 먼저 선택하세요' : f.hint}
                 >
                   <span className="feature-icon">{f.icon}</span>
                   <span className="feature-name">{f.label}</span>
@@ -226,8 +228,11 @@ export function EffectPanel(p: Props) {
       {isPlayer ? (
         !readyForSelected ? (
           <div className="warn-note">
-            <b>{def.label}</b>는 {isPose ? '자세 분석' : '선수 위치 분석'} 데이터가 필요합니다.{' '}
-            타임라인에서 <b>원본 클립</b>을 선택해 <b>{isPose ? '자세' : '위치'} 분석</b>을 실행하세요.
+            {!p.clipSelected ? (
+              <>타임라인에서 <b>원본 클립</b>을 선택하면 <b>{def.label}</b>를 그 구간에 추가할 수 있어요.</>
+            ) : (
+              <><b>{def.label}</b>는 {isPose ? '자세 분석' : '선수 위치 분석'} 데이터가 필요합니다. 선택한 클립을 <b>{isPose ? '자세' : '위치'} 분석</b>하세요 (우측 클립 패널).</>
+            )}
           </div>
         ) : isPose ? (
           <>
