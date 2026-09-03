@@ -1,4 +1,5 @@
 import type { Pt } from '../geometry/homography';
+import type { Clip } from './clips';
 import type { Fragments, Overlay, PlayerAnchor, Players, PoseData } from '../types';
 
 // A project is one self-contained work unit: a video + its court calibration + all effects.
@@ -12,6 +13,7 @@ export type Project = {
   corners: Pt[] | null;               // 4 calibration image points (video px); null = not calibrated
   calibMethod: 'corner' | 'line' | null;
   overlays: Overlay[];
+  clips?: Clip[];                     // base-video EDL; absent/empty = identity (whole video, one clip)
   playerAnchors: PlayerAnchor[];
   thumbnail?: string;                 // small JPEG data URL captured from a video frame
   analyzed?: boolean;                 // 선수 위치 분석 has been run (data in IndexedDB 'analysis')

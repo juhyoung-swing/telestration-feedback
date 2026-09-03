@@ -18,6 +18,8 @@ import { COURT_CORNERS } from './geometry/court';
 import { courtLineDef, fitImageLine, homographyFromLines, familiesCovered } from './geometry/lineCalib';
 import { PLAYER_COLORS, playerColor, hitTestFragment, assignFragments } from './geometry/tracking';
 import { defaultSide } from './lib/pose';
+import { singleClip } from './lib/clips';
+import type { Clip } from './lib/clips';
 import type {
   CircleParams, CourtCalibration, DrawnLine, FeatureId, FragmentData, Fragments, GroundHalo, Mode, Overlay,
   PathParams, PlayerAnchor, Players, PoseData, RailTab, TextParams, TrackingData, ZoneParams, ZoomParams,
@@ -106,6 +108,7 @@ export default function App() {
   const [calibration, setCalibration] = useState<CourtCalibration | null>(null);
   const [calibMethod, setCalibMethod] = useState<'corner' | 'line' | null>(null);
   const [overlays, setOverlays] = useState<Overlay[]>([]);
+  const [clips, setClips] = useState<Clip[]>([]); // base-video EDL; empty until video duration is known (→ single identity clip)
   const [past, setPast] = useState<Overlay[][]>([]);   // undo stack (snapshots before each edit)
   const [future, setFuture] = useState<Overlay[][]>([]); // redo stack
   const [mode, setMode] = useState<Mode>('idle');
@@ -236,6 +239,7 @@ export default function App() {
       setCalibMethod(p.calibMethod);
     } else { setCalibration(null); setCalibMethod(null); }
     setOverlays(p.overlays ?? []);
+    setClips(p.clips ?? []); // filled from video duration on metadata load if empty
     seedIdCounter(p.overlays ?? []);
     setPast([]); setFuture([]);
     setPlayerAnchors(p.playerAnchors ?? []);
@@ -336,13 +340,13 @@ export default function App() {
     const t = setTimeout(() => {
       saveProject({
         id: projectId, name: projectName, updatedAt: Date.now(), videoName, videoKey,
-        corners: calibration?.imagePoints ?? null, calibMethod, overlays, playerAnchors,
+        corners: calibration?.imagePoints ?? null, calibMethod, overlays, clips, playerAnchors,
         thumbnail: thumbnail ?? undefined, analyzed, poseAnalyzed, trackFps,
       });
     }, 500);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [view, projectId, projectName, videoName, videoKey, calibration, calibMethod, overlays, playerAnchors, thumbnail, analyzed, poseAnalyzed, trackFps]);
+  }, [view, projectId, projectName, videoName, videoKey, calibration, calibMethod, overlays, clips, playerAnchors, thumbnail, analyzed, poseAnalyzed, trackFps]);
 
   useEffect(() => {
     const v = videoRef.current;
@@ -367,6 +371,13 @@ export default function App() {
     };
     // `view` re-binds after the video element remounts on entering the editor.
   }, [src, view]);
+
+  // Seed the base-video EDL with a single identity clip once the duration is known
+  // (a project with no saved clips). timeline time == source time until edited.
+  useEffect(() => {
+    if (dur > 0 && clips.length === 0) setClips(singleClip(dur));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dur]);
 
   // apply preview playback rate (playbackRate resets when the video reloads / remounts)
   useEffect(() => { const v = videoRef.current; if (v) v.playbackRate = speed; }, [speed, src, view]);
