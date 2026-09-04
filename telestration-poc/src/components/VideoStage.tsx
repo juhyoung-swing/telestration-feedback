@@ -344,7 +344,7 @@ export function VideoStage({
   }, []);
 
   return (
-    <div className="video-stage" ref={boxRef} style={{ aspectRatio: aspect, maxWidth: `calc((100vh - 320px) * ${arNum})` }}>
+    <div className="video-stage" ref={boxRef} style={{ aspectRatio: aspect, maxWidth: `calc((100vh - 384px) * ${arNum})` }}>
       <div className="zoom-content" style={zoomStyle}>
       <video
         ref={videoRef}
