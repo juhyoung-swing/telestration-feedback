@@ -11,6 +11,15 @@ const TICK_TARGET_PX = 72; // aim for ~one label per this many px
 const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
 const fmt = (t: number) => `${Math.floor(t / 60)}:${String(Math.floor(t % 60)).padStart(2, '0')}`;
 
+// Keep a context menu fully inside the viewport (it opens near the bottom timeline,
+// so without this it gets cut off at the window edge — esp. in the Electron window).
+function clampMenu(x: number, y: number, w: number, h: number): { x: number; y: number } {
+  return {
+    x: Math.max(6, Math.min(x, window.innerWidth - w - 6)),
+    y: Math.max(6, Math.min(y, window.innerHeight - h - 6)),
+  };
+}
+
 // Choose a "nice" tick step (seconds) so labels land ~TICK_TARGET_PX apart at this zoom.
 function tickStep(pxPerSec: number): number {
   const cand = [1, 2, 5, 10, 15, 30, 60, 120, 300, 600];
@@ -230,7 +239,7 @@ export function Timeline(p: Props) {
                   className={`tl-bar ${o.type} ${p.selectedId === o.id ? 'selected' : ''} ${o.visible ? '' : 'off'}`}
                   style={{ left: x(o.startTime), width: Math.max(2, x(o.endTime - o.startTime)) }}
                   onMouseDown={(e) => startBarDrag(e, 'move', o)}
-                  onContextMenu={(e) => { e.preventDefault(); p.onSelect(o.id); setMenu({ x: e.clientX, y: e.clientY, id: o.id }); }}
+                  onContextMenu={(e) => { e.preventDefault(); p.onSelect(o.id); setMenu({ ...clampMenu(e.clientX, e.clientY, 170, 120), id: o.id }); }}
                   title={`${o.name} · ${fmt(o.startTime)}–${fmt(o.endTime)}`}
                 >
                   <div className="tl-handle l" onMouseDown={(e) => startBarDrag(e, 'trim-l', o)} />
@@ -256,7 +265,7 @@ export function Timeline(p: Props) {
                     className={`tl-clip ${isGapClip ? 'gap' : ''} ${isFreezeClip ? 'freeze' : ''} ${isInsertedClip ? 'inserted' : ''} ${p.selectedClipId === c.id ? 'selected' : ''} ${dragging ? 'dragging' : ''}`}
                     style={{ left: x(c.timelineStart) + (dragging ? clipDrag!.dx : 0), width: Math.max(6, x(clipDur(c))), zIndex: dragging ? 6 : 1 }}
                     onMouseDown={(e) => startClipDrag(e, c)}
-                    onContextMenu={(e) => { e.preventDefault(); p.onSelectClip(c.id); setClipMenu({ x: e.clientX, y: e.clientY, id: c.id }); }}
+                    onContextMenu={(e) => { e.preventDefault(); p.onSelectClip(c.id); setClipMenu({ ...clampMenu(e.clientX, e.clientY, 190, 210), id: c.id }); }}
                     title={isGapClip ? `빈 구간(검정) · ${clipDur(c).toFixed(1)}s`
                       : isFreezeClip ? `⏸ 홀드(정지) · ${fmt(c.srcFreeze ?? 0)} · ${clipDur(c).toFixed(1)}s`
                       : isInsertedClip ? `🎞 삽입 영상 · ${clipDur(c).toFixed(1)}s`
