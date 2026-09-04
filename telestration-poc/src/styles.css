@@ -207,6 +207,22 @@ body {
 
 /* (b2) editing toolbar */
 .edit-toolbar { display: flex; align-items: center; gap: 8px; background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 8px 10px; }
+
+/* COACH live-authoring bar (above the timeline) */
+.coach-bar { display: flex; align-items: center; gap: 10px; margin-top: 8px; padding: 8px 12px; border-radius: 10px;
+  background: linear-gradient(180deg, #241318, #1a0f13); border: 1px solid #4a2530; flex-wrap: wrap; }
+.coach-bar.recording { border-color: #ff5a5a; box-shadow: 0 0 0 1px rgba(255,90,90,.35), 0 0 18px rgba(255,90,90,.18); }
+.coach-badge { font-size: 11px; font-weight: 800; letter-spacing: .04em; color: #ff8a8a; }
+.coach-btn { appearance: none; border: 1px solid var(--border); background: var(--panel-2); color: var(--text); height: 32px; padding: 0 12px;
+  border-radius: 8px; cursor: pointer; font-size: 12.5px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; }
+.coach-btn:hover { background: var(--panel-3); }
+.coach-btn.on { border-color: var(--accent); color: var(--accent); background: var(--accent-weak); }
+.coach-btn.rec.on { border-color: #ff5a5a; color: #fff; background: #c0303a; }
+.coach-pen-opts { display: inline-flex; align-items: center; gap: 6px; }
+.coach-pen-opts input[type="color"] { width: 26px; height: 26px; padding: 0; border: 1px solid var(--border); border-radius: 6px; background: none; cursor: pointer; }
+.coach-pen-opts input[type="range"] { width: 84px; }
+.coach-hint { font-size: 11.5px; color: var(--muted); margin-left: auto; }
+.coach-bar.recording .coach-hint { color: #ffb3b3; }
 .tool { appearance: none; border: 1px solid var(--border); background: var(--panel-2); color: var(--text); width: 34px; height: 32px; border-radius: 8px; cursor: pointer; font-size: 14px; display: inline-flex; align-items: center; justify-content: center; }
 .tool:hover:not(:disabled) { background: var(--panel-3); }
 .tool:disabled { opacity: .35; cursor: not-allowed; }

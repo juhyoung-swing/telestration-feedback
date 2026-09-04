@@ -1,6 +1,6 @@
 import type { FeatureId, RailTab } from '../../types';
 
-export type FeatureGroup = 'Player' | 'Tactic' | 'Action' | 'COACH';
+export type FeatureGroup = 'Player' | 'Tactic' | 'Action';
 
 export type FeatureDef = {
   id: FeatureId;
@@ -23,14 +23,15 @@ export const FEATURES: FeatureDef[] = [
   { id: 'marker', label: 'Marker', group: 'Tactic', icon: '📍', implemented: true, hint: '코트를 클릭해 지점 마커를 놓습니다.' },
   { id: 'connector', label: 'Connector', group: 'Tactic', icon: '🔗', implemented: true, hint: '두 지점을 클릭해 잇는 선을 그립니다.' },
   { id: 'sector', label: 'Sector', group: 'Tactic', icon: '🪭', implemented: true, hint: '중심을 클릭 → 방향·거리 점을 클릭해 부채꼴(방사형)을 그립니다.' },
-  { id: 'freehand', label: '펜', group: 'Tactic', icon: '✏️', implemented: true, hint: '화면 위에 자유롭게 드래그해서 그립니다 (텔레스트레이터 펜). 코트 보정 없이도 됩니다.' },
   { id: 'text', label: 'Text', group: 'Action', icon: '🅣', implemented: true, hint: '코트를 클릭해 텍스트 라벨을 놓습니다.' },
   { id: 'zoom-in', label: 'Zoom In', group: 'Action', icon: '🔍', implemented: true, hint: '코트를 클릭한 지점을 중심으로 화면을 확대합니다 (재생 중 punch-in).' },
   { id: 'slowmo', label: 'Slow-mo', group: 'Action', icon: '🐢', implemented: true, hint: '현재 위치에 배속 구간을 추가합니다. 재생이 그 구간에 들어가면 지정 배속으로.' },
-  { id: 'coach', label: 'COACH 녹화', group: 'COACH', icon: '🔴', implemented: true, hint: '지금 화면(영상+오버레이+펜)과 마이크를 실시간으로 녹화해 피드백 영상을 만듭니다. 재생·일시정지·스크럽하며 설명하세요.' },
+  // 'freehand' (펜) has no tile — armed from the COACH bar; kept here so a selected
+  // pen stroke resolves to a label/editor. Filtered out of the tile grid.
+  { id: 'freehand', label: '펜', group: 'Tactic', icon: '✏️', implemented: true, hint: '화면 위에 자유롭게 드래그해서 그립니다 (텔레스트레이터 펜).' },
 ];
 
-export const FEATURE_GROUPS: FeatureGroup[] = ['Player', 'Tactic', 'Action', 'COACH'];
+export const FEATURE_GROUPS: FeatureGroup[] = ['Player', 'Tactic', 'Action'];
 
 export const RAIL_TABS: { id: RailTab; label: string; icon: string }[] = [
   { id: 'effect', label: 'Effect', icon: '✨' },

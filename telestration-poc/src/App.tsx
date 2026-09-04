@@ -5,6 +5,7 @@ import { CourtPanel } from './components/layout/panels/CourtPanel';
 import { EffectPanel } from './components/layout/panels/EffectPanel';
 import { NarrativePanel } from './components/layout/panels/NarrativePanel';
 import { EditingToolbar } from './components/EditingToolbar';
+import { CoachBar } from './components/CoachBar';
 import { Timeline } from './components/Timeline';
 import { ExportDropdown } from './components/ExportDropdown';
 import { SettingsDropdown } from './components/SettingsDropdown';
@@ -125,6 +126,7 @@ export default function App() {
   // ── voice narration (coach feedback) ──
   const [narrations, setNarrations] = useState<Narration[]>([]);
   const [recording, setRecording] = useState(false);
+  const [frozen, setFrozen] = useState(false); // COACH: a live freeze is open (reactive mirror of recFreezeRef)
   const recRef = useRef<MediaRecorder | null>(null);
   const recStartRef = useRef(0);         // timeline time at record start
   const narrAudioRef = useRef<HTMLAudioElement | null>(null); // hidden element that plays the active narration
@@ -463,6 +465,8 @@ export default function App() {
     const loop = (ts: number) => {
       const v = videoRef.current;
       if (v) {
+        // COACH freeze open: park the playhead on the held frame while the voice records.
+        if (recFreezeRef.current) { if (!v.paused) v.pause(); lastTsRef.current = ts; raf = requestAnimationFrame(loop); return; }
         const cs = clipsRef.current;
         const dt = lastTsRef.current ? Math.min(0.12, (ts - lastTsRef.current) / 1000) : 0;
         lastTsRef.current = ts;
@@ -925,6 +929,7 @@ export default function App() {
     if (points.length < 2) return;
     const id = uid('pen');
     mutate((o) => [...o, { id, type: 'freehand', name: nextName(o, 'freehand', 'Pen'), visible: true, ...spanAtPlayhead(8), points, color: freehandParams.color, width: freehandParams.width }]);
+    if (recFreezeRef.current) freezeStrokesRef.current.push(id); // drawn during a freeze → re-seat into the hold on resume
   };
 
   // ── layer stack ────────────────────────────────────────────────────────
@@ -992,6 +997,12 @@ export default function App() {
     narrUrlsRef.current[n.id] = url;
     return url;
   };
+  // ── COACH live authoring ─────────────────────────────────────────────────
+  // The coach plays the video and TALKS → one voice take laid onto the timeline as a
+  // narration track. Mid-take they can FREEZE (hold the frame, keep talking) and
+  // draw with the PEN — all landing on the editable timeline (no flattened MP4).
+  const recFreezeRef = useRef<{ cur: number; src: number; wall0: number } | null>(null);
+  const freezeStrokesRef = useRef<string[]>([]); // pen strokes drawn during an open freeze → re-seated into the hold
   const startRecording = async () => {
     if (recording) return;
     let stream: MediaStream;
@@ -1001,11 +1012,6 @@ export default function App() {
     const rec = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined);
     const chunks: BlobPart[] = [];
     const startT = cur, t0 = performance.now();
-    // ⓑ Hold-narrate: paused on a real video frame → freeze that frame for the
-    // recording's length and lay the narration over it ("멈추고 설명"). Otherwise
-    // (playing, or already on a gap/freeze) narrate over the running timeline.
-    const hereNow = clipsRef.current.length ? clipAt(clipsRef.current, startT) : null;
-    const holdMode = !playing && !!hereNow && !isGap(hereNow) && !isFreeze(hereNow);
     rec.ondataavailable = (e) => { if (e.data.size) chunks.push(e.data); };
     rec.onstop = async () => {
       stream.getTracks().forEach((t) => t.stop());
@@ -1013,30 +1019,19 @@ export default function App() {
       const durSec = Math.max(0.3, (performance.now() - t0) / 1000);
       const key = newNarrationKey();
       try { await saveNarrationBlob(key, blob); } catch { /* quota */ }
-      if (holdMode) {
-        // insert a freeze of the held frame at startT, then lay this narration over it;
-        // existing narrations after startT ripple right by the hold length.
-        const cs = clipsRef.current;
-        const src = srcAt(cs, startT);
-        const bound = overlaysRef.current.map((o) => { const c = clipAt(cs, o.startTime); return c ? { ...o, clipId: c.id } : o; });
-        const res = insertFreeze(cs, bound, startT, src, uid('clip'), durSec);
-        activeClipRef.current = null; setClips(res.clips); setOverlays(res.items);
-        setNarrations((ns) => [
-          ...ns.map((x) => (x.startTime >= startT - 1e-6 ? { ...x, startTime: x.startTime + durSec } : x)),
-          { id: uid('narr'), startTime: startT, dur: durSec, key },
-        ]);
-      } else {
-        setNarrations((ns) => [...ns, { id: uid('narr'), startTime: startT, dur: durSec, key }]);
-      }
+      // One continuous take → one narration bar. Freezes during the take inserted holds
+      // that fill their wall-time, so timeline advanced ≈ wall clock and [startT, +dur] aligns.
+      setNarrations((ns) => [...ns, { id: uid('narr'), startTime: startT, dur: durSec, key }]);
     };
     recRef.current = rec;
     recStartRef.current = startT;
     setRecording(true);
     rec.start();
-    if (!playing && !holdMode) togglePlay(); // play so the coach narrates over the video (hold mode stays frozen)
+    if (!playing) togglePlay(); // play so the coach narrates over the running video
   };
   const stopRecording = () => {
     if (!recording) return;
+    if (recFreezeRef.current) commitRecFreeze(false); // finalize an open freeze first
     setRecording(false);
     try { recRef.current?.stop(); } catch { /* ignore */ }
     recRef.current = null;
@@ -1044,91 +1039,41 @@ export default function App() {
   };
   const toggleRecord = () => (recording ? stopRecording() : void startRecording());
 
-  // ── COACH live capture (real-time screen + mic → MP4, Coach's Eye style) ──────
-  // Composite the live view (video frame + Konva overlay layers + pen) into an
-  // offscreen canvas each frame, captureStream it, add the mic, and MediaRecorder
-  // the lot in real time. Pause = the frame holds while the voice keeps recording.
-  const [liveOn, setLiveOn] = useState(false);
-  const [liveSec, setLiveSec] = useState(0);
-  const [liveError, setLiveError] = useState<string | null>(null);
-  const liveRecRef = useRef<MediaRecorder | null>(null);
-  const liveRafRef = useRef(0);
-  const liveMicRef = useRef<MediaStream | null>(null);
-  const liveTimerRef = useRef<number | null>(null);
-  const liveMutedRef = useRef(false);
-  const liveAvailable = !!dims && typeof MediaRecorder !== 'undefined';
-
-  const startLiveCapture = async () => {
-    if (liveOn) return;
+  // Freeze during a take: hold the current frame (video paused, playhead parked) while
+  // the voice keeps recording; on resume, materialize a hold of the frozen duration and
+  // continue. Standalone (not recording) → a plain manual hold.
+  const commitRecFreeze = (resume: boolean) => {
+    const rf = recFreezeRef.current;
+    if (!rf) return;
+    recFreezeRef.current = null; setFrozen(false);
+    const dur = Math.max(0.2, (performance.now() - rf.wall0) / 1000);
+    const cs = clipsRef.current;
+    const bound = overlaysRef.current.map((o) => { const c = clipAt(cs, o.startTime); return c ? { ...o, clipId: c.id } : o; });
+    const id = uid('clip');
+    const res = insertFreeze(cs, bound, rf.cur, rf.src, id, dur);
+    activeClipRef.current = null; setClips(res.clips); setOverlays(res.items);
+    // pen strokes drawn while frozen were shifted past the hold — re-seat them to cover it
+    const fs = freezeStrokesRef.current; freezeStrokesRef.current = [];
+    if (fs.length) setOverlays((items) => items.map((o) => (fs.includes(o.id) ? { ...o, startTime: rf.cur, endTime: rf.cur + dur, clipId: id } : o)));
+    // pre-existing narrations after the freeze point ripple right by the hold length
+    setNarrations((ns) => ns.map((x) => (x.startTime >= rf.cur - 1e-6 ? { ...x, startTime: x.startTime + dur } : x)));
     const v = videoRef.current;
-    if (!v || !dims) { setLiveError('영상이 준비되지 않았습니다.'); return; }
-    setLiveError(null);
-    let mic: MediaStream;
-    try { mic = await navigator.mediaDevices.getUserMedia({ audio: true }); }
-    catch { setLiveError('마이크 권한이 필요합니다.'); return; }
-    liveMicRef.current = mic;
-
-    const H = Math.min(720, dims.h);
-    const W = Math.round((H * dims.w / dims.h) / 2) * 2;
-    const cvs = document.createElement('canvas'); cvs.width = W; cvs.height = H;
-    const ctx = cvs.getContext('2d')!;
-    const draw = () => {
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
-      if (inGapRef.current) { ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H); }
-      else { try { ctx.drawImage(v, 0, 0, W, H); } catch { /* not ready */ } }
-      const stage = stageRef.current;
-      if (stage?.getLayers) {
-        for (const layer of stage.getLayers()) {
-          const lc = layer?.getCanvas?.()?._canvas;
-          if (lc) { try { ctx.drawImage(lc, 0, 0, W, H); } catch { /* ignore */ } }
-        }
-      }
-      liveRafRef.current = requestAnimationFrame(draw);
-    };
-
-    // Build the recorder BEFORE starting the compositor/timer, so a failure here
-    // can't leak the rAF loop or the mic.
-    let rec: MediaRecorder;
-    try {
-      const stream = cvs.captureStream(30);
-      mic.getAudioTracks().forEach((t) => stream.addTrack(t));
-      const mime = ['video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm'].find((m) => MediaRecorder.isTypeSupported(m)) || '';
-      rec = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined);
-    } catch (e) {
-      mic.getTracks().forEach((t) => t.stop());
-      setLiveError(`녹화를 시작할 수 없습니다: ${String((e as Error)?.message ?? e)}`);
-      return;
-    }
-    const chunks: BlobPart[] = [];
-    rec.ondataavailable = (e) => { if (e.data.size) chunks.push(e.data); };
-    rec.onstop = async () => {
-      cancelAnimationFrame(liveRafRef.current);
-      mic.getTracks().forEach((t) => t.stop());
-      if (liveTimerRef.current) { clearInterval(liveTimerRef.current); liveTimerRef.current = null; }
-      if (v) v.muted = liveMutedRef.current;                 // restore source audio
-      const blob = new Blob(chunks, { type: 'video/webm' });
-      const base = (projectName || 'coach').replace(/\s+/g, '_');
-      try {
-        if (window.exportApi?.saveVideo) await window.exportApi.saveVideo(await blob.arrayBuffer(), `${base}_coach.mp4`, 'mp4');
-        else downloadBlob(blob, `${base}_coach.webm`);       // web fallback: WebM download
-      } catch (e) { setLiveError(String((e as Error)?.message ?? e)); }
-    };
-    liveRecRef.current = rec;
-    liveMutedRef.current = v.muted; v.muted = true;           // avoid mic↔speaker echo of the source
-    const t0 = performance.now();
-    setLiveSec(0);
-    liveTimerRef.current = window.setInterval(() => setLiveSec((performance.now() - t0) / 1000), 200);
-    liveRafRef.current = requestAnimationFrame(draw);
-    rec.start();
-    setLiveOn(true);
+    const resumeT = rf.cur + dur; // start of the video that continues after the hold
+    setCur(resumeT); curRef.current = resumeT;
+    inGapRef.current = false;
+    activeClipRef.current = `${id}-r`;
+    if (v) { try { v.currentTime = rf.src; } catch { /* ignore */ } if (resume && playing) void v.play().catch(() => {}); else v.pause(); }
   };
-  const stopLiveCapture = () => {
-    if (!liveOn) return;
-    setLiveOn(false);
-    try { liveRecRef.current?.stop(); } catch { /* ignore */ }
-    liveRecRef.current = null;
+  const toggleFreeze = () => {
+    if (!recording) { insertFreezeAtPlayhead(3); return; } // standalone manual hold
+    if (recFreezeRef.current) { commitRecFreeze(true); return; } // resume
+    const cs = clipsRef.current;
+    const src = srcAt(cs, curRef.current);
+    recFreezeRef.current = { cur: curRef.current, src, wall0: performance.now() }; setFrozen(true);
+    const v = videoRef.current;
+    if (v) { v.pause(); try { v.currentTime = src; } catch { /* ignore */ } }
+    inGapRef.current = true; // the rAF loop parks the playhead while a freeze is open
   };
-  const toggleLiveCapture = () => (liveOn ? stopLiveCapture() : void startLiveCapture());
 
   const deleteNarration = (id: string) => {
     const n = narrations.find((x) => x.id === id);
@@ -1474,14 +1419,7 @@ export default function App() {
       setTextParams={setTextParams}
       selectedText={selectedOverlay?.type === 'text' ? selectedOverlay : null}
       onUpdateText={updateText}
-      freehandParams={freehandParams}
-      setFreehandParams={setFreehandParams}
       selectedFreehand={selectedOverlay?.type === 'freehand' ? selectedOverlay : null}
-      liveOn={liveOn}
-      liveSec={liveSec}
-      liveAvailable={liveAvailable}
-      liveError={liveError}
-      onToggleLive={toggleLiveCapture}
       slowmoRate={slowmoRate}
       setSlowmoRate={setSlowmoRate}
       selectedSpeed={selectedOverlay?.type === 'speed' ? selectedOverlay : null}
@@ -1528,7 +1466,6 @@ export default function App() {
           canSplit={canSplit}
           onDelete={deleteSelected}
           canDelete={!!selectedOverlayId}
-          onFreeze={() => insertFreezeAtPlayhead(3)}
           cur={cur}
           dur={timelineDur}
           speed={speed}
@@ -1537,8 +1474,19 @@ export default function App() {
           onZoom={setTlZoom}
           loopOn={!!loopRegion}
           onToggleLoop={toggleLoop}
+        />
+
+        <CoachBar
           recording={recording}
           onToggleRecord={toggleRecord}
+          frozen={frozen}
+          onToggleFreeze={toggleFreeze}
+          penOn={mode === 'drawing-freehand'}
+          onTogglePen={() => startFeature('freehand')}
+          penColor={freehandParams.color}
+          penWidth={freehandParams.width}
+          onPenColor={(c) => setFreehandParams({ ...freehandParams, color: c })}
+          onPenWidth={(w) => setFreehandParams({ ...freehandParams, width: w })}
         />
 
         <Timeline
