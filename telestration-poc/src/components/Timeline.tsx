@@ -213,7 +213,7 @@ export function Timeline(p: Props) {
               <div className="tl-row tl-narrrow">
                 {p.narrations.map((n) => (
                   <div key={n.id} className="tl-narr"
-                    style={{ left: x(n.startTime), width: Math.max(8, x(n.dur)) }}
+                    style={{ left: x(n.startTime), width: Math.max(26, x(n.dur)) }}
                     onMouseDown={(e) => startNarrDrag(e, n)}
                     onContextMenu={(e) => { e.preventDefault(); p.onDeleteNarration(n.id); }}
                     title={`나레이션 ${fmt(n.startTime)} · ${n.dur.toFixed(1)}s (우클릭: 삭제)`}

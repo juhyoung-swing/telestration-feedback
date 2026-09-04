@@ -284,7 +284,7 @@ body {
 .tl-clip.dragging { opacity: .85; box-shadow: 0 6px 18px rgba(0,0,0,.5); }
 .tl-clip-label { opacity: .85; }
 /* narration (voice-over) bars */
-.tl-narr { position: absolute; top: 0; height: 24px; min-width: 8px; border-radius: 5px; display: flex; align-items: center;
+.tl-narr { position: absolute; top: 0; height: 24px; min-width: 26px; border-radius: 5px; display: flex; align-items: center;
   padding: 0 8px; cursor: grab; overflow: hidden; white-space: nowrap; font-size: 11px; font-weight: 600;
   background: #6b46c1; color: #f2ecff; border: 1px solid rgba(0,0,0,.25); }
 .tl-narr:active { cursor: grabbing; }
