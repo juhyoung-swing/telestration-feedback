@@ -310,19 +310,19 @@ export function Timeline(p: Props) {
           <li onClick={() => { p.onToggleVisible(menu.id); setMenu(null); }}>
             {p.overlays.find((o) => o.id === menu.id)?.visible ? '숨기기' : '표시'}
           </li>
-          <li onClick={() => { p.onDuplicate(menu.id); setMenu(null); }}>Duplicate ⌘K</li>
-          <li onClick={() => { p.onRemove(menu.id); setMenu(null); }}>Remove ⌫</li>
+          <li onClick={() => { p.onDuplicate(menu.id); setMenu(null); }}>복제</li>
+          <li onClick={() => { p.onRemove(menu.id); setMenu(null); }}>삭제</li>
         </ul>
       )}
 
       {clipMenu && (
         <ul className="ctx-menu" style={{ left: clipMenu.x, top: clipMenu.y }} onClick={(e) => e.stopPropagation()}>
-          <li onClick={() => { p.onSplitClip(); setClipMenu(null); }}>재생헤드에서 분할 ✂</li>
-          <li onClick={() => { p.onDuplicateClip(clipMenu.id); setClipMenu(null); }}>복제 · 반복 ⧉</li>
-          <li onClick={() => { p.onInsertVideo(clipMenu.id); setClipMenu(null); }}>영상 삽입 🎞</li>
-          <li onClick={() => { p.onInsertGap(clipMenu.id); setClipMenu(null); }}>뒤에 빈 구간(검정) 추가 ⬛</li>
+          <li onClick={() => { p.onSplitClip(); setClipMenu(null); }}>재생헤드에서 분할</li>
+          <li onClick={() => { p.onDuplicateClip(clipMenu.id); setClipMenu(null); }}>복제 · 반복</li>
+          <li onClick={() => { p.onInsertVideo(clipMenu.id); setClipMenu(null); }}>영상 삽입</li>
+          <li onClick={() => { p.onInsertGap(clipMenu.id); setClipMenu(null); }}>뒤에 빈 구간 추가</li>
           <li className={p.clips.length <= 1 ? 'disabled' : ''}
-            onClick={() => { if (p.clips.length > 1) { p.onDeleteClip(clipMenu.id); setClipMenu(null); } }}>삭제 ⌫</li>
+            onClick={() => { if (p.clips.length > 1) { p.onDeleteClip(clipMenu.id); setClipMenu(null); } }}>삭제</li>
         </ul>
       )}
     </div>
