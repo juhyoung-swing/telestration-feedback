@@ -49,7 +49,6 @@ type Props = {
   currentTime: number; // TIMELINE seconds — overlays render only within their [start,end]
   sourceTime: number;  // SOURCE (video) seconds for the clip under the playhead — used for tracking/pose lookups (identity EDL → == currentTime)
   gap?: boolean;       // playhead is inside a black gap clip → cover the video with black
-  hint: string | null; // on-canvas guidance for the active placement/drawing mode
   selectedId: string | null; // timeline-selected overlay → highlighted on the canvas
   onSelectOverlay: (id: string | null) => void; // click an overlay on the canvas → select it
   players: Players | null; // tracked player trajectories (foot points in video px)
@@ -81,7 +80,6 @@ export function VideoStage({
   overlays,
   mode,
   currentTime,
-  hint,
   selectedId,
   onSelectOverlay,
   sourceTime,
@@ -607,8 +605,6 @@ export function VideoStage({
         </div>
       )}
       </div>
-
-      {hint && <div className="stage-hint">{hint}</div>}
     </div>
   );
 }

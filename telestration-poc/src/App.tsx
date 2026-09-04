@@ -1209,7 +1209,7 @@ export default function App() {
   const videoStage = (
     <VideoStage
       src={src} videoRef={videoRef} calibration={calibration} overlays={overlays} mode={mode}
-      currentTime={cur} sourceTime={clips.length ? srcAt(clips, cur) : cur} gap={clips.length ? isGap(clipAt(clips, cur)) : false} hint={stageHint} selectedId={selectedOverlayId} onSelectOverlay={setSelectedOverlayId}
+      currentTime={cur} sourceTime={clips.length ? srcAt(clips, cur) : cur} gap={clips.length ? isGap(clipAt(clips, cur)) : false} selectedId={selectedOverlayId} onSelectOverlay={setSelectedOverlayId}
       players={players} fragments={fragments} playerAnchors={playerAnchors} fps={trackFps}
       poseData={poseData}
       draftCalib={draftCalib} draftZone={draftZone} pathDraft={pathDraft}
@@ -1409,6 +1409,7 @@ export default function App() {
         </div>
 
         <div className="media">{videoStage}</div>
+        {stageHint && <div className="stage-hint-bar">{stageHint}</div>}
 
         <EditingToolbar
           playing={playing}

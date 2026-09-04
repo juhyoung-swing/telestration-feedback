@@ -199,11 +199,11 @@ body {
 .konva-overlay { position: absolute; inset: 0; }
 .gap-black { position: absolute; inset: 0; background: #000; } /* black gap clip covers the video (overlays still render on top) */
 .zoom-content { will-change: transform; } /* Zoom In: CSS punch-in of video + overlays together */
-.stage-hint {
-  position: absolute; top: 10px; left: 50%; transform: translateX(-50%); z-index: 20; pointer-events: none;
-  max-width: calc(100% - 20px); box-sizing: border-box; text-align: center;
-  background: rgba(12, 16, 22, .82); color: #fff; border: 1px solid var(--accent); border-radius: 12px;
-  padding: 6px 12px; font-size: 12px; font-weight: 600; line-height: 1.3; box-shadow: 0 4px 16px rgba(0,0,0,.4);
+/* Editing/placement guidance — a bar BELOW the video (outside the frame), not overlaid on it. */
+.stage-hint-bar {
+  flex: none; align-self: center; max-width: 100%; box-sizing: border-box; text-align: center;
+  background: var(--accent-weak); color: var(--accent); border: 1px solid var(--accent); border-radius: 999px;
+  padding: 5px 14px; font-size: 12px; font-weight: 600; line-height: 1.3;
 }
 
 /* (b2) editing toolbar */
