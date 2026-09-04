@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { FEATURES, FEATURE_GROUPS } from '../features';
 import { playersBySpan } from '../../../geometry/tracking';
 import { TRAIL_JOINTS } from '../../../lib/pose';
-import type { CircleParams, FeatureId, Mode, Overlay, PathArrow, PathParams, Players, PoseAngleId, PoseOverlay, SpeedSegment, TextLabel, TextParams, ZoneParams, ZoomParams } from '../../../types';
+import type { CircleParams, FeatureId, FreehandParams, FreehandStroke, Mode, Overlay, PathArrow, PathParams, Players, PoseAngleId, PoseOverlay, SpeedSegment, TextLabel, TextParams, ZoneParams, ZoomParams } from '../../../types';
 
 const FEATURE_MODE: Record<string, Mode> = {
   circle: 'placing-halo', marker: 'placing-marker', text: 'placing-text',
@@ -65,6 +65,15 @@ type Props = {
   setTextParams: (p: TextParams) => void;
   selectedText: TextLabel | null;
   onUpdateText: (id: string, patch: Partial<TextLabel>) => void;
+  freehandParams: FreehandParams;
+  setFreehandParams: (p: FreehandParams) => void;
+  selectedFreehand: FreehandStroke | null;
+  // ── COACH live capture ──
+  liveOn: boolean;         // recording in progress
+  liveSec: number;         // elapsed seconds
+  liveAvailable: boolean;  // MediaRecorder + a stage present
+  liveError: string | null;
+  onToggleLive: () => void;
   slowmoRate: number;
   setSlowmoRate: (r: number) => void;
   selectedSpeed: SpeedSegment | null;
@@ -644,6 +653,40 @@ export function EffectPanel(p: Props) {
                 </div>
               </div>
               <AnimationControls on={pathDrawOn} sec={pathDrawSec} delay={pathDelay} ease={pathEase} reverse={pathReverse} loop={pathLoop} set={setPathAnim} />
+            </>
+          )}
+          {p.selected === 'freehand' && (() => {
+            const sel = p.selectedFreehand;
+            const color = sel?.color ?? p.freehandParams.color;
+            const width = sel?.width ?? p.freehandParams.width;
+            const setColor = (c: string) => (sel ? p.onPatchOverlay(sel.id, { color: c }) : p.setFreehandParams({ ...p.freehandParams, color: c }));
+            const setWidth = (w: number) => (sel ? p.onPatchOverlay(sel.id, { width: w }) : p.setFreehandParams({ ...p.freehandParams, width: w }));
+            return (
+              <>
+                <div className="field"><label>펜 색</label>
+                  <input type="color" value={color} onChange={(e) => setColor(e.target.value)} /></div>
+                <div className="field"><label>굵기 {width}px</label>
+                  <input type="range" min="1" max="16" step="1" value={width} onChange={(e) => setWidth(Number(e.target.value))} /></div>
+                {!sel && <div className="armed"><span className="muted-note">화면 위에 드래그해서 그리세요. 계속 그릴 수 있어요 · Esc로 종료</span></div>}
+                {sel && <div className="muted-note">선택된 펜 선 편집 중. 색·굵기를 바꾸거나 🗑로 지우세요.</div>}
+              </>
+            );
+          })()}
+          {p.selected === 'coach' && (
+            <>
+              <div className="muted-note" style={{ marginBottom: 8 }}>
+                지금 화면(영상+오버레이+펜)과 마이크를 <b>실시간 녹화</b>합니다. 재생·일시정지·스크럽하며 설명하고, 펜으로 그리세요.
+                일시정지하면 그 장면이 멈춘 채 목소리가 계속 녹음됩니다.
+              </div>
+              {!p.liveAvailable ? (
+                <div className="muted-note">이 화면에서는 녹화를 사용할 수 없어요 (영상·마이크 필요).</div>
+              ) : (
+                <button className={`btn block ${p.liveOn ? 'danger' : 'primary'}`} onClick={p.onToggleLive}>
+                  {p.liveOn ? `■ 녹화 정지 (${Math.floor(p.liveSec / 60)}:${String(Math.floor(p.liveSec % 60)).padStart(2, '0')})` : '● 녹화 시작'}
+                </button>
+              )}
+              {p.liveOn && <div className="muted-note" style={{ marginTop: 8 }}>녹화 중 — 펜 타일로 그리거나 재생/일시정지로 진행하세요. 정지하면 MP4로 저장됩니다.</div>}
+              {p.liveError && <div className="analyze-error" style={{ marginTop: 8 }}>{p.liveError}</div>}
             </>
           )}
 

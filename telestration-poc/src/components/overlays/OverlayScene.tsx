@@ -18,6 +18,7 @@ import { TextLabel } from './TextLabel';
 import { PathArrow } from './PathArrow';
 import { Connector } from './Connector';
 import { Sector } from './Sector';
+import { FreehandLine } from './FreehandLine';
 import { SpotlightDim } from './SpotlightDim';
 import { PoseFigure } from './PoseFigure';
 
@@ -64,6 +65,8 @@ export function OverlayScene({
               drawProgress={drawOnProgress(o, currentTime)} drawReverse={o.drawReverse} />;
           case 'connector':
             return <Connector key={o.id} points={o.points} project={project} color={o.color} />;
+          case 'freehand':
+            return <FreehandLine key={o.id} points={o.points} toDisplay={vToD} color={o.color} width={o.width} />;
           case 'pose': {
             const samples = poseData?.players[o.trackId];
             const frameTime = o.freeze != null ? o.freeze : sourceTime;

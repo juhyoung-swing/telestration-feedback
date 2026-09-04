@@ -15,13 +15,14 @@ import { TextLabel } from './overlays/TextLabel';
 import { PathArrow } from './overlays/PathArrow';
 import { Connector } from './overlays/Connector';
 import { Sector } from './overlays/Sector';
+import { FreehandLine } from './overlays/FreehandLine';
 import { SpotlightDim } from './overlays/SpotlightDim';
 import { PoseFigure } from './overlays/PoseFigure';
 import { poseAt } from '../lib/pose';
 import { CalibrationPoints } from './overlays/CalibrationPoints';
 import { CalibLines } from './overlays/CalibLines';
 import { CalibBoxes } from './overlays/CalibBoxes';
-import type { CourtCalibration, Overlay, Mode, DrawnLine, Players, Fragments, PlayerAnchor, PoseData, Spotlight, ZoomIn } from '../types';
+import type { CourtCalibration, Overlay, Mode, DrawnLine, Players, Fragments, PlayerAnchor, PoseData, Spotlight, ZoomIn, FreehandStroke } from '../types';
 
 // hit-test helpers (display px)
 const pointInPoly = (px: number, py: number, poly: number[]): boolean => {
@@ -68,6 +69,7 @@ type Props = {
   lineDraft: Pt[]; // line-calibration: active line points (video px)
   activeLineId: string | null;
   onStageClick: (videoPt: Pt) => void;
+  onFreehandDone: (points: { x: number; y: number }[]) => void; // a finished pen stroke (video px)
   onDimensions: (w: number, h: number) => void;
   stageRef?: RefObject<any>; // Konva Stage → crisp overlay capture for export (stage.toCanvas)
 };
@@ -101,6 +103,7 @@ export function VideoStage({
   lineDraft,
   activeLineId,
   onStageClick,
+  onFreehandDone,
   onDimensions,
   stageRef,
 }: Props) {
@@ -151,6 +154,39 @@ export function VideoStage({
     const rect = e.currentTarget.getBoundingClientRect();
     const displayPt = { x: e.clientX - rect.left, y: e.clientY - rect.top };
     onStageClick(displayToVideo(displayPt, view)); // hand App a VIDEO-space point
+  };
+
+  // ── freehand pen: collect a stroke on pointer down→move→up (video px) ────────
+  const fhDrawing = useRef(false);
+  const fhPtsRef = useRef<Pt[]>([]);
+  const [fhDraft, setFhDraft] = useState<Pt[]>([]);
+  const fhPointAt = (e: React.MouseEvent<HTMLDivElement>): Pt | null => {
+    if (!view) return null;
+    const rect = e.currentTarget.getBoundingClientRect();
+    return displayToVideo({ x: e.clientX - rect.left, y: e.clientY - rect.top }, view);
+  };
+  const onOverlayDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (mode === 'drawing-freehand') {
+      const p = fhPointAt(e); if (!p) return;
+      e.preventDefault(); fhDrawing.current = true; fhPtsRef.current = [p]; setFhDraft([p]);
+      return;
+    }
+    handleClick(e); // placement/click behavior for every other mode
+  };
+  const onOverlayMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (mode !== 'drawing-freehand' || !fhDrawing.current) return;
+    const p = fhPointAt(e); if (!p) return;
+    const last = fhPtsRef.current[fhPtsRef.current.length - 1];
+    if (last && Math.hypot(p.x - last.x, p.y - last.y) < 1.5) return; // decimate tiny moves
+    fhPtsRef.current = [...fhPtsRef.current, p];
+    setFhDraft(fhPtsRef.current);
+  };
+  const onOverlayUp = () => {
+    if (!fhDrawing.current) return;
+    fhDrawing.current = false;
+    const pts = fhPtsRef.current;
+    fhPtsRef.current = []; setFhDraft([]);
+    if (pts.length >= 2) onFreehandDone(pts);
   };
 
   const aspect = dims ? `${dims.w} / ${dims.h}` : '16 / 9';
@@ -270,6 +306,12 @@ export function VideoStage({
           for (let i = 0; i < pts.length - 1; i++) if (distToSeg(pos.x, pos.y, pts[i].x, pts[i].y, pts[i + 1].x, pts[i + 1].y) < 12) return o.id;
           break;
         }
+        case 'freehand': {
+          const dpts = o.points.map((p) => vToD(p));
+          const tol = Math.max(10, o.width + 6);
+          for (let i = 0; i < dpts.length - 1; i++) if (distToSeg(pos.x, pos.y, dpts[i].x, dpts[i].y, dpts[i + 1].x, dpts[i + 1].y) < tol) return o.id;
+          break;
+        }
       }
     }
     return null;
@@ -323,7 +365,10 @@ export function VideoStage({
         <div
           className="konva-overlay"
           ref={overlayRef}
-          onMouseDown={handleClick}
+          onMouseDown={onOverlayDown}
+          onMouseMove={onOverlayMove}
+          onMouseUp={onOverlayUp}
+          onMouseLeave={onOverlayUp}
           style={{
             pointerEvents: interactive ? 'auto' : 'none', // idle → native video controls stay usable
             cursor: mode !== 'idle' ? 'crosshair' : 'default', // placement uses crosshair; selection-edit uses default (handles show move)
@@ -396,6 +441,14 @@ export function VideoStage({
                       }
                     }
                   })}
+
+              {/* freehand pen strokes — screen-space, no calibration needed (only a view) */}
+              {view && overlays
+                .filter((o): o is FreehandStroke => o.type === 'freehand' && o.visible && currentTime >= o.startTime && currentTime <= o.endTime)
+                .map((o) => <FreehandLine key={o.id} points={o.points} toDisplay={vToD} color={o.color} width={o.width} />)}
+              {mode === 'drawing-freehand' && fhDraft.length >= 2 && (
+                <FreehandLine points={fhDraft} toDisplay={vToD} color="#FFD400" width={4} />
+              )}
 
               {/* selection ring — for selected overlays without drag handles (tracked halo / spotlight) */}
               {selAnchor && !editTarget && (

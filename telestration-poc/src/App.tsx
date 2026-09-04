@@ -23,7 +23,7 @@ import { defaultSide } from './lib/pose';
 import { singleClip, totalDuration, clipAt, clipDur, srcAt, splitClip, duplicateClip, deleteClip, moveClip, insertGap, insertFreeze, isGap, isFreeze, relayout } from './lib/clips';
 import type { Clip } from './lib/clips';
 import type {
-  CircleParams, CourtCalibration, DrawnLine, FeatureId, FragmentData, Fragments, GroundHalo, Mode, Overlay,
+  CircleParams, CourtCalibration, DrawnLine, FeatureId, FragmentData, Fragments, FreehandParams, GroundHalo, Mode, Overlay,
   Narration, PathParams, PlayerAnchor, Players, PoseData, RailTab, TextParams, TrackingData, ZoneParams, ZoomParams,
 } from './types';
 
@@ -69,11 +69,11 @@ const DEFAULT_SRC = '/court.mp4';
 const DEFAULT_LEN = 5; // new static effects span this many seconds from the playhead
 const FOLLOW_LEN = 8;  // new player-follow effects span this many seconds from the playhead
 const clampT = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
-const FEATURE_COLORS: Record<string, string> = { marker: '#FF3B3B', text: '#FFFFFF', path: '#FF3B3B', connector: '#00E5FF', sector: '#7C5CFF' };
+const FEATURE_COLORS: Record<string, string> = { marker: '#FF3B3B', text: '#FFFFFF', path: '#FF3B3B', connector: '#00E5FF', sector: '#7C5CFF', freehand: '#FFD400' };
 const FEATURE_MODE = {
   circle: 'placing-halo', marker: 'placing-marker', text: 'placing-text',
   zone: 'drawing-zone', path: 'drawing-path', connector: 'drawing-connector',
-  sector: 'drawing-sector', 'zoom-in': 'placing-zoom',
+  sector: 'drawing-sector', 'zoom-in': 'placing-zoom', freehand: 'drawing-freehand',
 } as const;
 
 // Player-group features apply to a tracked player within a selected clip.
@@ -94,12 +94,16 @@ function featureForOverlay(o: Overlay): FeatureId {
     case 'connector': return 'connector';
     case 'zoom-in': return 'zoom-in';
     case 'speed': return 'slowmo';
+    case 'freehand': return 'freehand';
   }
 }
 
 export default function App() {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const stageRef = useRef<{ toCanvas: (c?: { pixelRatio?: number }) => HTMLCanvasElement } | null>(null);
+  const stageRef = useRef<{
+    toCanvas: (c?: { pixelRatio?: number }) => HTMLCanvasElement;
+    getLayers?: () => Array<{ getCanvas?: () => { _canvas: HTMLCanvasElement } }>;
+  } | null>(null);
   const blobUrlRef = useRef<string | null>(null);
 
   // project shell: 'projects' landing → 'calibrate' (import-time court setup) → 'editor'
@@ -156,6 +160,7 @@ export default function App() {
   const [pathDraft, setPathDraft] = useState<Pt | null>(null); // first click (video px) while drawing a path
   const [textDraft, setTextDraft] = useState('텍스트'); // Text feature: content typed in the panel
   const [textParams, setTextParams] = useState<TextParams>({ fontSize: 22, fontFamily: 'sans-serif', bold: true, align: 'center', color: '#FFFFFF', bg: true, bgColor: '#000000', bgOpacity: 0.55 });
+  const [freehandParams, setFreehandParams] = useState<FreehandParams>({ color: '#FFD400', width: 4 });
   const [slowmoRate, setSlowmoRate] = useState(0.5); // default rate for new speed segments
 
   // playback
@@ -692,6 +697,8 @@ export default function App() {
   // Enter/exit a feature's placement or drawing mode.
   const startFeature = (id: FeatureId) => {
     if (id === 'slowmo') { addSpeedSegment(); return; } // timeline clip — no calibration/placement needed
+    if (id === 'coach') return; // selecting the tile shows the recording panel; no placement mode
+    if (id === 'freehand') { setSelectedOverlayId(null); setMode((m) => (m === 'drawing-freehand' ? 'idle' : 'drawing-freehand')); return; } // pen needs no court calibration
     if (!calibration) return;
     const target = FEATURE_MODE[id as keyof typeof FEATURE_MODE];
     if (!target) return;
@@ -912,6 +919,14 @@ export default function App() {
     }
   };
 
+  // A finished pen stroke (video px). Each stroke is its own overlay; the pen mode
+  // stays armed so the coach can keep drawing (esp. during live COACH capture).
+  const onFreehandDone = (points: { x: number; y: number }[]) => {
+    if (points.length < 2) return;
+    const id = uid('pen');
+    mutate((o) => [...o, { id, type: 'freehand', name: nextName(o, 'freehand', 'Pen'), visible: true, ...spanAtPlayhead(8), points, color: freehandParams.color, width: freehandParams.width }]);
+  };
+
   // ── layer stack ────────────────────────────────────────────────────────
   const removeOverlay = (id: string) => {
     mutate((o) => o.filter((x) => x.id !== id));
@@ -930,6 +945,9 @@ export default function App() {
       if (src.type === 'path') {
         const off = src.space === 'screen' ? 24 : 0.4;
         return [...o, { ...src, id: newId, name, points: src.points.map((p) => ({ x: p.x + off, y: p.y + off })) }];
+      }
+      if (src.type === 'freehand') {
+        return [...o, { ...src, id: newId, name, points: src.points.map((p) => ({ x: p.x + 20, y: p.y + 20 })) }];
       }
       return [...o, { ...src, id: newId, name, points: src.points.map((p) => ({ courtX: p.courtX + 0.6, courtY: p.courtY + 0.6 })) }];
     });
@@ -1025,6 +1043,93 @@ export default function App() {
     if (playing) togglePlay();
   };
   const toggleRecord = () => (recording ? stopRecording() : void startRecording());
+
+  // ── COACH live capture (real-time screen + mic → MP4, Coach's Eye style) ──────
+  // Composite the live view (video frame + Konva overlay layers + pen) into an
+  // offscreen canvas each frame, captureStream it, add the mic, and MediaRecorder
+  // the lot in real time. Pause = the frame holds while the voice keeps recording.
+  const [liveOn, setLiveOn] = useState(false);
+  const [liveSec, setLiveSec] = useState(0);
+  const [liveError, setLiveError] = useState<string | null>(null);
+  const liveRecRef = useRef<MediaRecorder | null>(null);
+  const liveRafRef = useRef(0);
+  const liveMicRef = useRef<MediaStream | null>(null);
+  const liveTimerRef = useRef<number | null>(null);
+  const liveMutedRef = useRef(false);
+  const liveAvailable = !!dims && typeof MediaRecorder !== 'undefined';
+
+  const startLiveCapture = async () => {
+    if (liveOn) return;
+    const v = videoRef.current;
+    if (!v || !dims) { setLiveError('영상이 준비되지 않았습니다.'); return; }
+    setLiveError(null);
+    let mic: MediaStream;
+    try { mic = await navigator.mediaDevices.getUserMedia({ audio: true }); }
+    catch { setLiveError('마이크 권한이 필요합니다.'); return; }
+    liveMicRef.current = mic;
+
+    const H = Math.min(720, dims.h);
+    const W = Math.round((H * dims.w / dims.h) / 2) * 2;
+    const cvs = document.createElement('canvas'); cvs.width = W; cvs.height = H;
+    const ctx = cvs.getContext('2d')!;
+    const draw = () => {
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      if (inGapRef.current) { ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H); }
+      else { try { ctx.drawImage(v, 0, 0, W, H); } catch { /* not ready */ } }
+      const stage = stageRef.current;
+      if (stage?.getLayers) {
+        for (const layer of stage.getLayers()) {
+          const lc = layer?.getCanvas?.()?._canvas;
+          if (lc) { try { ctx.drawImage(lc, 0, 0, W, H); } catch { /* ignore */ } }
+        }
+      }
+      liveRafRef.current = requestAnimationFrame(draw);
+    };
+
+    // Build the recorder BEFORE starting the compositor/timer, so a failure here
+    // can't leak the rAF loop or the mic.
+    let rec: MediaRecorder;
+    try {
+      const stream = cvs.captureStream(30);
+      mic.getAudioTracks().forEach((t) => stream.addTrack(t));
+      const mime = ['video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm'].find((m) => MediaRecorder.isTypeSupported(m)) || '';
+      rec = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined);
+    } catch (e) {
+      mic.getTracks().forEach((t) => t.stop());
+      setLiveError(`녹화를 시작할 수 없습니다: ${String((e as Error)?.message ?? e)}`);
+      return;
+    }
+    const chunks: BlobPart[] = [];
+    rec.ondataavailable = (e) => { if (e.data.size) chunks.push(e.data); };
+    rec.onstop = async () => {
+      cancelAnimationFrame(liveRafRef.current);
+      mic.getTracks().forEach((t) => t.stop());
+      if (liveTimerRef.current) { clearInterval(liveTimerRef.current); liveTimerRef.current = null; }
+      if (v) v.muted = liveMutedRef.current;                 // restore source audio
+      const blob = new Blob(chunks, { type: 'video/webm' });
+      const base = (projectName || 'coach').replace(/\s+/g, '_');
+      try {
+        if (window.exportApi?.saveVideo) await window.exportApi.saveVideo(await blob.arrayBuffer(), `${base}_coach.mp4`, 'mp4');
+        else downloadBlob(blob, `${base}_coach.webm`);       // web fallback: WebM download
+      } catch (e) { setLiveError(String((e as Error)?.message ?? e)); }
+    };
+    liveRecRef.current = rec;
+    liveMutedRef.current = v.muted; v.muted = true;           // avoid mic↔speaker echo of the source
+    const t0 = performance.now();
+    setLiveSec(0);
+    liveTimerRef.current = window.setInterval(() => setLiveSec((performance.now() - t0) / 1000), 200);
+    liveRafRef.current = requestAnimationFrame(draw);
+    rec.start();
+    setLiveOn(true);
+  };
+  const stopLiveCapture = () => {
+    if (!liveOn) return;
+    setLiveOn(false);
+    try { liveRecRef.current?.stop(); } catch { /* ignore */ }
+    liveRecRef.current = null;
+  };
+  const toggleLiveCapture = () => (liveOn ? stopLiveCapture() : void startLiveCapture());
+
   const deleteNarration = (id: string) => {
     const n = narrations.find((x) => x.id === id);
     setNarrations((ns) => ns.filter((x) => x.id !== id));
@@ -1211,7 +1316,7 @@ export default function App() {
       onUpdatePathPoints={(id, points) => updatePath(id, { points })} onUpdateText={updateText} onUpdateSector={updateSector}
       onPatchOverlay={patchOverlay}
       showCalibration={view === 'calibrate'}
-      drawnLines={drawnLines} lineDraft={lineDraft} activeLineId={activeLineId} onStageClick={onStageClick} onDimensions={(w, h) => setDims({ w, h })}
+      drawnLines={drawnLines} lineDraft={lineDraft} activeLineId={activeLineId} onStageClick={onStageClick} onFreehandDone={onFreehandDone} onDimensions={(w, h) => setDims({ w, h })}
       stageRef={stageRef}
     />
   );
@@ -1369,6 +1474,14 @@ export default function App() {
       setTextParams={setTextParams}
       selectedText={selectedOverlay?.type === 'text' ? selectedOverlay : null}
       onUpdateText={updateText}
+      freehandParams={freehandParams}
+      setFreehandParams={setFreehandParams}
+      selectedFreehand={selectedOverlay?.type === 'freehand' ? selectedOverlay : null}
+      liveOn={liveOn}
+      liveSec={liveSec}
+      liveAvailable={liveAvailable}
+      liveError={liveError}
+      onToggleLive={toggleLiveCapture}
       slowmoRate={slowmoRate}
       setSlowmoRate={setSlowmoRate}
       selectedSpeed={selectedOverlay?.type === 'speed' ? selectedOverlay : null}

@@ -6,7 +6,7 @@ export type Mode =
   | 'idle' | 'calibrating' | 'line-calibrating' | 'player-calibrating'
   | 'placing-halo' | 'drawing-zone'
   | 'placing-marker' | 'placing-text' | 'drawing-path' | 'drawing-connector'
-  | 'placing-zoom' | 'drawing-sector';
+  | 'placing-zoom' | 'drawing-sector' | 'drawing-freehand';
 
 /** One court line drawn during line-calibration: which line + the clicked points (video px). */
 export type DrawnLine = { id: string; points: Pt[] };
@@ -151,6 +151,16 @@ export type Sector = TimeSpan & {
   drawLoop?: boolean;
 };
 
+// Freehand pen stroke: a flat, screen-space (video px) polyline the coach draws
+// directly on the frame — like a telestrator pen. Needs no calibration (drawn flat,
+// not projected onto the court). Used heavily during live COACH capture.
+export type FreehandStroke = TimeSpan & {
+  id: string; type: 'freehand'; name: string; visible: boolean;
+  points: { x: number; y: number }[]; // VIDEO px
+  color?: string;
+  width: number;                       // stroke width (display px)
+};
+
 // Spotlight: dim the whole frame, reveal (light up) the tracked player.
 export type Spotlight = TimeSpan & {
   id: string; type: 'spotlight'; name: string; visible: boolean;
@@ -194,7 +204,7 @@ export type ZoomIn = TimeSpan & {
   courtX: number; courtY: number; scale: number; trackId?: string;
 };
 
-export type Overlay = GroundHalo | CoverageZone | Marker | TextLabel | PathArrow | Connector | Sector | Spotlight | PoseOverlay | ZoomIn | SpeedSegment;
+export type Overlay = GroundHalo | CoverageZone | Marker | TextLabel | PathArrow | Connector | Sector | Spotlight | PoseOverlay | ZoomIn | SpeedSegment | FreehandStroke;
 
 // ── UI (SportsBuddy-style shell) ────────────────────────────────────────────
 // Media/Court were removed: video import + court calibration happen at project creation.
@@ -204,11 +214,13 @@ export type RailTab = 'effect' | 'narrative';
 // spotlight) apply to a player picked in the panel's lower section; the rest place on the court.
 export type FeatureId =
   | 'follow-circle' | 'spotlight' | 'pose'            // Player group (apply to a selected player)
-  | 'circle' | 'path' | 'zone' | 'marker' | 'connector' | 'sector' // Tactic group (place on court)
-  | 'text' | 'zoom-in' | 'slowmo';                      // Action group
+  | 'circle' | 'path' | 'zone' | 'marker' | 'connector' | 'sector' | 'freehand' // Tactic group (place on court / draw)
+  | 'text' | 'zoom-in' | 'slowmo'                       // Action group
+  | 'coach';                                            // COACH group (live recording)
 
 export type CircleParams = { radiusMeters: number; color: string; opacity: number; dashed: boolean; drawOn: boolean; drawSec: number; drawDelay: number; drawEase: 'linear' | 'inout'; drawReverse: boolean; drawLoop: boolean };
 export type ZoneParams = { color: string; opacity: number; fillStyle: ZoneFill; dashed: boolean; strokeWidth: number };
 export type ZoomParams = { scale: number };
 export type PathParams = { shape: 'court-line' | 'screen-line' | 'arc'; height: number; color: string; dashed: boolean; drawOn: boolean; drawSec: number; drawDelay: number; drawEase: 'linear' | 'inout'; drawReverse: boolean; drawLoop: boolean };
 export type TextParams = { fontSize: number; fontFamily: string; bold: boolean; align: 'left' | 'center' | 'right'; color: string; bg: boolean; bgColor: string; bgOpacity: number };
+export type FreehandParams = { color: string; width: number };
