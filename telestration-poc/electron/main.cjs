@@ -99,6 +99,28 @@ ipcMain.handle('export:write-file', async (_evt, { filePath, buf }) => {
   await fs.promises.writeFile(filePath, Buffer.from(buf));
   return filePath;
 });
+// Mux a WAV audio track onto the (silent) WebCodecs MP4 with ffmpeg → AAC, write to filePath.
+ipcMain.handle('export:mux-audio', async (_evt, { mp4, wav, filePath }) => {
+  const vid = path.join(os.tmpdir(), `tele-v-${crypto.randomUUID()}.mp4`);
+  const aud = path.join(os.tmpdir(), `tele-a-${crypto.randomUUID()}.wav`);
+  await fs.promises.writeFile(vid, Buffer.from(mp4));
+  await fs.promises.writeFile(aud, Buffer.from(wav));
+  try {
+    const ffmpeg = mlPaths().ffmpegPath;
+    await new Promise((resolve, reject) => {
+      execFile(ffmpeg, [
+        '-y', '-i', vid, '-i', aud,
+        '-c:v', 'copy', '-c:a', 'aac', '-b:a', '192k',
+        '-map', '0:v:0', '-map', '1:a:0', '-shortest', '-movflags', '+faststart',
+        filePath,
+      ], (err, _o, stderr) => (err ? reject(new Error(String(stderr || err))) : resolve(null)));
+    });
+    return filePath;
+  } finally {
+    fs.promises.unlink(vid).catch(() => {});
+    fs.promises.unlink(aud).catch(() => {});
+  }
+});
 
 ipcMain.handle('export:save-video', async (evt, { webm, suggestedName, format }) => {
   const win = BrowserWindow.fromWebContents(evt.sender);

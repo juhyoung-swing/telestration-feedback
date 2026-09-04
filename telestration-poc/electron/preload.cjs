@@ -28,4 +28,5 @@ contextBridge.exposeInMainWorld('exportApi', {
   saveVideo: (webm, suggestedName, format) => ipcRenderer.invoke('export:save-video', { webm, suggestedName, format }),
   chooseMp4: (suggestedName) => ipcRenderer.invoke('export:choose-mp4', { suggestedName }),
   writeFile: (filePath, buf) => ipcRenderer.invoke('export:write-file', { filePath, buf }),
+  muxAudio: (mp4, wav, filePath) => ipcRenderer.invoke('export:mux-audio', { mp4, wav, filePath }),
 });

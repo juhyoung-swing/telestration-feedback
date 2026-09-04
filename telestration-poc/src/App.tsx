@@ -12,6 +12,7 @@ import { ProjectList } from './components/ProjectList';
 import { listProjects, saveProject, deleteProject as deleteProjectRec, newProject, newVideoKey, saveVideoBlob, loadVideoBlob, saveAnalysis, loadAnalysis, newNarrationKey, saveNarrationBlob, loadNarrationBlob, deleteNarrationBlob } from './lib/projects';
 import { screenshotCanvas, canvasToBlob, downloadBlob } from './lib/exportMedia';
 import { exportTimelineMp4 } from './lib/exportTimeline';
+import { mixExportAudioWav } from './lib/exportAudio';
 import type { Project } from './lib/projects';
 import { getPerspectiveTransform, invert3x3, projectCourtPoint, unprojectToCourt } from './geometry/homography';
 import type { Pt } from './geometry/homography';
@@ -48,6 +49,7 @@ declare global {
       saveVideo: (webm: ArrayBuffer, suggestedName: string, format: 'mp4' | 'webm') => Promise<string | null>;
       chooseMp4: (suggestedName: string) => Promise<string | null>;
       writeFile: (filePath: string, buf: ArrayBuffer) => Promise<string | null>;
+      muxAudio: (mp4: ArrayBuffer, wav: ArrayBuffer, filePath: string) => Promise<string | null>;
     };
   }
 }
@@ -1042,13 +1044,27 @@ export default function App() {
     }
     setSelectedOverlayId(null); setSelectedClipId(null);
     await nextFrame();
+    // 1) silent video (WebCodecs, EDL/overlays/slow-mo/zoom baked)
     const blob = await exportTimelineMp4({
       video: v, clips, overlays, calibration, players, poseData,
       videoW: dims.w, videoH: dims.h, targetHeight: height, fps: 30,
       onProgress: (done, total) => onProgress(done, total),
     });
-    if (savePath && window.exportApi?.writeFile) await window.exportApi.writeFile(savePath, await blob.arrayBuffer());
-    else downloadBlob(blob, name); // web: direct download
+    // 2) mix audio (source video audio per EDL/slow-mo + narration) → WAV
+    let wav: ArrayBuffer | null = null;
+    try {
+      const srcBytes = await currentVideoBytes();
+      wav = await mixExportAudioWav({
+        clips, overlays, narrations, sourceAudioBytes: srcBytes,
+        loadNarration: async (key) => { const b = await loadNarrationBlob(key); return b ? await b.arrayBuffer() : null; },
+      });
+    } catch { wav = null; }
+    // 3) save — Electron muxes audio (ffmpeg) if any, else writes the silent MP4; web downloads
+    const mp4 = await blob.arrayBuffer();
+    if (savePath && window.exportApi) {
+      if (wav && window.exportApi.muxAudio) await window.exportApi.muxAudio(mp4, wav, savePath);
+      else await window.exportApi.writeFile(savePath, mp4);
+    } else downloadBlob(blob, name);
   };
 
   // Esc leaves interactive mode; Enter finishes a zone/line.
