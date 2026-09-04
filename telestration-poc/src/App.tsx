@@ -1044,16 +1044,16 @@ export default function App() {
     }
     setSelectedOverlayId(null); setSelectedClipId(null);
     await nextFrame();
-    // 1) silent video (WebCodecs, EDL/overlays/slow-mo/zoom baked)
+    const srcBytes = await currentVideoBytes(); // decode (fast frames) + audio both use this
+    // 1) silent video (WebCodecs decode+encode, EDL/overlays/slow-mo/zoom baked)
     const blob = await exportTimelineMp4({
-      video: v, clips, overlays, calibration, players, poseData,
+      video: v, sourceBytes: srcBytes, clips, overlays, calibration, players, poseData,
       videoW: dims.w, videoH: dims.h, targetHeight: height, fps: 30,
       onProgress: (done, total) => onProgress(done, total),
     });
     // 2) mix audio (source video audio per EDL/slow-mo + narration) → WAV
     let wav: ArrayBuffer | null = null;
     try {
-      const srcBytes = await currentVideoBytes();
       wav = await mixExportAudioWav({
         clips, overlays, narrations, sourceAudioBytes: srcBytes,
         loadNarration: async (key) => { const b = await loadNarrationBlob(key); return b ? await b.arrayBuffer() : null; },

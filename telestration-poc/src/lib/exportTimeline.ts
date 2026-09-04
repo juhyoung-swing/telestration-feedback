@@ -10,6 +10,7 @@ import { projectCourtPoint, unprojectToCourt } from '../geometry/homography';
 import { footAt } from '../geometry/tracking';
 import { HeadlessOverlayRenderer } from './headlessOverlay';
 import { Mp4Encoder, webCodecsAvailable } from './mp4Encoder';
+import { SourceDecoder, videoDecodeAvailable } from './sourceDecoder';
 import type { CourtCalibration, Overlay, Players, PoseData } from '../types';
 
 function seekVideo(video: HTMLVideoElement, t: number): Promise<void> {
@@ -23,6 +24,7 @@ function seekVideo(video: HTMLVideoElement, t: number): Promise<void> {
 
 export type TimelineExportOpts = {
   video: HTMLVideoElement;
+  sourceBytes?: ArrayBuffer | null;      // decode source frames via WebCodecs (fast); falls back to <video> seek
   clips: Clip[];
   overlays: Overlay[];
   calibration: CourtCalibration | null;
@@ -78,6 +80,12 @@ export async function exportTimelineMp4(opts: TimelineExportOpts): Promise<Blob>
   composite.width = W; composite.height = H;
   const ctx = composite.getContext('2d')!;
 
+  // fast frame source: WebCodecs decoder (no per-frame seeking); else <video> seek.
+  let dec: SourceDecoder | null = null;
+  if (opts.sourceBytes && videoDecodeAvailable()) {
+    try { dec = new SourceDecoder(opts.sourceBytes); } catch { dec = null; }
+  }
+
   const wasPaused = video.paused;
   video.pause();
   try {
@@ -94,8 +102,13 @@ export async function exportTimelineMp4(opts: TimelineExportOpts): Promise<Blob>
       const z = zoomAt(T, srcTime);
       if (z) ctx.setTransform(z.s, 0, 0, z.s, z.tx, z.ty); // punch-in video + overlays together
       if (!gap) {
-        await seekVideo(video, srcTime);
-        if (video.readyState >= 2) ctx.drawImage(video, 0, 0, W, H);
+        if (dec) {
+          const frame = await dec.frameAt(srcTime);
+          if (frame) { ctx.drawImage(frame, 0, 0, W, H); frame.close(); }
+        } else {
+          await seekVideo(video, srcTime);
+          if (video.readyState >= 2) ctx.drawImage(video, 0, 0, W, H);
+        }
       }
       if (overlayR && calibration) {
         const ov = overlayR.render({ overlays, currentTime: T, sourceTime: srcTime, calibration, players, poseData });
@@ -110,6 +123,7 @@ export async function exportTimelineMp4(opts: TimelineExportOpts): Promise<Blob>
     }
   } finally {
     overlayR?.dispose();
+    dec?.dispose();
     if (!wasPaused) void video.play().catch(() => {});
   }
   const buf = await enc.finish();
