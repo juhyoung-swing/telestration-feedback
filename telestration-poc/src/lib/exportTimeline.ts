@@ -3,7 +3,7 @@
 // timeline cursor advances by the playback rate) and ZOOM-IN baked in (punch-in
 // transform), then encode to MP4 via WebCodecs. Reflects cuts / repeats / gaps /
 // overlays / slow-mo / zoom — not tied to real-time playback.
-import { clipAt, isGap, totalDuration } from './clips';
+import { clipAt, isFreeze, isGap, totalDuration } from './clips';
 import type { Clip } from './clips';
 import { videoToDisplay } from '../geometry/coords';
 import { projectCourtPoint, unprojectToCourt } from '../geometry/homography';
@@ -111,7 +111,9 @@ export async function exportTimelineMp4(opts: TimelineExportOpts): Promise<Blob>
       guard++;
       const c = clipAt(clips, T);
       const gap = isGap(c);
-      const srcTime = c && !gap ? c.srcStart + (T - c.timelineStart) : 0;
+      const srcTime = !c || gap ? 0
+        : isFreeze(c) ? (c.srcFreeze ?? c.srcStart)   // held frame — constant source time
+        : c.srcStart + (T - c.timelineStart);
 
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.fillStyle = '#000';

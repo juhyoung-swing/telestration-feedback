@@ -246,19 +246,23 @@ export function Timeline(p: Props) {
                 const dragging = clipDrag?.id === c.id;
                 const a = p.clipAnalyzed[c.id];
                 const isGapClip = c.kind === 'gap';
+                const isFreezeClip = c.kind === 'freeze';
+                const special = isGapClip || isFreezeClip;
                 return (
                   <div
                     key={c.id}
-                    className={`tl-clip ${isGapClip ? 'gap' : ''} ${p.selectedClipId === c.id ? 'selected' : ''} ${dragging ? 'dragging' : ''}`}
+                    className={`tl-clip ${isGapClip ? 'gap' : ''} ${isFreezeClip ? 'freeze' : ''} ${p.selectedClipId === c.id ? 'selected' : ''} ${dragging ? 'dragging' : ''}`}
                     style={{ left: x(c.timelineStart) + (dragging ? clipDrag!.dx : 0), width: Math.max(6, x(clipDur(c))), zIndex: dragging ? 6 : 1 }}
                     onMouseDown={(e) => startClipDrag(e, c)}
                     onContextMenu={(e) => { e.preventDefault(); p.onSelectClip(c.id); setClipMenu({ x: e.clientX, y: e.clientY, id: c.id }); }}
-                    title={isGapClip ? `빈 구간(검정) · ${clipDur(c).toFixed(1)}s` : `${p.videoName} · 클립 ${i + 1} · ${fmt(c.srcStart)}–${fmt(c.srcEnd)}${a?.pos ? ' · 위치분석✓' : ''}${a?.pose ? ' · 자세분석✓' : ''} (우클릭: 분할·복제·삭제)`}
+                    title={isGapClip ? `빈 구간(검정) · ${clipDur(c).toFixed(1)}s`
+                      : isFreezeClip ? `⏸ 홀드(정지) · ${fmt(c.srcFreeze ?? 0)} · ${clipDur(c).toFixed(1)}s`
+                      : `${p.videoName} · 클립 ${i + 1} · ${fmt(c.srcStart)}–${fmt(c.srcEnd)}${a?.pos ? ' · 위치분석✓' : ''}${a?.pose ? ' · 자세분석✓' : ''} (우클릭: 분할·복제·삭제)`}
                   >
-                    <span className="tl-clip-label">{isGapClip ? '⬛ 빈 구간' : `🎬 ${i + 1}`}</span>
-                    {!isGapClip && a?.pos && <span className="clip-dot pos" title="위치 분석됨" />}
-                    {!isGapClip && a?.pose && <span className="clip-dot pose" title="자세 분석됨" />}
-                    {i === 0 && !isGapClip && <span className="tl-badge">{p.speed}×</span>}
+                    <span className="tl-clip-label">{isGapClip ? '⬛ 빈 구간' : isFreezeClip ? '⏸ 홀드' : `🎬 ${i + 1}`}</span>
+                    {!special && a?.pos && <span className="clip-dot pos" title="위치 분석됨" />}
+                    {!special && a?.pose && <span className="clip-dot pose" title="자세 분석됨" />}
+                    {i === 0 && !special && <span className="tl-badge">{p.speed}×</span>}
                   </div>
                 );
               })}

@@ -12,6 +12,7 @@ export function EditingToolbar({
   canSplit,
   onDelete,
   canDelete,
+  onFreeze,
   cur,
   dur,
   speed,
@@ -33,6 +34,7 @@ export function EditingToolbar({
   canSplit: boolean;
   onDelete: () => void;
   canDelete: boolean;
+  onFreeze: () => void;
   cur: number;
   dur: number;
   speed: number;
@@ -55,6 +57,7 @@ export function EditingToolbar({
         {playing ? '❚❚' : '▶'}
       </button>
       <button className="tool danger" onClick={onDelete} disabled={!canDelete} title="선택 레이어 삭제 (⌫)">🗑</button>
+      <button className="tool" onClick={onFreeze} title="이 장면 멈추기(홀드) — 재생헤드에 정지 화면 3초 삽입">⏸+</button>
       <button
         className={`tool ${loopOn ? 'on' : ''}`}
         onClick={onToggleLoop}
@@ -63,7 +66,7 @@ export function EditingToolbar({
       <button
         className={`tool ${recording ? 'rec' : ''}`}
         onClick={onToggleRecord}
-        title={recording ? '녹음 중지' : '음성 나레이션 녹음 — 재생헤드부터 재생되며 마이크 녹음'}
+        title={recording ? '녹음 중지' : '음성 나레이션 녹음 — 재생 중: 영상 위에 / 일시정지 중: 그 장면을 정지(홀드)하고 그 위에'}
       >{recording ? '⏺ 녹음중' : '🎙'}</button>
 
       <span className="time">{fmt(cur)} <span className="muted">/ {fmt(dur)}</span></span>

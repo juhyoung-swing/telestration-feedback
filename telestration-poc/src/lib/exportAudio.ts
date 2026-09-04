@@ -1,7 +1,7 @@
 // Audio side of the offline export: build the output audio from the EDL + slow-mo
 // (source audio segments) and narration, mixed via OfflineAudioContext → WAV. The
 // WAV is muxed onto the silent WebCodecs video by ffmpeg (Electron).
-import { clipAt, clipDur, isGap, totalDuration } from './clips';
+import { clipAt, clipDur, isFreeze, isGap, totalDuration } from './clips';
 import type { Clip } from './clips';
 import type { Narration, Overlay } from '../types';
 
@@ -31,7 +31,7 @@ export function audioSegments(clips: Clip[], overlays: Overlay[]): { segs: Audio
     if (!c) continue;
     const rate = rateAt((t0 + t1) / 2);
     const outDur = (t1 - t0) / rate;
-    segs.push({ outStart: out, outDur, srcStart: c.srcStart + (t0 - c.timelineStart), srcEnd: c.srcStart + (t1 - c.timelineStart), rate, gap: isGap(c), tlStart: t0, tlEnd: t1 });
+    segs.push({ outStart: out, outDur, srcStart: c.srcStart + (t0 - c.timelineStart), srcEnd: c.srcStart + (t1 - c.timelineStart), rate, gap: isGap(c) || isFreeze(c), tlStart: t0, tlEnd: t1 });
     out += outDur;
   }
   return { segs, outDur: out };

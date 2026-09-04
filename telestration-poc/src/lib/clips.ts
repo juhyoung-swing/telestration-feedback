@@ -10,13 +10,15 @@
 // unchanged until a clip is actually split / duplicated / moved.
 export type Clip = {
   id: string;
-  kind?: 'video' | 'gap'; // 'gap' = a black/empty segment (no source video); default 'video'
-  srcStart: number;      // source in-point (seconds) — for a gap, 0..duration is just its length
+  kind?: 'video' | 'gap' | 'freeze'; // 'gap' = black/empty; 'freeze' = one held source frame; default 'video'
+  srcStart: number;      // source in-point (seconds) — for a gap/freeze, 0..duration is just its length
   srcEnd: number;        // source out-point (seconds)
+  srcFreeze?: number;    // freeze only: the SOURCE time of the single held frame
   timelineStart: number; // position on the timeline (seconds) — derived by normalizeClips
 };
 
 export const isGap = (c: Clip | null | undefined) => c?.kind === 'gap';
+export const isFreeze = (c: Clip | null | undefined) => c?.kind === 'freeze';
 
 export const clipDur = (c: Clip) => Math.max(0, c.srcEnd - c.srcStart);
 export const totalDuration = (clips: Clip[]) => clips.reduce((s, c) => s + clipDur(c), 0);
@@ -43,6 +45,7 @@ export function srcAt(clips: Clip[], T: number): number {
   if (!clips.length) return T;
   const c = clipAt(clips, T);
   if (!c) return T;
+  if (isFreeze(c)) return c.srcFreeze ?? c.srcStart; // held frame — source time is constant
   const local = Math.max(0, Math.min(clipDur(c), T - c.timelineStart));
   return c.srcStart + local;
 }
@@ -65,9 +68,12 @@ export function timelineFrames(clips: Clip[], fps: number, videoDuration = 0): T
   const out: TimelineFrame[] = [];
   for (const c of src) {
     const n = Math.max(0, Math.round(clipDur(c) * fps));
+    const frozen = isFreeze(c) ? (c.srcFreeze ?? c.srcStart) : null;
     for (let k = 0; k < n; k++) {
       const T = c.timelineStart + k * dt;
-      out.push(isGap(c) ? { T, srcTime: 0, gap: true } : { T, srcTime: c.srcStart + k * dt, gap: false });
+      if (isGap(c)) out.push({ T, srcTime: 0, gap: true });
+      else if (frozen != null) out.push({ T, srcTime: frozen, gap: false }); // held frame
+      else out.push({ T, srcTime: c.srcStart + k * dt, gap: false });
     }
   }
   return out;
@@ -129,6 +135,28 @@ export function insertGap<T extends TimedItem>(clips: Clip[], items: T[], afterI
   const at = after ? after.timelineStart + clipDur(after) : totalDuration(clips);
   const gap: Clip = { id: newId, kind: 'gap', srcStart: 0, srcEnd: Math.max(0.2, seconds), timelineStart: at + EPS };
   return relayout(clips, [...clips, gap], items);
+}
+
+/**
+ * Insert a FREEZE (hold) clip that holds the source frame at `srcFreeze` for
+ * `seconds`, splitting the clip under `atTimeline` so the hold lands exactly at the
+ * playhead (ripples the rest). Returns the new freeze clip's id via `newId`.
+ */
+export function insertFreeze<T extends TimedItem>(
+  clips: Clip[], items: T[], atTimeline: number, srcFreeze: number, newId: string, seconds = 3,
+): { clips: Clip[]; items: T[] } {
+  const dur = Math.max(0.2, seconds);
+  const c = clipAt(clips, atTimeline);
+  const freeze: Clip = { id: newId, kind: 'freeze', srcStart: 0, srcEnd: dur, srcFreeze, timelineStart: atTimeline + EPS / 2 };
+  // Mid-clip: split the host so later frames ripple after the hold; overlays past the cut follow.
+  if (c && !isGap(c) && !isFreeze(c) && atTimeline > c.timelineStart + 0.05 && atTimeline < c.timelineStart + clipDur(c) - 0.05) {
+    const srcSplit = c.srcStart + (atTimeline - c.timelineStart);
+    const c1: Clip = { ...c, srcEnd: srcSplit };
+    const c2: Clip = { ...c, id: `${newId}-r`, srcStart: srcSplit, timelineStart: atTimeline + EPS };
+    const reassigned = items.map((it) => (it.clipId === c.id && it.startTime >= atTimeline - 1e-6 ? { ...it, clipId: c2.id } : it));
+    return relayout(clips, [...clips.map((x) => (x.id === c.id ? c1 : x)), freeze, c2], reassigned);
+  }
+  return relayout(clips, [...clips, freeze], items);
 }
 
 /** Reorder: move a clip to a new index (contiguous re-lay). Bound overlays follow. */

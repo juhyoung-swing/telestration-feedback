@@ -20,7 +20,7 @@ import { COURT_CORNERS } from './geometry/court';
 import { courtLineDef, fitImageLine, homographyFromLines, familiesCovered } from './geometry/lineCalib';
 import { PLAYER_COLORS, playerColor, hitTestFragment, assignFragments } from './geometry/tracking';
 import { defaultSide } from './lib/pose';
-import { singleClip, totalDuration, clipAt, clipDur, srcAt, splitClip, duplicateClip, deleteClip, moveClip, insertGap, isGap, relayout } from './lib/clips';
+import { singleClip, totalDuration, clipAt, clipDur, srcAt, splitClip, duplicateClip, deleteClip, moveClip, insertGap, insertFreeze, isGap, isFreeze, relayout } from './lib/clips';
 import type { Clip } from './lib/clips';
 import type {
   CircleParams, CourtCalibration, DrawnLine, FeatureId, FragmentData, Fragments, GroundHalo, Mode, Overlay,
@@ -127,6 +127,7 @@ export default function App() {
   const narrUrlsRef = useRef<Record<string, string>>({});     // narration id → object URL (lazy)
   const narrActiveRef = useRef<string | null>(null);          // narration currently loaded in the audio element
   const clipsRef = useRef<Clip[]>([]); clipsRef.current = clips; // read by the rAF loop without re-binding
+  const overlaysRef = useRef<Overlay[]>([]); overlaysRef.current = overlays; // read by async handlers (e.g. record onstop)
   const activeClipRef = useRef<string | null>(null); // clip currently playing (disambiguates duplicated source ranges)
   const [selectedClipId, setSelectedClipId] = useState<string | null>(null);
   const [showClipPanel, setShowClipPanel] = useState(false); // right panel: clip inspector (true) vs effect detail (false)
@@ -462,17 +463,22 @@ export default function App() {
         lastTsRef.current = ts;
         let T: number;
         const here = cs.length ? clipAt(cs, curRef.current) : null;
-        if (isGap(here)) {
-          // ── black gap: video paused, time advances by wall clock ──
-          if (!inGapRef.current) { inGapRef.current = true; v.pause(); }
+        if (isGap(here) || isFreeze(here)) {
+          // ── held segment: video paused, time advances by wall clock. Gap → black;
+          //    freeze → the video parked on its single held source frame.
+          const enteringNew = activeClipRef.current !== here!.id;
+          if (!inGapRef.current || enteringNew) {
+            inGapRef.current = true; v.pause(); activeClipRef.current = here!.id;
+            if (isFreeze(here) && here!.srcFreeze != null) { try { v.currentTime = here!.srcFreeze; } catch { /* ignore */ } }
+          }
           T = curRef.current + dt * (v.playbackRate || 1);
-          const gapEnd = here!.timelineStart + clipDur(here!);
-          if (T >= gapEnd - 1e-3) {
-            const nx = clipAt(cs, gapEnd + 1e-4);
-            if (nx && !isGap(nx) && gapEnd < totalDuration(cs) - 1e-3) {
+          const heldEnd = here!.timelineStart + clipDur(here!);
+          if (T >= heldEnd - 1e-3) {
+            const nx = clipAt(cs, heldEnd + 1e-4);
+            if (nx && !isGap(nx) && !isFreeze(nx) && heldEnd < totalDuration(cs) - 1e-3) {
               inGapRef.current = false; activeClipRef.current = nx.id; v.currentTime = nx.srcStart; void v.play().catch(() => {});
               T = nx.timelineStart;
-            } else { T = gapEnd; } // next is another gap (keep advancing) or end of timeline
+            } else { T = heldEnd; } // next is another held segment (handled next frame) or end
           }
         } else {
           // ── video clip (unchanged when there are no gaps) ──
@@ -481,7 +487,10 @@ export default function App() {
           if (active && cs.length > 1 && v.currentTime >= active.srcEnd - 0.03) {
             const nextT = active.timelineStart + clipDur(active);
             const nx = clipAt(cs, nextT + 1e-4);
-            if (nx && isGap(nx)) { v.pause(); inGapRef.current = true; activeClipRef.current = nx.id; T = nextT; }
+            if (nx && (isGap(nx) || isFreeze(nx))) {
+              v.pause(); inGapRef.current = true; activeClipRef.current = nx.id; T = nextT;
+              if (isFreeze(nx) && nx.srcFreeze != null) { try { v.currentTime = nx.srcFreeze; } catch { /* ignore */ } }
+            }
             else if (nx) { activeClipRef.current = nx.id; v.currentTime = nx.srcStart; T = nx.timelineStart; }
             else { T = nextT; }
           } else {
@@ -517,6 +526,7 @@ export default function App() {
       const c = clipAt(cs, t);
       if (c) activeClipRef.current = c.id;
       if (isGap(c)) { inGapRef.current = true; if (v) v.pause(); } // gap → black, video paused
+      else if (isFreeze(c)) { inGapRef.current = true; if (v) { v.pause(); try { v.currentTime = srcAt(cs, t); } catch { /* ignore */ } } } // freeze → parked on the held frame
       else { inGapRef.current = false; if (v) { v.currentTime = srcAt(cs, t); if (playing && v.paused) void v.play().catch(() => {}); } }
     } else if (v) {
       v.currentTime = t;
@@ -539,6 +549,14 @@ export default function App() {
   const insertGapAfter = (afterId: string | null) => applyClipEdit(insertGap(clips, bindOverlays(), afterId, uid('clip'), 2));
   const setGapDuration = (id: string, seconds: number) =>
     applyClipEdit(relayout(clips, clips.map((c) => (c.id === id ? { ...c, srcEnd: Math.max(0.2, seconds) } : c)), bindOverlays()));
+  // ⓐ Manual hold: freeze the current frame at the playhead for a few seconds (ripples the rest).
+  const insertFreezeAtPlayhead = (seconds = 3) => {
+    if (!clips.length) return;
+    const src = srcAt(clips, cur);
+    const res = insertFreeze(clips, bindOverlays(), cur, src, uid('clip'), seconds);
+    applyClipEdit(res);
+    return res;
+  };
 
   // Keep the playhead inside the (possibly shortened) timeline after a clip edit.
   useEffect(() => {
@@ -933,7 +951,7 @@ export default function App() {
     if (playing) { inGapRef.current = false; v.pause(); setPlaying(false); }
     else {
       const here = clips.length ? clipAt(clips, cur) : null;
-      if (isGap(here)) setPlaying(true); // gap: rAF advances by wall clock; the video stays paused (black)
+      if (isGap(here) || isFreeze(here)) setPlaying(true); // held: rAF advances by wall clock; video stays paused
       else void v.play().catch(() => {});
     }
   };
@@ -965,6 +983,11 @@ export default function App() {
     const rec = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined);
     const chunks: BlobPart[] = [];
     const startT = cur, t0 = performance.now();
+    // ⓑ Hold-narrate: paused on a real video frame → freeze that frame for the
+    // recording's length and lay the narration over it ("멈추고 설명"). Otherwise
+    // (playing, or already on a gap/freeze) narrate over the running timeline.
+    const hereNow = clipsRef.current.length ? clipAt(clipsRef.current, startT) : null;
+    const holdMode = !playing && !!hereNow && !isGap(hereNow) && !isFreeze(hereNow);
     rec.ondataavailable = (e) => { if (e.data.size) chunks.push(e.data); };
     rec.onstop = async () => {
       stream.getTracks().forEach((t) => t.stop());
@@ -972,13 +995,27 @@ export default function App() {
       const durSec = Math.max(0.3, (performance.now() - t0) / 1000);
       const key = newNarrationKey();
       try { await saveNarrationBlob(key, blob); } catch { /* quota */ }
-      setNarrations((ns) => [...ns, { id: uid('narr'), startTime: startT, dur: durSec, key }]);
+      if (holdMode) {
+        // insert a freeze of the held frame at startT, then lay this narration over it;
+        // existing narrations after startT ripple right by the hold length.
+        const cs = clipsRef.current;
+        const src = srcAt(cs, startT);
+        const bound = overlaysRef.current.map((o) => { const c = clipAt(cs, o.startTime); return c ? { ...o, clipId: c.id } : o; });
+        const res = insertFreeze(cs, bound, startT, src, uid('clip'), durSec);
+        activeClipRef.current = null; setClips(res.clips); setOverlays(res.items);
+        setNarrations((ns) => [
+          ...ns.map((x) => (x.startTime >= startT - 1e-6 ? { ...x, startTime: x.startTime + durSec } : x)),
+          { id: uid('narr'), startTime: startT, dur: durSec, key },
+        ]);
+      } else {
+        setNarrations((ns) => [...ns, { id: uid('narr'), startTime: startT, dur: durSec, key }]);
+      }
     };
     recRef.current = rec;
     recStartRef.current = startT;
     setRecording(true);
     rec.start();
-    if (!playing) togglePlay(); // play the timeline so the coach narrates over the video
+    if (!playing && !holdMode) togglePlay(); // play so the coach narrates over the video (hold mode stays frozen)
   };
   const stopRecording = () => {
     if (!recording) return;
@@ -1244,6 +1281,16 @@ export default function App() {
           <button className="btn sm danger block" disabled={clips.length <= 1} onClick={() => deleteClipAction(clip.id)}>삭제 🗑</button>
           <button className="btn subtle sm block" style={{ marginTop: 10 }} onClick={() => setSelectedClipId(null)}>선택 해제</button>
         </div>
+      ) : isFreeze(clip) ? (
+        <div className="panel panel-inspector">
+          <div className="panel-title">⏸ 홀드(정지 화면)</div>
+          <div className="panel-desc" style={{ marginTop: 0 }}>원본 {fmtT(clip.srcFreeze ?? 0)} 프레임을 {clipDur(clip).toFixed(1)}s 정지. 그 위에 나레이션·주석을 얹으세요.</div>
+          <div className="field" style={{ marginTop: 8 }}><label>길이 {clipDur(clip).toFixed(1)}s</label>
+            <input type="range" min="0.5" max="20" step="0.5" value={clipDur(clip)} onChange={(e) => setGapDuration(clip.id, Number(e.target.value))} /></div>
+          <div className="field-label" style={{ marginTop: 10 }}>편집</div>
+          <button className="btn sm danger block" disabled={clips.length <= 1} onClick={() => deleteClipAction(clip.id)}>삭제 🗑</button>
+          <button className="btn subtle sm block" style={{ marginTop: 10 }} onClick={() => setSelectedClipId(null)}>선택 해제</button>
+        </div>
       ) : (
       <div className="panel panel-inspector">
         <div className="panel-title">클립 {idx}</div>
@@ -1368,6 +1415,7 @@ export default function App() {
           canSplit={canSplit}
           onDelete={deleteSelected}
           canDelete={!!selectedOverlayId}
+          onFreeze={() => insertFreezeAtPlayhead(3)}
           cur={cur}
           dur={timelineDur}
           speed={speed}
