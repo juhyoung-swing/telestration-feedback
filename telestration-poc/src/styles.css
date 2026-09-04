@@ -185,11 +185,11 @@ body {
 /* Media area: fills the space left between the header and the fixed bars + timeline,
    and can shrink (min-height:0) so the timeline below is never pushed off-screen.
    The video-stage keeps its aspect ratio (set inline) and scales to fit inside it. */
-.media { flex: 1 1 0; min-height: 0; display: grid; place-items: center; overflow: hidden; }
+.media { position: relative; flex: 1 1 0; min-height: 0; display: grid; place-items: center; overflow: hidden; container-type: size; }
 .video-stage {
   position: relative;
-  height: 100%;
   max-width: 100%;
+  max-height: 100%;
   background: #000;
   border: 1px solid var(--border);
   border-radius: 12px;
@@ -199,11 +199,14 @@ body {
 .konva-overlay { position: absolute; inset: 0; }
 .gap-black { position: absolute; inset: 0; background: #000; } /* black gap clip covers the video (overlays still render on top) */
 .zoom-content { will-change: transform; } /* Zoom In: CSS punch-in of video + overlays together */
-/* Editing/placement guidance — a bar BELOW the video (outside the frame), not overlaid on it. */
-.stage-hint-bar {
-  flex: none; align-self: center; max-width: 100%; box-sizing: border-box; text-align: center;
-  background: var(--accent-weak); color: var(--accent); border: 1px solid var(--accent); border-radius: 999px;
-  padding: 5px 14px; font-size: 12px; font-weight: 600; line-height: 1.3;
+/* Editing/placement guidance — floats over the top of the media area (absolute, so it
+   never shrinks the video), anchored to .media (not the video-stage) so a narrow/portrait
+   video doesn't clip it; a wide-enough hint sits in the side letterbox, off the frame. */
+.stage-hint-float {
+  position: absolute; top: 10px; left: 50%; transform: translateX(-50%); z-index: 20; pointer-events: none;
+  max-width: calc(100% - 16px); box-sizing: border-box; text-align: center; line-height: 1.3;
+  background: rgba(12, 16, 22, .9); color: #fff; border: 1px solid var(--accent); border-radius: 999px;
+  padding: 5px 14px; font-size: 12px; font-weight: 600; box-shadow: 0 4px 16px rgba(0,0,0,.4);
 }
 
 /* (b2) editing toolbar */

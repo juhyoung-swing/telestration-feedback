@@ -1408,8 +1408,10 @@ export default function App() {
           </div>
         </div>
 
-        <div className="media">{videoStage}</div>
-        {stageHint && <div className="stage-hint-bar">{stageHint}</div>}
+        <div className="media">
+          {videoStage}
+          {stageHint && <div className="stage-hint-float">{stageHint}</div>}
+        </div>
 
         <EditingToolbar
           playing={playing}
