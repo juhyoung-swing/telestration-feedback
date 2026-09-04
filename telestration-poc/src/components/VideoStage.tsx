@@ -363,7 +363,7 @@ export function VideoStage({
         }}
       />
       {/* inserted-footage layer: covers the main video (letterboxed) while an inserted clip plays */}
-      <video ref={insertVideoRef} className="insert-video" playsInline muted hidden={!insertActive} />
+      <video ref={insertVideoRef} className="insert-video" playsInline hidden={!insertActive} />
       {gap && <div className="gap-black" />}
 
       {view && (

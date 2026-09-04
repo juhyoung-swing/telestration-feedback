@@ -8,7 +8,7 @@ import type { Narration, Overlay } from '../types';
 // One constant-(clip, rate) run of the output: which source range plays, at what
 // rate, over which OUTPUT time — and the TIMELINE range it came from (for placing
 // narration). Slow-mo (rate<1) stretches outDur; gaps are silent.
-export type AudioSeg = { outStart: number; outDur: number; srcStart: number; srcEnd: number; rate: number; gap: boolean; tlStart: number; tlEnd: number };
+export type AudioSeg = { outStart: number; outDur: number; srcStart: number; srcEnd: number; rate: number; gap: boolean; sourceId?: string; tlStart: number; tlEnd: number };
 
 export function audioSegments(clips: Clip[], overlays: Overlay[]): { segs: AudioSeg[]; outDur: number } {
   const speeds = overlays
@@ -31,8 +31,9 @@ export function audioSegments(clips: Clip[], overlays: Overlay[]): { segs: Audio
     if (!c) continue;
     const rate = rateAt((t0 + t1) / 2);
     const outDur = (t1 - t0) / rate;
-    const silent = isGap(c) || isFreeze(c) || (!!c.sourceId && c.kind !== 'gap' && c.kind !== 'freeze'); // inserted footage: silent in v1 (narrate over it)
-    segs.push({ outStart: out, outDur, srcStart: c.srcStart + (t0 - c.timelineStart), srcEnd: c.srcStart + (t1 - c.timelineStart), rate, gap: silent, tlStart: t0, tlEnd: t1 });
+    const inserted = !isGap(c) && !isFreeze(c) && !!c.sourceId;
+    const silent = isGap(c) || isFreeze(c) || (inserted && !!c.muted); // black/held, or a muted inserted clip
+    segs.push({ outStart: out, outDur, srcStart: c.srcStart + (t0 - c.timelineStart), srcEnd: c.srcStart + (t1 - c.timelineStart), rate, gap: silent, sourceId: inserted ? c.sourceId : undefined, tlStart: t0, tlEnd: t1 });
     out += outDur;
   }
   return { segs, outDur: out };
@@ -56,7 +57,8 @@ export async function mixExportAudioWav(opts: {
   clips: Clip[];
   overlays: Overlay[];
   narrations: Narration[];
-  sourceAudioBytes: ArrayBuffer | null;             // the video file's bytes (its audio is decoded)
+  sourceAudioBytes: ArrayBuffer | null;             // the main video file's bytes (its audio is decoded)
+  extraAudio?: { id: string; bytes: ArrayBuffer }[]; // inserted sources' bytes (their own audio), unless the clip is muted
   loadNarration: (key: string) => Promise<ArrayBuffer | null>;
 }): Promise<ArrayBuffer | null> {
   const { segs, outDur } = audioSegments(opts.clips, opts.overlays);
@@ -65,20 +67,25 @@ export async function mixExportAudioWav(opts: {
   const ctx = new OfflineAudioContext(2, Math.max(1, Math.ceil(outDur * sr)), sr);
   let scheduled = 0;
 
-  if (opts.sourceAudioBytes) {
-    let srcBuf: AudioBuffer | null = null;
-    try { srcBuf = await ctx.decodeAudioData(opts.sourceAudioBytes.slice(0)); } catch { srcBuf = null; }
-    if (srcBuf && srcBuf.duration > 0) {
-      for (const s of segs) {
-        if (s.gap || s.srcEnd - s.srcStart < 1e-3) continue;
-        const node = ctx.createBufferSource();
-        node.buffer = srcBuf;
-        node.playbackRate.value = s.rate;
-        node.connect(ctx.destination);
-        node.start(s.outStart, Math.min(s.srcStart, srcBuf.duration), Math.min(s.srcEnd - s.srcStart, Math.max(0, srcBuf.duration - s.srcStart)));
-        scheduled++;
-      }
-    }
+  // decode the main source + each inserted source into buffers (keyed by source id; main = null key)
+  const bufs = new Map<string | null, AudioBuffer>();
+  const decode = async (bytes: ArrayBuffer | null | undefined, key: string | null) => {
+    if (!bytes) return;
+    try { const b = await ctx.decodeAudioData(bytes.slice(0)); if (b && b.duration > 0) bufs.set(key, b); } catch { /* no/again audio */ }
+  };
+  await decode(opts.sourceAudioBytes, null);
+  for (const s of opts.extraAudio ?? []) await decode(s.bytes, s.id);
+
+  for (const s of segs) {
+    if (s.gap || s.srcEnd - s.srcStart < 1e-3) continue;      // black/held or muted-inserted → silent
+    const buf = bufs.get(s.sourceId ?? null);                 // inserted → its own source; else main
+    if (!buf) continue;
+    const node = ctx.createBufferSource();
+    node.buffer = buf;
+    node.playbackRate.value = s.rate;
+    node.connect(ctx.destination);
+    node.start(s.outStart, Math.min(s.srcStart, buf.duration), Math.min(s.srcEnd - s.srcStart, Math.max(0, buf.duration - s.srcStart)));
+    scheduled++;
   }
 
   for (const n of narrationOutputStarts(segs, opts.narrations)) {

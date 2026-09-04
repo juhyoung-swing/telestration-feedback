@@ -12,6 +12,7 @@ export type Clip = {
   id: string;
   kind?: 'video' | 'gap' | 'freeze'; // 'gap' = black/empty; 'freeze' = one held source frame; default 'video'
   sourceId?: string;     // which video source plays (absent = the main/original video); inserted footage sets this
+  muted?: boolean;       // inserted clip: drop its own audio (coach narrates over it instead)
   srcStart: number;      // source in-point (seconds) — for a gap/freeze, 0..duration is just its length
   srcEnd: number;        // source out-point (seconds)
   srcFreeze?: number;    // freeze only: the SOURCE time of the single held frame

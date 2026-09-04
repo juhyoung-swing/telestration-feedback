@@ -550,6 +550,7 @@ export default function App() {
       const sid = c.sourceId!;
       const url = sourceUrlsRef.current[sid];
       if (url && activeInsertRef.current !== sid) { iv.src = url; activeInsertRef.current = sid; try { iv.currentTime = c.srcStart; } catch { /* ignore */ } }
+      iv.muted = !!c.muted; // per-clip audio on/off
       if (!insertActive) setInsertActive(true);
       const want = c.srcStart + (cur - c.timelineStart);
       if (isFinite(want) && Math.abs(iv.currentTime - want) > 0.35) { try { iv.currentTime = want; } catch { /* ignore */ } }
@@ -592,6 +593,7 @@ export default function App() {
   const insertGapAfter = (afterId: string | null) => applyClipEdit(insertGap(clips, bindOverlays(), afterId, uid('clip'), 2));
   const setGapDuration = (id: string, seconds: number) =>
     applyClipEdit(relayout(clips, clips.map((c) => (c.id === id ? { ...c, srcEnd: Math.max(0.2, seconds) } : c)), bindOverlays()));
+  const setClipMuted = (id: string, muted: boolean) => setClips((cs) => cs.map((c) => (c.id === id ? { ...c, muted } : c))); // inserted clip audio on/off
   // ⓐ Manual hold: freeze the current frame at the playhead for a few seconds (ripples the rest).
   const insertFreezeAtPlayhead = (seconds = 3) => {
     if (!clips.length) return;
@@ -1178,6 +1180,7 @@ export default function App() {
     try {
       wav = await mixExportAudioWav({
         clips, overlays, narrations, sourceAudioBytes: srcBytes,
+        extraAudio: extraSrcBytes.map((s) => ({ id: s.id, bytes: s.bytes })),
         loadNarration: async (key) => { const b = await loadNarrationBlob(key); return b ? await b.arrayBuffer() : null; },
       });
     } catch { wav = null; }
@@ -1388,7 +1391,14 @@ export default function App() {
               : `원본 ${fmtT(clip.srcStart)}–${fmtT(clip.srcEnd)} · 길이 ${(clip.srcEnd - clip.srcStart).toFixed(1)}s`}
           </div>
           {inserted ? (
-            <div className="muted-note" style={{ marginTop: 8 }}>다른 영상이라 코트 정합 효과(따라가기·존 등)는 안 됩니다. 펜·텍스트는 가능.</div>
+            <>
+              <div className="field" style={{ marginTop: 8 }}><label>소리</label>
+                <div className="btn-row">
+                  <button className={`btn sm ${!clip.muted ? 'active' : ''}`} onClick={() => setClipMuted(clip.id, false)}>켜기</button>
+                  <button className={`btn sm ${clip.muted ? 'active' : ''}`} onClick={() => setClipMuted(clip.id, true)}>음소거</button>
+                </div></div>
+              <div className="muted-note">다른 영상이라 코트 정합 효과(따라가기·존 등)는 안 됩니다. 펜·텍스트는 가능.</div>
+            </>
           ) : hasML ? (
             <>
               <div className="field-label" style={{ marginTop: 8 }}>이 구간 분석</div>
