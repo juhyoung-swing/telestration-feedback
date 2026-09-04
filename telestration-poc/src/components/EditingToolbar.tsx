@@ -12,6 +12,7 @@ export function EditingToolbar({
   canSplit,
   onDelete,
   canDelete,
+  onFreeze,
   cur,
   dur,
   speed,
@@ -31,6 +32,7 @@ export function EditingToolbar({
   canSplit: boolean;
   onDelete: () => void;
   canDelete: boolean;
+  onFreeze: () => void;
   cur: number;
   dur: number;
   speed: number;
@@ -47,6 +49,7 @@ export function EditingToolbar({
       <button className="tool" onClick={onUndo} disabled={!canUndo} title="실행취소">↶</button>
       <button className="tool" onClick={onRedo} disabled={!canRedo} title="다시실행">↷</button>
       <button className="tool" onClick={onSplit} disabled={!canSplit} title="선택 효과를 플레이헤드에서 분할">✂</button>
+      <button className="tool" onClick={onFreeze} title="이 프레임 정지(홀드) 삽입 — 재생헤드의 화면을 정지 클립으로">❄</button>
       <button className="tool play" onClick={onPlayPause} title={playing ? '일시정지 (Space)' : '재생 (Space)'}>
         {playing ? '❚❚' : '▶'}
       </button>

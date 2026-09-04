@@ -126,7 +126,6 @@ export default function App() {
   // ── voice narration (coach feedback) ──
   const [narrations, setNarrations] = useState<Narration[]>([]);
   const [recording, setRecording] = useState(false);
-  const [frozen, setFrozen] = useState(false); // COACH: a live freeze is open (reactive mirror of recFreezeRef)
   const recRef = useRef<MediaRecorder | null>(null);
   const recStartRef = useRef(0);         // timeline time at record start
   const narrAudioRef = useRef<HTMLAudioElement | null>(null); // hidden element that plays the active narration
@@ -465,8 +464,6 @@ export default function App() {
     const loop = (ts: number) => {
       const v = videoRef.current;
       if (v) {
-        // COACH freeze open: park the playhead on the held frame while the voice records.
-        if (recFreezeRef.current) { if (!v.paused) v.pause(); lastTsRef.current = ts; raf = requestAnimationFrame(loop); return; }
         const cs = clipsRef.current;
         const dt = lastTsRef.current ? Math.min(0.12, (ts - lastTsRef.current) / 1000) : 0;
         lastTsRef.current = ts;
@@ -929,7 +926,6 @@ export default function App() {
     if (points.length < 2) return;
     const id = uid('pen');
     mutate((o) => [...o, { id, type: 'freehand', name: nextName(o, 'freehand', 'Pen'), visible: true, ...spanAtPlayhead(8), points, color: freehandParams.color, width: freehandParams.width }]);
-    if (recFreezeRef.current) freezeStrokesRef.current.push(id); // drawn during a freeze → re-seat into the hold on resume
   };
 
   // ── layer stack ────────────────────────────────────────────────────────
@@ -997,12 +993,10 @@ export default function App() {
     narrUrlsRef.current[n.id] = url;
     return url;
   };
-  // ── COACH live authoring ─────────────────────────────────────────────────
+  // ── COACH voice narration ────────────────────────────────────────────────
   // The coach plays the video and TALKS → one voice take laid onto the timeline as a
-  // narration track. Mid-take they can FREEZE (hold the frame, keep talking) and
-  // draw with the PEN — all landing on the editable timeline (no flattened MP4).
-  const recFreezeRef = useRef<{ cur: number; src: number; wall0: number } | null>(null);
-  const freezeStrokesRef = useRef<string[]>([]); // pen strokes drawn during an open freeze → re-seated into the hold
+  // narration track. Freeze (holds) are a separate EDITING action (insertFreezeAtPlayhead),
+  // so recording is simply "talk over the timeline you built".
   const startRecording = async () => {
     if (recording) return;
     let stream: MediaStream;
@@ -1019,8 +1013,6 @@ export default function App() {
       const durSec = Math.max(0.3, (performance.now() - t0) / 1000);
       const key = newNarrationKey();
       try { await saveNarrationBlob(key, blob); } catch { /* quota */ }
-      // One continuous take → one narration bar. Freezes during the take inserted holds
-      // that fill their wall-time, so timeline advanced ≈ wall clock and [startT, +dur] aligns.
       setNarrations((ns) => [...ns, { id: uid('narr'), startTime: startT, dur: durSec, key }]);
     };
     recRef.current = rec;
@@ -1031,49 +1023,12 @@ export default function App() {
   };
   const stopRecording = () => {
     if (!recording) return;
-    if (recFreezeRef.current) commitRecFreeze(false); // finalize an open freeze first
     setRecording(false);
     try { recRef.current?.stop(); } catch { /* ignore */ }
     recRef.current = null;
     if (playing) togglePlay();
   };
   const toggleRecord = () => (recording ? stopRecording() : void startRecording());
-
-  // Freeze during a take: hold the current frame (video paused, playhead parked) while
-  // the voice keeps recording; on resume, materialize a hold of the frozen duration and
-  // continue. Standalone (not recording) → a plain manual hold.
-  const commitRecFreeze = (resume: boolean) => {
-    const rf = recFreezeRef.current;
-    if (!rf) return;
-    recFreezeRef.current = null; setFrozen(false);
-    const dur = Math.max(0.2, (performance.now() - rf.wall0) / 1000);
-    const cs = clipsRef.current;
-    const bound = overlaysRef.current.map((o) => { const c = clipAt(cs, o.startTime); return c ? { ...o, clipId: c.id } : o; });
-    const id = uid('clip');
-    const res = insertFreeze(cs, bound, rf.cur, rf.src, id, dur);
-    activeClipRef.current = null; setClips(res.clips); setOverlays(res.items);
-    // pen strokes drawn while frozen were shifted past the hold — re-seat them to cover it
-    const fs = freezeStrokesRef.current; freezeStrokesRef.current = [];
-    if (fs.length) setOverlays((items) => items.map((o) => (fs.includes(o.id) ? { ...o, startTime: rf.cur, endTime: rf.cur + dur, clipId: id } : o)));
-    // pre-existing narrations after the freeze point ripple right by the hold length
-    setNarrations((ns) => ns.map((x) => (x.startTime >= rf.cur - 1e-6 ? { ...x, startTime: x.startTime + dur } : x)));
-    const v = videoRef.current;
-    const resumeT = rf.cur + dur; // start of the video that continues after the hold
-    setCur(resumeT); curRef.current = resumeT;
-    inGapRef.current = false;
-    activeClipRef.current = `${id}-r`;
-    if (v) { try { v.currentTime = rf.src; } catch { /* ignore */ } if (resume && playing) void v.play().catch(() => {}); else v.pause(); }
-  };
-  const toggleFreeze = () => {
-    if (!recording) { insertFreezeAtPlayhead(3); return; } // standalone manual hold
-    if (recFreezeRef.current) { commitRecFreeze(true); return; } // resume
-    const cs = clipsRef.current;
-    const src = srcAt(cs, curRef.current);
-    recFreezeRef.current = { cur: curRef.current, src, wall0: performance.now() }; setFrozen(true);
-    const v = videoRef.current;
-    if (v) { v.pause(); try { v.currentTime = src; } catch { /* ignore */ } }
-    inGapRef.current = true; // the rAF loop parks the playhead while a freeze is open
-  };
 
   const deleteNarration = (id: string) => {
     const n = narrations.find((x) => x.id === id);
@@ -1466,6 +1421,7 @@ export default function App() {
           canSplit={canSplit}
           onDelete={deleteSelected}
           canDelete={!!selectedOverlayId}
+          onFreeze={() => insertFreezeAtPlayhead(3)}
           cur={cur}
           dur={timelineDur}
           speed={speed}
@@ -1479,8 +1435,6 @@ export default function App() {
         <CoachBar
           recording={recording}
           onToggleRecord={toggleRecord}
-          frozen={frozen}
-          onToggleFreeze={toggleFreeze}
           penOn={mode === 'drawing-freehand'}
           onTogglePen={() => startFeature('freehand')}
           penColor={freehandParams.color}
