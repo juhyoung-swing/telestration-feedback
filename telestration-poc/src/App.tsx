@@ -10,7 +10,8 @@ import { ExportDropdown } from './components/ExportDropdown';
 import { SettingsDropdown } from './components/SettingsDropdown';
 import { ProjectList } from './components/ProjectList';
 import { listProjects, saveProject, deleteProject as deleteProjectRec, newProject, newVideoKey, saveVideoBlob, loadVideoBlob, saveAnalysis, loadAnalysis, newNarrationKey, saveNarrationBlob, loadNarrationBlob, deleteNarrationBlob } from './lib/projects';
-import { screenshotCanvas, canvasToBlob, downloadBlob, recordCompositeWebM } from './lib/exportMedia';
+import { screenshotCanvas, canvasToBlob, downloadBlob } from './lib/exportMedia';
+import { exportTimelineMp4 } from './lib/exportTimeline';
 import type { Project } from './lib/projects';
 import { getPerspectiveTransform, invert3x3, projectCourtPoint, unprojectToCourt } from './geometry/homography';
 import type { Pt } from './geometry/homography';
@@ -45,6 +46,7 @@ declare global {
     exportApi?: {
       savePng: (buf: ArrayBuffer, suggestedName: string) => Promise<string | null>;
       saveVideo: (webm: ArrayBuffer, suggestedName: string, format: 'mp4' | 'webm') => Promise<string | null>;
+      saveMp4: (buf: ArrayBuffer, suggestedName: string) => Promise<string | null>;
     };
   }
 }
@@ -1024,18 +1026,22 @@ export default function App() {
     else downloadBlob(blob, name);
   };
 
-  const exportVideo = async (onProgress: (t: number, dur: number) => void, height = 720, format: 'mp4' | 'webm' = 'mp4') => {
+  // Offline export: walk the EDL frame-by-frame (headless overlays baked in) and
+  // encode to MP4 via WebCodecs — reflects cuts/repeats/gaps/overlays, not tied to
+  // real-time playback. (Audio is added in a later step.)
+  const exportVideo = async (onProgress: (t: number, dur: number) => void, height = 720) => {
     const v = videoRef.current;
-    if (!v) return;
-    const wasPlaying = !v.paused;
-    setSelectedOverlayId(null);
+    if (!v || !dims) return;
+    setSelectedOverlayId(null); setSelectedClipId(null);
     await nextFrame();
-    const webm = await recordCompositeWebM(v, onProgress, height); // MediaRecorder always yields WebM
-    const buf = await webm.arrayBuffer();
-    const name = `${exportBaseName()}.${format}`;
-    if (window.exportApi?.saveVideo) await window.exportApi.saveVideo(buf, name, format); // Electron: WebM (write) or MP4 (ffmpeg)
-    else downloadBlob(webm, `${exportBaseName()}.webm`); // web: no ffmpeg → WebM only
-    if (wasPlaying) void v.play().catch(() => {});
+    const blob = await exportTimelineMp4({
+      video: v, clips, overlays, calibration, players, poseData,
+      videoW: dims.w, videoH: dims.h, targetHeight: height, fps: 30,
+      onProgress: (done, total) => onProgress(done, total),
+    });
+    const name = `${exportBaseName()}.mp4`;
+    if (window.exportApi?.saveMp4) await window.exportApi.saveMp4(await blob.arrayBuffer(), name); // Electron: write MP4 directly
+    else downloadBlob(blob, name); // web: direct download
   };
 
   // Esc leaves interactive mode; Enter finishes a zone/line.

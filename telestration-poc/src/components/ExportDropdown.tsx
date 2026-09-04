@@ -3,13 +3,12 @@ import { useEffect, useRef, useState } from 'react';
 // Top-right Export button → screenshot (PNG) and video (MP4) export.
 export function ExportDropdown({ onScreenshot, onExportVideo }: {
   onScreenshot: () => Promise<void> | void;
-  onExportVideo: (onProgress: (t: number, dur: number) => void, height: number, format: 'mp4' | 'webm') => Promise<void>;
+  onExportVideo: (onProgress: (t: number, dur: number) => void, height: number) => Promise<void>;
 }) {
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState<null | 'shot' | 'video'>(null);
   const [prog, setProg] = useState({ t: 0, dur: 0 });
   const [quality, setQuality] = useState(720); // export height (720p by default)
-  const [format, setFormat] = useState<'mp4' | 'webm'>('mp4');
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -29,7 +28,7 @@ export function ExportDropdown({ onScreenshot, onExportVideo }: {
   const runVideo = async () => {
     setBusy('video');
     setProg({ t: 0, dur: 0 });
-    try { await onExportVideo((t, dur) => setProg({ t, dur }), quality, format); } finally { setBusy(null); }
+    try { await onExportVideo((t, dur) => setProg({ t, dur }), quality); } finally { setBusy(null); }
   };
 
   const pct = prog.dur ? Math.min(100, Math.round((prog.t / prog.dur) * 100)) : 0;
@@ -47,16 +46,11 @@ export function ExportDropdown({ onScreenshot, onExportVideo }: {
               <option value={720}>720p</option>
               <option value={480}>480p</option>
             </select></div>
-          <div className="field"><label>영상 형식</label>
-            <select value={format} disabled={!!busy} onChange={(e) => setFormat(e.target.value as 'mp4' | 'webm')}>
-              <option value="mp4">MP4</option>
-              <option value="webm">WebM</option>
-            </select></div>
-          <button className="btn primary block" disabled={!!busy} onClick={runVideo}>영상 내보내기</button>
+          <button className="btn primary block" disabled={!!busy} onClick={runVideo}>영상 내보내기 (MP4)</button>
           {busy === 'video' && (
             <div className="analyze-progress">
               <div className="analyze-bar"><div className="analyze-bar-fill" style={{ width: `${pct}%` }} /></div>
-              <div className="analyze-pct">{pct}% · 녹화 중… (영상 길이만큼 실시간 소요)</div>
+              <div className="analyze-pct">{pct}% · 내보내는 중…</div>
             </div>
           )}
           {busy === 'shot' && <div className="muted-note">저장 중…</div>}
