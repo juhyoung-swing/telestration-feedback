@@ -59,11 +59,27 @@ export class SourceDecoder {
     this.decoder.configure(cfg);
   }
 
+  private waiters: Array<() => void> = [];
+  private notify() { if (!this.waiters.length) return; const ws = this.waiters; this.waiters = []; for (const r of ws) r(); }
+  // Resolve as soon as the decoder emits ANY frame (its output callback is a macrotask,
+  // so a microtask/`Promise.resolve()` would never let it run); `ms` guards against a
+  // stuck decoder. This replaces a `setTimeout(0)` drain whose nested-timeout 4ms clamp
+  // cost ~4ms per requested frame.
+  private waitOutput(ms: number): Promise<void> {
+    return new Promise((resolve) => {
+      let done = false;
+      const fin = () => { if (done) return; done = true; clearTimeout(timer); resolve(); };
+      const timer = setTimeout(fin, ms);
+      this.waiters.push(fin);
+    });
+  }
+
   private onFrame(f: VideoFrame) {
     // keep the queue sorted by timestamp
     let i = this.queue.length;
     while (i > 0 && this.queue[i - 1].timestamp > f.timestamp) i--;
     this.queue.splice(i, 0, f);
+    this.notify();
   }
 
   private sec(s: Sample) { return s.cts / this.timescale; }
@@ -102,12 +118,11 @@ export class SourceDecoder {
     const targetUs = sourceSec * 1e6;
 
     let spins = 0;
-    while (!this.hasFrameAtOrAfter(targetUs) && this.nextFeed < this.samples.length && spins < 100000) {
+    while (!this.hasFrameAtOrAfter(targetUs) && spins < 200_000) {
       spins++;
-      for (let i = 0; i < 12 && this.nextFeed < this.samples.length; i++) this.feedOne();
-      if (this.decoder.decodeQueueSize > 24) await new Promise((r) => setTimeout(r, 0));
-      else await Promise.resolve();
-      if (this.nextFeed >= this.samples.length) await this.decoder.flush().catch(() => {});
+      while (this.decoder.decodeQueueSize < 16 && this.nextFeed < this.samples.length) this.feedOne();
+      if (this.nextFeed >= this.samples.length) { await this.decoder.flush().catch(() => {}); break; } // EOF: drain tail
+      await this.waitOutput(200); // wake on the next decoded frame (not a fixed timeout)
     }
     // pick the closest frame; close the ones before it
     let best: VideoFrame | null = null;

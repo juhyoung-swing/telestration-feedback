@@ -80,6 +80,23 @@ export async function exportTimelineMp4(opts: TimelineExportOpts): Promise<Blob>
   composite.width = W; composite.height = H;
   const ctx = composite.getContext('2d')!;
 
+  // ── overlay render cache ──────────────────────────────────────────────────
+  // Most telestration is STATIC (markers/zones/arrows): its render is identical
+  // every frame, so re-running the (costly) headless React/Konva render each frame
+  // is pure waste. Snapshot the render and reuse it until the active overlay set
+  // changes; only DYNAMIC overlays (pose, spotlight, tracked/animated) re-render
+  // every frame. Empty frames skip the render (and the draw) entirely.
+  const isDyn = (o: Overlay): boolean =>
+    o.type === 'pose' || o.type === 'spotlight' ||
+    (o.type === 'ground-halo' && (!!o.trackId || !!o.drawOn)) ||
+    (o.type === 'path' && !!o.drawOn) ||
+    (o.type === 'sector' && !!o.drawOn);
+  const ovCache = overlayR ? document.createElement('canvas') : null;
+  if (ovCache) { ovCache.width = W; ovCache.height = H; }
+  const ovCacheCtx = ovCache?.getContext('2d') ?? null;
+  let ovKey: string | null = null;   // signature of the currently-cached static render
+  let ovEmpty = true;                // last state: nothing to draw
+
   // fast frame source: WebCodecs decoder (no per-frame seeking); else <video> seek.
   let dec: SourceDecoder | null = null;
   if (opts.sourceBytes && videoDecodeAvailable()) {
@@ -110,9 +127,23 @@ export async function exportTimelineMp4(opts: TimelineExportOpts): Promise<Blob>
           if (video.readyState >= 2) ctx.drawImage(video, 0, 0, W, H);
         }
       }
-      if (overlayR && calibration) {
-        const ov = overlayR.render({ overlays, currentTime: T, sourceTime: srcTime, calibration, players, poseData });
-        ctx.drawImage(ov, 0, 0, W, H);
+      if (overlayR && calibration && ovCache && ovCacheCtx) {
+        const active = overlays.filter((o) => o.visible && T >= o.startTime && T <= o.endTime);
+        if (active.length === 0) {
+          ovEmpty = true; ovKey = null;            // nothing active → skip render + draw
+        } else {
+          const dyn = active.some(isDyn);
+          // key changes only at span/clip boundaries; the clip id guards clipId-scoped visibility
+          const key = (c?.id ?? '-') + '#' + active.map((o) => o.id).sort().join('|');
+          if (dyn || key !== ovKey) {
+            const ov = overlayR.render({ overlays, currentTime: T, sourceTime: srcTime, calibration, players, poseData });
+            ovCacheCtx.clearRect(0, 0, W, H);
+            ovCacheCtx.drawImage(ov, 0, 0);        // snapshot (renderer reuses its canvas next frame)
+            ovKey = dyn ? null : key;              // dynamic → force re-render next frame
+            ovEmpty = false;
+          }
+          if (!ovEmpty) ctx.drawImage(ovCache, 0, 0, W, H);
+        }
       }
       ctx.setTransform(1, 0, 0, 1, 0, 0);
 
