@@ -1408,7 +1408,7 @@ export default function App() {
           </div>
         </div>
 
-        {videoStage}
+        <div className="media">{videoStage}</div>
 
         <EditingToolbar
           playing={playing}

@@ -189,10 +189,9 @@ export function VideoStage({
     if (pts.length >= 2) onFreehandDone(pts);
   };
 
+  // The stage keeps the video's real aspect ratio; the .media grid scales it to fit
+  // (height:100% + max-width:100%), so it shrinks with the window instead of overflowing.
   const aspect = dims ? `${dims.w} / ${dims.h}` : '16 / 9';
-  // Cap the stage by available HEIGHT using the video's real aspect (not a baked 16:9),
-  // so portrait/shorts clips fit vertically instead of overflowing off the bottom.
-  const arNum = dims ? dims.w / dims.h : 16 / 9;
 
   // ── Zoom In ──────────────────────────────────────────────────────────────
   // While an active zoom's window contains currentTime (and we're not mid-edit),
@@ -344,7 +343,7 @@ export function VideoStage({
   }, []);
 
   return (
-    <div className="video-stage" ref={boxRef} style={{ aspectRatio: aspect, maxWidth: `calc((100vh - 384px) * ${arNum})` }}>
+    <div className="video-stage" ref={boxRef} style={{ aspectRatio: aspect }}>
       <div className="zoom-content" style={zoomStyle}>
       <video
         ref={videoRef}
