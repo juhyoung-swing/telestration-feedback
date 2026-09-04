@@ -85,15 +85,17 @@ ipcMain.handle('export:save-png', async (evt, { buf, suggestedName }) => {
   return filePath;
 });
 
-// Write an already-encoded MP4 (from the WebCodecs offline exporter) straight to
-// disk — no ffmpeg transcode, since the bytes are already H.264/MP4.
-ipcMain.handle('export:save-mp4', async (evt, { buf, suggestedName }) => {
+// Offline MP4 export: pick the save location FIRST (before the long render), then
+// write the encoded bytes to it. No ffmpeg transcode — the bytes are already MP4.
+ipcMain.handle('export:choose-mp4', async (evt, { suggestedName }) => {
   const win = BrowserWindow.fromWebContents(evt.sender);
   const { canceled, filePath } = await dialog.showSaveDialog(win, {
     defaultPath: suggestedName || 'telestration.mp4',
     filters: [{ name: 'MP4 영상', extensions: ['mp4'] }],
   });
-  if (canceled || !filePath) return null;
+  return canceled ? null : (filePath || null);
+});
+ipcMain.handle('export:write-file', async (_evt, { filePath, buf }) => {
   await fs.promises.writeFile(filePath, Buffer.from(buf));
   return filePath;
 });

@@ -46,7 +46,8 @@ declare global {
     exportApi?: {
       savePng: (buf: ArrayBuffer, suggestedName: string) => Promise<string | null>;
       saveVideo: (webm: ArrayBuffer, suggestedName: string, format: 'mp4' | 'webm') => Promise<string | null>;
-      saveMp4: (buf: ArrayBuffer, suggestedName: string) => Promise<string | null>;
+      chooseMp4: (suggestedName: string) => Promise<string | null>;
+      writeFile: (filePath: string, buf: ArrayBuffer) => Promise<string | null>;
     };
   }
 }
@@ -1032,6 +1033,13 @@ export default function App() {
   const exportVideo = async (onProgress: (t: number, dur: number) => void, height = 720) => {
     const v = videoRef.current;
     if (!v || !dims) return;
+    const name = `${exportBaseName()}.mp4`;
+    // choose the save location FIRST (before the long render); cancel = abort.
+    let savePath: string | null = null;
+    if (window.exportApi?.chooseMp4) {
+      savePath = await window.exportApi.chooseMp4(name);
+      if (!savePath) return;
+    }
     setSelectedOverlayId(null); setSelectedClipId(null);
     await nextFrame();
     const blob = await exportTimelineMp4({
@@ -1039,8 +1047,7 @@ export default function App() {
       videoW: dims.w, videoH: dims.h, targetHeight: height, fps: 30,
       onProgress: (done, total) => onProgress(done, total),
     });
-    const name = `${exportBaseName()}.mp4`;
-    if (window.exportApi?.saveMp4) await window.exportApi.saveMp4(await blob.arrayBuffer(), name); // Electron: write MP4 directly
+    if (savePath && window.exportApi?.writeFile) await window.exportApi.writeFile(savePath, await blob.arrayBuffer());
     else downloadBlob(blob, name); // web: direct download
   };
 

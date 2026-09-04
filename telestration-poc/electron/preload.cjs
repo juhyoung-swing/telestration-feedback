@@ -26,5 +26,6 @@ contextBridge.exposeInMainWorld('ml', {
 contextBridge.exposeInMainWorld('exportApi', {
   savePng: (buf, suggestedName) => ipcRenderer.invoke('export:save-png', { buf, suggestedName }),
   saveVideo: (webm, suggestedName, format) => ipcRenderer.invoke('export:save-video', { webm, suggestedName, format }),
-  saveMp4: (buf, suggestedName) => ipcRenderer.invoke('export:save-mp4', { buf, suggestedName }),
+  chooseMp4: (suggestedName) => ipcRenderer.invoke('export:choose-mp4', { suggestedName }),
+  writeFile: (filePath, buf) => ipcRenderer.invoke('export:write-file', { filePath, buf }),
 });
