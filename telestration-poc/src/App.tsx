@@ -1557,6 +1557,7 @@ export default function App() {
           onDeleteClip={deleteClipAction}
           onMoveClip={moveClipAction}
           onInsertGap={insertGapAfter}
+          onInsertVideo={(id) => { const c = clips.find((x) => x.id === id); pickVideo(isGap(c) ? id : undefined); }}
           narrations={narrations}
           onMoveNarration={moveNarration}
           onDeleteNarration={deleteNarration}

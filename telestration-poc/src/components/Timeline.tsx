@@ -38,6 +38,7 @@ type Props = {
   onDeleteClip: (id: string) => void;
   onMoveClip: (id: string, toIndex: number) => void;
   onInsertGap: (afterId: string) => void; // insert a black gap clip after this one
+  onInsertVideo: (clipId: string) => void; // insert another video (fill a gap / split at playhead)
   narrations: Narration[];             // voice-over segments → their own timeline track
   onMoveNarration: (id: string, startTime: number) => void;
   onDeleteNarration: (id: string) => void;
@@ -309,6 +310,7 @@ export function Timeline(p: Props) {
         <ul className="ctx-menu" style={{ left: clipMenu.x, top: clipMenu.y }} onClick={(e) => e.stopPropagation()}>
           <li onClick={() => { p.onSplitClip(); setClipMenu(null); }}>재생헤드에서 분할 ✂</li>
           <li onClick={() => { p.onDuplicateClip(clipMenu.id); setClipMenu(null); }}>복제 · 반복 ⧉</li>
+          <li onClick={() => { p.onInsertVideo(clipMenu.id); setClipMenu(null); }}>영상 삽입 🎞</li>
           <li onClick={() => { p.onInsertGap(clipMenu.id); setClipMenu(null); }}>뒤에 빈 구간(검정) 추가 ⬛</li>
           <li className={p.clips.length <= 1 ? 'disabled' : ''}
             onClick={() => { if (p.clips.length > 1) { p.onDeleteClip(clipMenu.id); setClipMenu(null); } }}>삭제 ⌫</li>
