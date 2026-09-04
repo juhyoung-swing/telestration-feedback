@@ -253,6 +253,7 @@ body {
 .tl-bar:active { cursor: grabbing; }
 .tl-bar.ground-halo { background: #E8A33D; }
 .tl-bar.coverage-zone { background: #4b74c4; color: #eaf0fb; }
+.tl-bar.pose { background: #e06ec9; color: #2a0b24; }
 .tl-bar.marker { background: #ef6a6a; color: #2a0f0f; }
 .tl-bar.text { background: #d8dee9; color: #1b2027; }
 .tl-bar.path { background: #f08a5d; color: #2a1206; }
