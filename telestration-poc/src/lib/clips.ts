@@ -52,6 +52,27 @@ export function timelineAtClip(c: Clip, srcTime: number): number {
   return c.timelineStart + Math.max(0, Math.min(clipDur(c), srcTime - c.srcStart));
 }
 
+// One output frame of the exported timeline: its timeline time T, the SOURCE time to
+// grab from the video (ignored when gap), and whether it's a black gap frame.
+export type TimelineFrame = { T: number; srcTime: number; gap: boolean };
+
+// Walk the EDL in timeline order and emit every output frame at `fps`. Duplicated
+// clips (repeats) re-emit their source range; reordering is honored (clips are in
+// timeline order); gaps emit black frames. This drives the offline exporter.
+export function timelineFrames(clips: Clip[], fps: number, videoDuration = 0): TimelineFrame[] {
+  const dt = 1 / fps;
+  const src = clips.length ? clips : singleClip(videoDuration);
+  const out: TimelineFrame[] = [];
+  for (const c of src) {
+    const n = Math.max(0, Math.round(clipDur(c) * fps));
+    for (let k = 0; k < n; k++) {
+      const T = c.timelineStart + k * dt;
+      out.push(isGap(c) ? { T, srcTime: 0, gap: true } : { T, srcTime: c.srcStart + k * dt, gap: false });
+    }
+  }
+  return out;
+}
+
 // ── clip editing (split / duplicate / delete / move) ─────────────────────────
 // Overlays are bound to a clip (clipId) and carry ABSOLUTE timeline times. Editing
 // clips re-lays the timeline; `relayout` shifts each bound overlay by how much its
