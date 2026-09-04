@@ -21,11 +21,11 @@ import { COURT_CORNERS } from './geometry/court';
 import { courtLineDef, fitImageLine, homographyFromLines, familiesCovered } from './geometry/lineCalib';
 import { PLAYER_COLORS, playerColor, hitTestFragment, assignFragments } from './geometry/tracking';
 import { defaultSide } from './lib/pose';
-import { singleClip, totalDuration, clipAt, clipDur, srcAt, splitClip, duplicateClip, deleteClip, moveClip, insertGap, insertFreeze, isGap, isFreeze, relayout } from './lib/clips';
+import { singleClip, totalDuration, clipAt, clipDur, srcAt, splitClip, duplicateClip, deleteClip, moveClip, insertGap, insertFreeze, insertVideoClip, fillGapWithVideo, isGap, isFreeze, relayout } from './lib/clips';
 import type { Clip } from './lib/clips';
 import type {
   CircleParams, CourtCalibration, DrawnLine, FeatureId, FragmentData, Fragments, FreehandParams, GroundHalo, Mode, Overlay,
-  Narration, PathParams, PlayerAnchor, Players, PoseData, RailTab, TextParams, TrackingData, ZoneParams, ZoomParams,
+  Narration, PathParams, PlayerAnchor, Players, PoseData, RailTab, TextParams, TrackingData, VideoSource, ZoneParams, ZoomParams,
 } from './types';
 
 // Local ML bridge exposed by the Electron preload (absent in the plain web build).
@@ -77,6 +77,9 @@ const FEATURE_MODE = {
   sector: 'drawing-sector', 'zoom-in': 'placing-zoom', freehand: 'drawing-freehand',
 } as const;
 
+// A clip that plays INSERTED footage (a non-main source) — shown via the insert-video layer.
+const isInserted = (c: Clip | null | undefined): boolean => !!c && !isGap(c) && !isFreeze(c) && !!c.sourceId && c.sourceId !== 'main';
+
 // Player-group features apply to a tracked player within a selected clip.
 const PLAYER_FEATURE_IDS: FeatureId[] = ['follow-circle', 'spotlight', 'pose'];
 const isPlayerFeat = (id: FeatureId) => PLAYER_FEATURE_IDS.includes(id);
@@ -117,6 +120,12 @@ export default function App() {
 
   const [src, setSrc] = useState(DEFAULT_SRC);
   const [videoName, setVideoName] = useState('court.mp4');
+  // ── inserted videos (multi-source) ──
+  const [extraSources, setExtraSources] = useState<VideoSource[]>([]);
+  const insertVideoRef = useRef<HTMLVideoElement>(null);           // separate <video> layer for inserted footage
+  const sourceUrlsRef = useRef<Record<string, string>>({});        // extra source id → objectURL
+  const activeInsertRef = useRef<string | null>(null);             // source id currently loaded in the insert video
+  const [insertActive, setInsertActive] = useState(false);         // an inserted clip is showing → insert layer visible
   const [dims, setDims] = useState<{ w: number; h: number } | null>(null);
 
   const [calibration, setCalibration] = useState<CourtCalibration | null>(null);
@@ -275,6 +284,12 @@ export default function App() {
     setVideoKey(p.videoKey);
     setVideoName(p.videoName);
     setThumbnail(p.thumbnail ?? null);
+    // inserted videos: revoke old URLs, load each source's blob → object URL
+    Object.values(sourceUrlsRef.current).forEach(URL.revokeObjectURL);
+    sourceUrlsRef.current = {}; activeInsertRef.current = null; setInsertActive(false);
+    const extras = p.extraSources ?? [];
+    for (const s of extras) { const b = await loadVideoBlob(s.key); if (b) sourceUrlsRef.current[s.id] = URL.createObjectURL(b); }
+    setExtraSources(extras);
     if (p.corners && p.corners.length === 4) {
       const H = getPerspectiveTransform(COURT_CORNERS, p.corners);
       setCalibration({ imagePoints: p.corners, homography: H, inverseHomography: invert3x3(H) });
@@ -403,13 +418,13 @@ export default function App() {
     const t = setTimeout(() => {
       saveProject({
         id: projectId, name: projectName, updatedAt: Date.now(), videoName, videoKey,
-        corners: calibration?.imagePoints ?? null, calibMethod, overlays, clips, narrations, playerAnchors,
+        corners: calibration?.imagePoints ?? null, calibMethod, overlays, clips, extraSources, narrations, playerAnchors,
         thumbnail: thumbnail ?? undefined, analyzed, poseAnalyzed, trackFps,
       });
     }, 500);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [view, projectId, projectName, videoName, videoKey, calibration, calibMethod, overlays, clips, narrations, playerAnchors, thumbnail, analyzed, poseAnalyzed, trackFps]);
+  }, [view, projectId, projectName, videoName, videoKey, calibration, calibMethod, overlays, clips, extraSources, narrations, playerAnchors, thumbnail, analyzed, poseAnalyzed, trackFps]);
 
   useEffect(() => {
     const v = videoRef.current;
@@ -469,9 +484,10 @@ export default function App() {
         lastTsRef.current = ts;
         let T: number;
         const here = cs.length ? clipAt(cs, curRef.current) : null;
-        if (isGap(here) || isFreeze(here)) {
-          // ── held segment: video paused, time advances by wall clock. Gap → black;
-          //    freeze → the video parked on its single held source frame.
+        if (isGap(here) || isFreeze(here) || isInserted(here)) {
+          // ── "held" for the MAIN video: it's paused and the timeline advances by wall
+          //    clock. Gap → black; freeze → main parked on its frame; inserted → the
+          //    separate insert-video layer plays this footage (driven by the effect below).
           const enteringNew = activeClipRef.current !== here!.id;
           if (!inGapRef.current || enteringNew) {
             inGapRef.current = true; v.pause(); activeClipRef.current = here!.id;
@@ -481,7 +497,7 @@ export default function App() {
           const heldEnd = here!.timelineStart + clipDur(here!);
           if (T >= heldEnd - 1e-3) {
             const nx = clipAt(cs, heldEnd + 1e-4);
-            if (nx && !isGap(nx) && !isFreeze(nx) && heldEnd < totalDuration(cs) - 1e-3) {
+            if (nx && !isGap(nx) && !isFreeze(nx) && !isInserted(nx) && heldEnd < totalDuration(cs) - 1e-3) {
               inGapRef.current = false; activeClipRef.current = nx.id; v.currentTime = nx.srcStart; void v.play().catch(() => {});
               T = nx.timelineStart;
             } else { T = heldEnd; } // next is another held segment (handled next frame) or end
@@ -493,7 +509,7 @@ export default function App() {
           if (active && cs.length > 1 && v.currentTime >= active.srcEnd - 0.03) {
             const nextT = active.timelineStart + clipDur(active);
             const nx = clipAt(cs, nextT + 1e-4);
-            if (nx && (isGap(nx) || isFreeze(nx))) {
+            if (nx && (isGap(nx) || isFreeze(nx) || isInserted(nx))) {
               v.pause(); inGapRef.current = true; activeClipRef.current = nx.id; T = nextT;
               if (isFreeze(nx) && nx.srcFreeze != null) { try { v.currentTime = nx.srcFreeze; } catch { /* ignore */ } }
             }
@@ -523,6 +539,27 @@ export default function App() {
     if (v.playbackRate !== rate) v.playbackRate = rate;
   }, [cur, overlays, speed]);
 
+  // Drive the inserted-footage <video> layer: while the playhead is in an inserted clip,
+  // show it and keep it seeked/playing in sync with the (wall-clock) timeline. The main
+  // video stays paused underneath (the loop treats inserted clips as "held").
+  useEffect(() => {
+    const iv = insertVideoRef.current;
+    if (!iv) return;
+    const c = clipsRef.current.length ? clipAt(clipsRef.current, cur) : null;
+    if (c && isInserted(c)) {
+      const sid = c.sourceId!;
+      const url = sourceUrlsRef.current[sid];
+      if (url && activeInsertRef.current !== sid) { iv.src = url; activeInsertRef.current = sid; try { iv.currentTime = c.srcStart; } catch { /* ignore */ } }
+      if (!insertActive) setInsertActive(true);
+      const want = c.srcStart + (cur - c.timelineStart);
+      if (isFinite(want) && Math.abs(iv.currentTime - want) > 0.35) { try { iv.currentTime = want; } catch { /* ignore */ } }
+      if (playing) { if (iv.paused) void iv.play().catch(() => {}); } else if (!iv.paused) iv.pause();
+    } else {
+      if (insertActive) setInsertActive(false);
+      if (!iv.paused) iv.pause();
+    }
+  }, [cur, playing, clips, extraSources, insertActive]);
+
   // seek to a TIMELINE time: pick the clip under it, set the video to the mapped
   // source time, and remember it as the active clip. Identity EDL → v.currentTime = t.
   const seek = (t: number) => {
@@ -531,7 +568,7 @@ export default function App() {
     if (cs.length) {
       const c = clipAt(cs, t);
       if (c) activeClipRef.current = c.id;
-      if (isGap(c)) { inGapRef.current = true; if (v) v.pause(); } // gap → black, video paused
+      if (isGap(c) || isInserted(c)) { inGapRef.current = true; if (v) v.pause(); } // gap → black / inserted → insert-video layer (effect syncs it); main paused
       else if (isFreeze(c)) { inGapRef.current = true; if (v) { v.pause(); try { v.currentTime = srcAt(cs, t); } catch { /* ignore */ } } } // freeze → parked on the held frame
       else { inGapRef.current = false; if (v) { v.currentTime = srcAt(cs, t); if (playing && v.paused) void v.play().catch(() => {}); } }
     } else if (v) {
@@ -563,6 +600,43 @@ export default function App() {
     applyClipEdit(res);
     return res;
   };
+  // Insert another VIDEO (multi-source): read its metadata, save the blob, register the
+  // source, and drop a clip of it into the timeline — filling a selected gap, else split
+  // at the playhead. Different aspect ratios letterbox into the fixed project frame.
+  const [insertingVideo, setInsertingVideo] = useState(false);
+  const insertVideo = async (file: File, gapId?: string) => {
+    if (!file || insertingVideo) return;
+    setInsertingVideo(true);
+    const url = URL.createObjectURL(file);
+    try {
+      const meta = await new Promise<{ w: number; h: number; dur: number }>((res, rej) => {
+        const vv = document.createElement('video');
+        vv.preload = 'metadata'; vv.muted = true; vv.src = url;
+        vv.onloadedmetadata = () => res({ w: vv.videoWidth, h: vv.videoHeight, dur: vv.duration || 0 });
+        vv.onerror = () => rej(new Error('영상을 읽을 수 없습니다'));
+      });
+      if (!(meta.dur > 0)) throw new Error('영상 길이를 확인할 수 없습니다');
+      const key = newVideoKey();
+      try { await saveVideoBlob(key, file); } catch { /* quota — won't persist */ }
+      const id = uid('src');
+      const source: VideoSource = { id, name: file.name, key, w: meta.w, h: meta.h, duration: meta.dur };
+      sourceUrlsRef.current[id] = url; // reuse the loaded object URL for playback
+      setExtraSources((ss) => [...ss, source]);
+      const bound = bindOverlays();
+      const res = gapId
+        ? fillGapWithVideo(clipsRef.current, bound, gapId, id, 0, meta.dur)
+        : insertVideoClip(clipsRef.current, bound, cur, id, 0, meta.dur, uid('clip'));
+      applyClipEdit(res);
+    } catch (e) {
+      URL.revokeObjectURL(url);
+      window.alert(`영상 삽입 실패: ${String((e as Error)?.message ?? e)}`);
+    } finally {
+      setInsertingVideo(false);
+    }
+  };
+  const insertFileRef = useRef<HTMLInputElement>(null);
+  const pendingGapRef = useRef<string | null>(null);
+  const pickVideo = (gapId?: string) => { pendingGapRef.current = gapId ?? null; insertFileRef.current?.click(); };
 
   // Keep the playhead inside the (possibly shortened) timeline after a clip edit.
   useEffect(() => {
@@ -970,7 +1044,7 @@ export default function App() {
     if (playing) { inGapRef.current = false; v.pause(); setPlaying(false); }
     else {
       const here = clips.length ? clipAt(clips, cur) : null;
-      if (isGap(here) || isFreeze(here)) setPlaying(true); // held: rAF advances by wall clock; video stays paused
+      if (isGap(here) || isFreeze(here) || isInserted(here)) setPlaying(true); // held: rAF advances by wall clock; main video paused (insert layer plays)
       else void v.play().catch(() => {});
     }
   };
@@ -1087,9 +1161,15 @@ export default function App() {
     setSelectedOverlayId(null); setSelectedClipId(null);
     await nextFrame();
     const srcBytes = await currentVideoBytes(); // decode (fast frames) + audio both use this
+    // inserted footage (multi-source): load each source's bytes for the exporter
+    const extraSrcBytes: { id: string; bytes: ArrayBuffer; w: number; h: number }[] = [];
+    for (const s of extraSources) {
+      const b = await loadVideoBlob(s.key);
+      if (b) extraSrcBytes.push({ id: s.id, bytes: await b.arrayBuffer(), w: s.w, h: s.h });
+    }
     // 1) silent video (WebCodecs decode+encode, EDL/overlays/slow-mo/zoom baked)
     const blob = await exportTimelineMp4({
-      video: v, sourceBytes: srcBytes, clips, overlays, calibration, players, poseData,
+      video: v, sourceBytes: srcBytes, extraSources: extraSrcBytes, clips, overlays, calibration, players, poseData,
       videoW: dims.w, videoH: dims.h, targetHeight: height, fps: 30,
       onProgress: (done, total) => onProgress(done, total),
     });
@@ -1208,7 +1288,7 @@ export default function App() {
   );
   const videoStage = (
     <VideoStage
-      src={src} videoRef={videoRef} calibration={calibration} overlays={overlays} mode={mode}
+      src={src} videoRef={videoRef} insertVideoRef={insertVideoRef} insertActive={insertActive} calibration={calibration} overlays={overlays} mode={mode}
       currentTime={cur} sourceTime={clips.length ? srcAt(clips, cur) : cur} gap={clips.length ? isGap(clipAt(clips, cur)) : false} selectedId={selectedOverlayId} onSelectOverlay={setSelectedOverlayId}
       players={players} fragments={fragments} playerAnchors={playerAnchors} fps={trackFps}
       poseData={poseData}
@@ -1279,7 +1359,8 @@ export default function App() {
       isGap(clip) ? (
         <div className="panel panel-inspector">
           <div className="panel-title">⬛ 빈 구간</div>
-          <div className="panel-desc" style={{ marginTop: 0 }}>재생·내보내기에서 검은 화면. 나중에 다른 영상을 끼울 자리로도 쓸 수 있어요.</div>
+          <div className="panel-desc" style={{ marginTop: 0 }}>재생·내보내기에서 검은 화면. 다른 영상을 끼울 자리로 쓰세요.</div>
+          <button className="btn primary block" style={{ marginTop: 8 }} disabled={insertingVideo} onClick={() => pickVideo(clip.id)}>{insertingVideo ? '불러오는 중…' : '＋ 이 구간에 영상 넣기'}</button>
           <div className="field" style={{ marginTop: 8 }}><label>길이 {clipDur(clip).toFixed(1)}s</label>
             <input type="range" min="0.5" max="15" step="0.5" value={clipDur(clip)} onChange={(e) => setGapDuration(clip.id, Number(e.target.value))} /></div>
           <div className="field-label" style={{ marginTop: 10 }}>편집</div>
@@ -1296,29 +1377,39 @@ export default function App() {
           <button className="btn sm danger block" disabled={clips.length <= 1} onClick={() => deleteClipAction(clip.id)}>삭제 🗑</button>
           <button className="btn subtle sm block" style={{ marginTop: 10 }} onClick={() => setSelectedClipId(null)}>선택 해제</button>
         </div>
-      ) : (
-      <div className="panel panel-inspector">
-        <div className="panel-title">클립 {idx}</div>
-        <div className="panel-desc" style={{ marginTop: 0 }}>원본 {fmtT(clip.srcStart)}–{fmtT(clip.srcEnd)} · 길이 {(clip.srcEnd - clip.srcStart).toFixed(1)}s</div>
-        {hasML ? (
-          <>
-            <div className="field-label" style={{ marginTop: 8 }}>이 구간 분석</div>
-            {anaRow('선수 위치', posOn, posRun, analyzing, 'position')}
-            {anaRow('자세(폼)', poseOn, poseRun, poseAnalyzing, 'pose')}
-            <div className="muted-note">선택한 클립 구간만 분석합니다 (전체 영상 불필요). 결과는 따라가기·폼 추적에 바로 반영돼요.</div>
-          </>
-        ) : (
-          <div className="muted-note">분석은 데스크톱(Electron) 앱에서만 가능합니다.</div>
-        )}
-        <div className="field-label" style={{ marginTop: 10 }}>편집</div>
-        <div className="btn-row">
-          <button className="btn sm" onClick={splitClipAtPlayhead} title="재생헤드에서 분할">분할 ✂</button>
-          <button className="btn sm" onClick={() => duplicateClipAction(clip.id)} title="복제해 반복 구간 만들기">복제 ⧉</button>
-          <button className="btn sm danger" disabled={clips.length <= 1} onClick={() => deleteClipAction(clip.id)}>삭제 🗑</button>
+      ) : (() => {
+        const inserted = isInserted(clip);
+        const insSrc = inserted ? extraSources.find((s) => s.id === clip.sourceId) : null;
+        return (
+        <div className="panel panel-inspector">
+          <div className="panel-title">{inserted ? '🎞 삽입 영상' : `클립 ${idx}`}</div>
+          <div className="panel-desc" style={{ marginTop: 0 }}>
+            {inserted ? `${insSrc?.name ?? '영상'} · ${(clip.srcEnd - clip.srcStart).toFixed(1)}s (레터박스로 삽입됨)`
+              : `원본 ${fmtT(clip.srcStart)}–${fmtT(clip.srcEnd)} · 길이 ${(clip.srcEnd - clip.srcStart).toFixed(1)}s`}
+          </div>
+          {inserted ? (
+            <div className="muted-note" style={{ marginTop: 8 }}>다른 영상이라 코트 정합 효과(따라가기·존 등)는 안 됩니다. 펜·텍스트는 가능.</div>
+          ) : hasML ? (
+            <>
+              <div className="field-label" style={{ marginTop: 8 }}>이 구간 분석</div>
+              {anaRow('선수 위치', posOn, posRun, analyzing, 'position')}
+              {anaRow('자세(폼)', poseOn, poseRun, poseAnalyzing, 'pose')}
+              <div className="muted-note">선택한 클립 구간만 분석합니다 (전체 영상 불필요). 결과는 따라가기·폼 추적에 바로 반영돼요.</div>
+            </>
+          ) : (
+            <div className="muted-note">분석은 데스크톱(Electron) 앱에서만 가능합니다.</div>
+          )}
+          <div className="field-label" style={{ marginTop: 10 }}>편집</div>
+          <button className="btn block" style={{ marginBottom: 8 }} disabled={insertingVideo} onClick={() => pickVideo()}>{insertingVideo ? '불러오는 중…' : '＋ 재생헤드에 영상 삽입'}</button>
+          <div className="btn-row">
+            <button className="btn sm" onClick={splitClipAtPlayhead} title="재생헤드에서 분할">분할 ✂</button>
+            <button className="btn sm" onClick={() => duplicateClipAction(clip.id)} title="복제해 반복 구간 만들기">복제 ⧉</button>
+            <button className="btn sm danger" disabled={clips.length <= 1} onClick={() => deleteClipAction(clip.id)}>삭제 🗑</button>
+          </div>
+          <button className="btn subtle sm block" style={{ marginTop: 10 }} onClick={() => setSelectedClipId(null)}>선택 해제</button>
         </div>
-        <button className="btn subtle sm block" style={{ marginTop: 10 }} onClick={() => setSelectedClipId(null)}>선택 해제</button>
-      </div>
-      )
+        );
+      })()
     );
   })();
 
@@ -1478,6 +1569,8 @@ export default function App() {
           onChangeRange={changeRange}
         />
         <audio ref={narrAudioRef} hidden />
+        <input ref={insertFileRef} type="file" accept="video/*" hidden
+          onChange={(e) => { const f = e.target.files?.[0]; const g = pendingGapRef.current; e.currentTarget.value = ''; pendingGapRef.current = null; if (f) void insertVideo(f, g ?? undefined); }} />
       </main>
 
       {activeTab === 'effect' && (

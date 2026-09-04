@@ -43,6 +43,8 @@ const distToSeg = (px: number, py: number, ax: number, ay: number, bx: number, b
 type Props = {
   src: string;
   videoRef: RefObject<HTMLVideoElement>;
+  insertVideoRef?: RefObject<HTMLVideoElement>; // separate layer for inserted footage
+  insertActive?: boolean;                        // an inserted clip is showing
   calibration: CourtCalibration | null;
   overlays: Overlay[];
   mode: Mode;
@@ -76,6 +78,8 @@ type Props = {
 export function VideoStage({
   src,
   videoRef,
+  insertVideoRef,
+  insertActive,
   calibration,
   overlays,
   mode,
@@ -358,6 +362,8 @@ export function VideoStage({
           onDimensions(v.videoWidth, v.videoHeight);
         }}
       />
+      {/* inserted-footage layer: covers the main video (letterboxed) while an inserted clip plays */}
+      <video ref={insertVideoRef} className="insert-video" playsInline muted hidden={!insertActive} />
       {gap && <div className="gap-black" />}
 
       {view && (

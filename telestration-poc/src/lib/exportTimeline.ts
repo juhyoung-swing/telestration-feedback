@@ -22,9 +22,12 @@ function seekVideo(video: HTMLVideoElement, t: number): Promise<void> {
   });
 }
 
+export type ExtraSource = { id: string; bytes: ArrayBuffer; w: number; h: number };
+
 export type TimelineExportOpts = {
   video: HTMLVideoElement;
   sourceBytes?: ArrayBuffer | null;      // decode source frames via WebCodecs (fast); falls back to <video> seek
+  extraSources?: ExtraSource[];          // inserted footage (multi-source) — decoded + letterboxed per clip.sourceId
   clips: Clip[];
   overlays: Overlay[];
   calibration: CourtCalibration | null;
@@ -102,6 +105,16 @@ export async function exportTimelineMp4(opts: TimelineExportOpts): Promise<Blob>
   if (opts.sourceBytes && videoDecodeAvailable()) {
     try { dec = new SourceDecoder(opts.sourceBytes); } catch { dec = null; }
   }
+  // inserted-footage decoders (multi-source), keyed by source id + their intrinsic dims (for letterbox)
+  const extraDecs = new Map<string, SourceDecoder>();
+  const extraDims = new Map<string, { w: number; h: number }>();
+  if (videoDecodeAvailable()) {
+    for (const s of opts.extraSources ?? []) {
+      try { extraDecs.set(s.id, new SourceDecoder(s.bytes)); extraDims.set(s.id, { w: s.w, h: s.h }); } catch { /* skip a bad source */ }
+    }
+  }
+  const insertedSourceId = (cc: Clip | null): string | null =>
+    cc && !isGap(cc) && !isFreeze(cc) && cc.sourceId && extraDecs.has(cc.sourceId) ? cc.sourceId : null;
 
   const wasPaused = video.paused;
   video.pause();
@@ -121,7 +134,20 @@ export async function exportTimelineMp4(opts: TimelineExportOpts): Promise<Blob>
       const z = zoomAt(T, srcTime);
       if (z) ctx.setTransform(z.s, 0, 0, z.s, z.tx, z.ty); // punch-in video + overlays together
       if (!gap) {
-        if (dec) {
+        const insId = insertedSourceId(c);
+        if (insId) {
+          // inserted footage → decode from its own source and LETTERBOX into the frame
+          // (different aspect ratio), ignoring the court zoom (which is main-only).
+          const frame = await extraDecs.get(insId)!.frameAt(srcTime);
+          if (frame) {
+            const sd = extraDims.get(insId)!;
+            const sc = Math.min(W / sd.w, H / sd.h);
+            const dw = sd.w * sc, dh = sd.h * sc, dx = (W - dw) / 2, dy = (H - dh) / 2;
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.drawImage(frame, dx, dy, dw, dh); frame.close();
+            if (z) ctx.setTransform(z.s, 0, 0, z.s, z.tx, z.ty); // restore for the overlay draw
+          }
+        } else if (dec) {
           const frame = await dec.frameAt(srcTime);
           if (frame) { ctx.drawImage(frame, 0, 0, W, H); frame.close(); }
         } else {
@@ -157,6 +183,7 @@ export async function exportTimelineMp4(opts: TimelineExportOpts): Promise<Blob>
   } finally {
     overlayR?.dispose();
     dec?.dispose();
+    for (const d of extraDecs.values()) d.dispose();
     if (!wasPaused) void video.play().catch(() => {});
   }
   const buf = await enc.finish();

@@ -11,6 +11,7 @@
 export type Clip = {
   id: string;
   kind?: 'video' | 'gap' | 'freeze'; // 'gap' = black/empty; 'freeze' = one held source frame; default 'video'
+  sourceId?: string;     // which video source plays (absent = the main/original video); inserted footage sets this
   srcStart: number;      // source in-point (seconds) — for a gap/freeze, 0..duration is just its length
   srcEnd: number;        // source out-point (seconds)
   srcFreeze?: number;    // freeze only: the SOURCE time of the single held frame
@@ -157,6 +158,35 @@ export function insertFreeze<T extends TimedItem>(
     return relayout(clips, [...clips.map((x) => (x.id === c.id ? c1 : x)), freeze, c2], reassigned);
   }
   return relayout(clips, [...clips, freeze], items);
+}
+
+/**
+ * Insert a VIDEO clip from another source (`sourceId`, [srcStart,srcEnd]) at `atTimeline`,
+ * splitting the clip under it so the insert lands exactly at the playhead (ripples the rest).
+ */
+export function insertVideoClip<T extends TimedItem>(
+  clips: Clip[], items: T[], atTimeline: number, sourceId: string, srcStart: number, srcEnd: number, newId: string,
+): { clips: Clip[]; items: T[] } {
+  const seg: Clip = { id: newId, kind: 'video', sourceId, srcStart, srcEnd: Math.max(srcStart + 0.1, srcEnd), timelineStart: atTimeline + EPS / 2 };
+  const c = clipAt(clips, atTimeline);
+  if (c && !isGap(c) && !isFreeze(c) && atTimeline > c.timelineStart + 0.05 && atTimeline < c.timelineStart + clipDur(c) - 0.05) {
+    const srcSplit = c.srcStart + (atTimeline - c.timelineStart);
+    const c1: Clip = { ...c, srcEnd: srcSplit };
+    const c2: Clip = { ...c, id: `${newId}-r`, srcStart: srcSplit, timelineStart: atTimeline + EPS };
+    const reassigned = items.map((it) => (it.clipId === c.id && it.startTime >= atTimeline - 1e-6 ? { ...it, clipId: c2.id } : it));
+    return relayout(clips, [...clips.map((x) => (x.id === c.id ? c1 : x)), seg, c2], reassigned);
+  }
+  return relayout(clips, [...clips, seg], items);
+}
+
+/** Replace a GAP clip with an inserted video clip (fills the empty slot with footage). */
+export function fillGapWithVideo<T extends TimedItem>(
+  clips: Clip[], items: T[], gapId: string, sourceId: string, srcStart: number, srcEnd: number,
+): { clips: Clip[]; items: T[] } {
+  const g = clips.find((c) => c.id === gapId);
+  if (!g || !isGap(g)) return { clips, items };
+  const filled: Clip = { ...g, kind: 'video', sourceId, srcStart, srcEnd: Math.max(srcStart + 0.1, srcEnd) };
+  return relayout(clips, clips.map((c) => (c.id === gapId ? filled : c)), items);
 }
 
 /** Reorder: move a clip to a new index (contiguous re-lay). Bound overlays follow. */

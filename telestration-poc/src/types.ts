@@ -224,3 +224,15 @@ export type ZoomParams = { scale: number };
 export type PathParams = { shape: 'court-line' | 'screen-line' | 'arc'; height: number; color: string; dashed: boolean; drawOn: boolean; drawSec: number; drawDelay: number; drawEase: 'linear' | 'inout'; drawReverse: boolean; drawLoop: boolean };
 export type TextParams = { fontSize: number; fontFamily: string; bold: boolean; align: 'left' | 'center' | 'right'; color: string; bg: boolean; bgColor: string; bgOpacity: number };
 export type FreehandParams = { color: string; width: number };
+
+// An INSERTED video (multi-source). The main/original calibrated video stays the
+// project's videoKey; extra sources are footage dropped into the timeline. Clips carry
+// a `sourceId` to say which video they play (absent = main). Different aspect ratios are
+// letterboxed into the fixed project frame; court overlays apply only to the main video.
+export type VideoSource = {
+  id: string;
+  name: string;
+  key: string;        // IndexedDB blob key
+  w: number; h: number; // intrinsic px
+  duration: number;   // seconds
+};

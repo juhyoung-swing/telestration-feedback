@@ -31,7 +31,8 @@ export function audioSegments(clips: Clip[], overlays: Overlay[]): { segs: Audio
     if (!c) continue;
     const rate = rateAt((t0 + t1) / 2);
     const outDur = (t1 - t0) / rate;
-    segs.push({ outStart: out, outDur, srcStart: c.srcStart + (t0 - c.timelineStart), srcEnd: c.srcStart + (t1 - c.timelineStart), rate, gap: isGap(c) || isFreeze(c), tlStart: t0, tlEnd: t1 });
+    const silent = isGap(c) || isFreeze(c) || (!!c.sourceId && c.kind !== 'gap' && c.kind !== 'freeze'); // inserted footage: silent in v1 (narrate over it)
+    segs.push({ outStart: out, outDur, srcStart: c.srcStart + (t0 - c.timelineStart), srcEnd: c.srcStart + (t1 - c.timelineStart), rate, gap: silent, tlStart: t0, tlEnd: t1 });
     out += outDur;
   }
   return { segs, outDur: out };

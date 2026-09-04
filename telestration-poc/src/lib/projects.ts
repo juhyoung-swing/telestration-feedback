@@ -1,6 +1,6 @@
 import type { Pt } from '../geometry/homography';
 import type { Clip } from './clips';
-import type { Fragments, Narration, Overlay, PlayerAnchor, Players, PoseData } from '../types';
+import type { Fragments, Narration, Overlay, PlayerAnchor, Players, PoseData, VideoSource } from '../types';
 
 // A project is one self-contained work unit: a video + its court calibration + all effects.
 // Metadata lives in localStorage; the (large) video blob lives in IndexedDB, keyed by videoKey.
@@ -14,6 +14,7 @@ export type Project = {
   calibMethod: 'corner' | 'line' | null;
   overlays: Overlay[];
   clips?: Clip[];                     // base-video EDL; absent/empty = identity (whole video, one clip)
+  extraSources?: VideoSource[];      // inserted videos (multi-source); clips reference by sourceId
   narrations?: Narration[];          // recorded voice-over segments (audio blobs in IndexedDB)
   playerAnchors: PlayerAnchor[];
   thumbnail?: string;                 // small JPEG data URL captured from a video frame
@@ -49,6 +50,7 @@ export function deleteProject(id: string): void {
   const p = listProjects().find((x) => x.id === id);
   localStorage.setItem(KEY, JSON.stringify(listProjects().filter((x) => x.id !== id)));
   if (p?.videoKey) void deleteVideoBlob(p.videoKey);
+  for (const s of p?.extraSources ?? []) void deleteVideoBlob(s.key); // inserted-video blobs
   void deleteAnalysis(id);
 }
 
