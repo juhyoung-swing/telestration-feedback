@@ -581,6 +581,8 @@ export default function App() {
   }, [cur, playing, overlays]);
   const movePip = (id: string, x: number, y: number) =>
     setOverlays((o) => o.map((v) => (v.id === id && v.type === 'pip' ? { ...v, x: clampT(x, 0, 0.98), y: clampT(y, 0, 0.98) } : v)));
+  const resizePip = (id: string, w: number) =>
+    setOverlays((o) => o.map((v) => (v.id === id && v.type === 'pip' ? { ...v, w: clampT(w, 0.12, 0.9) } : v)));
 
   // seek to a TIMELINE time: pick the clip under it, set the video to the mapped
   // source time, and remember it as the active clip. Identity EDL → v.currentTime = t.
@@ -1333,7 +1335,7 @@ export default function App() {
   );
   const videoStage = (
     <VideoStage
-      src={src} videoRef={videoRef} insertVideoRef={insertVideoRef} insertActive={insertActive} pipVideoRef={pipVideoRef} onMovePip={movePip} calibration={calibration} overlays={overlays} mode={mode}
+      src={src} videoRef={videoRef} insertVideoRef={insertVideoRef} insertActive={insertActive} pipVideoRef={pipVideoRef} onMovePip={movePip} onResizePip={resizePip} calibration={calibration} overlays={overlays} mode={mode}
       currentTime={cur} sourceTime={clips.length ? srcAt(clips, cur) : cur} gap={clips.length ? isGap(clipAt(clips, cur)) : false} selectedId={selectedOverlayId} onSelectOverlay={setSelectedOverlayId}
       players={players} fragments={fragments} playerAnchors={playerAnchors} fps={trackFps}
       poseData={poseData}

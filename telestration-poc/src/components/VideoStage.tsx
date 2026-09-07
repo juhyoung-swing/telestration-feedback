@@ -47,6 +47,7 @@ type Props = {
   insertActive?: boolean;                        // an inserted clip is showing
   pipVideoRef?: RefObject<HTMLVideoElement>;     // floating Picture-in-Picture layer
   onMovePip?: (id: string, x: number, y: number) => void; // drag the PiP window (fractions of frame)
+  onResizePip?: (id: string, w: number) => void; // drag the PiP corner handle (width fraction)
   calibration: CourtCalibration | null;
   overlays: Overlay[];
   mode: Mode;
@@ -84,6 +85,7 @@ export function VideoStage({
   insertActive,
   pipVideoRef,
   onMovePip,
+  onResizePip,
   calibration,
   overlays,
   mode,
@@ -365,6 +367,16 @@ export function VideoStage({
     const up = () => { window.removeEventListener('mousemove', move); window.removeEventListener('mouseup', up); };
     window.addEventListener('mousemove', move); window.addEventListener('mouseup', up);
   };
+  const pipResize = (e: React.MouseEvent) => {
+    if (!activePip) return;
+    e.preventDefault(); e.stopPropagation();
+    const box = boxRef.current; if (!box) return;
+    const rect = box.getBoundingClientRect();
+    const id = activePip.id, startX = e.clientX, startW = activePip.w;
+    const move = (ev: MouseEvent) => onResizePip?.(id, Math.max(0.12, Math.min(0.9, startW + (ev.clientX - startX) / rect.width)));
+    const up = () => { window.removeEventListener('mousemove', move); window.removeEventListener('mouseup', up); };
+    window.addEventListener('mousemove', move); window.addEventListener('mouseup', up);
+  };
 
   return (
     <div className="video-stage" ref={boxRef} style={{ aspectRatio: aspect, width: `min(100cqw, ${arNum} * 100cqh)` }}>
@@ -633,10 +645,14 @@ export function VideoStage({
         </div>
       )}
       </div>
-      {/* PiP window — floats over the frame (outside zoom-content so court zoom doesn't move it) */}
-      <video ref={pipVideoRef} className={`pip-video ${pipSelected ? 'selected' : ''}`} playsInline hidden={!activePip}
-        onMouseDown={(e) => { onSelectOverlay(activePip!.id); pipDrag(e); }}
-        style={activePip ? { left: `${activePip.x * 100}%`, top: `${activePip.y * 100}%`, width: `${activePip.w * 100}%` } : undefined} />
+      {/* PiP window — floats over the frame (outside zoom-content so court zoom doesn't move it).
+          The <video> stays mounted (hidden frame) so App's effect can always control it. */}
+      <div className={`pip-frame ${pipSelected ? 'selected' : ''}`} hidden={!activePip}
+        onMouseDown={(e) => { if (activePip) { onSelectOverlay(activePip.id); pipDrag(e); } }}
+        style={activePip ? { left: `${activePip.x * 100}%`, top: `${activePip.y * 100}%`, width: `${activePip.w * 100}%` } : undefined}>
+        <video ref={pipVideoRef} className="pip-video" playsInline />
+        {pipSelected && <div className="pip-handle" onMouseDown={pipResize} title="드래그해 크기 조절" />}
+      </div>
     </div>
   );
 }
