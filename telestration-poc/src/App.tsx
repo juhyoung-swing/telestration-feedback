@@ -25,7 +25,7 @@ import { singleClip, totalDuration, clipAt, clipDur, srcAt, splitClip, duplicate
 import type { Clip } from './lib/clips';
 import type {
   CircleParams, CourtCalibration, DrawnLine, FeatureId, FragmentData, Fragments, FreehandParams, GroundHalo, Mode, Overlay,
-  Narration, PathParams, PlayerAnchor, Players, PoseData, RailTab, TextParams, TrackingData, VideoSource, ZoneParams, ZoomParams,
+  Narration, PathParams, PipOverlay, PlayerAnchor, Players, PoseData, RailTab, TextParams, TrackingData, VideoSource, ZoneParams, ZoomParams,
 } from './types';
 
 // Local ML bridge exposed by the Electron preload (absent in the plain web build).
@@ -99,6 +99,7 @@ function featureForOverlay(o: Overlay): FeatureId {
     case 'zoom-in': return 'zoom-in';
     case 'speed': return 'slowmo';
     case 'freehand': return 'freehand';
+    case 'pip': return 'pip';
   }
 }
 
@@ -123,6 +124,8 @@ export default function App() {
   // ── inserted videos (multi-source) ──
   const [extraSources, setExtraSources] = useState<VideoSource[]>([]);
   const insertVideoRef = useRef<HTMLVideoElement>(null);           // separate <video> layer for inserted footage
+  const pipVideoRef = useRef<HTMLVideoElement>(null);              // floating PiP <video> layer
+  const activePipRef = useRef<string | null>(null);                // source id currently loaded in the pip video
   const sourceUrlsRef = useRef<Record<string, string>>({});        // extra source id → objectURL
   const activeInsertRef = useRef<string | null>(null);             // source id currently loaded in the insert video
   const [insertActive, setInsertActive] = useState(false);         // an inserted clip is showing → insert layer visible
@@ -561,6 +564,24 @@ export default function App() {
     }
   }, [cur, playing, clips, extraSources, insertActive]);
 
+  // Drive the floating PiP <video> layer: while the playhead is inside a PiP overlay's
+  // span, load/seek/play its source in sync (it overlaps the main video, unlike an insert).
+  useEffect(() => {
+    const pv = pipVideoRef.current;
+    if (!pv) return;
+    const pip = overlays.find((o): o is PipOverlay => o.type === 'pip' && o.visible && cur >= o.startTime && cur <= o.endTime) ?? null;
+    if (pip) {
+      const url = sourceUrlsRef.current[pip.sourceId];
+      if (url && activePipRef.current !== pip.sourceId) { pv.src = url; activePipRef.current = pip.sourceId; try { pv.currentTime = pip.srcStart; } catch { /* ignore */ } }
+      pv.muted = pip.muted !== false; // default muted (main/narration carry the sound)
+      const want = pip.srcStart + (cur - pip.startTime);
+      if (isFinite(want) && Math.abs(pv.currentTime - want) > 0.35) { try { pv.currentTime = want; } catch { /* ignore */ } }
+      if (playing) { if (pv.paused) void pv.play().catch(() => {}); } else if (!pv.paused) pv.pause();
+    } else if (!pv.paused) pv.pause();
+  }, [cur, playing, overlays]);
+  const movePip = (id: string, x: number, y: number) =>
+    setOverlays((o) => o.map((v) => (v.id === id && v.type === 'pip' ? { ...v, x: clampT(x, 0, 0.98), y: clampT(y, 0, 0.98) } : v)));
+
   // seek to a TIMELINE time: pick the clip under it, set the video to the mapped
   // source time, and remember it as the active clip. Identity EDL → v.currentTime = t.
   const seek = (t: number) => {
@@ -606,9 +627,9 @@ export default function App() {
   // source, and drop a clip of it into the timeline — filling a selected gap, else split
   // at the playhead. Different aspect ratios letterbox into the fixed project frame.
   const [insertingVideo, setInsertingVideo] = useState(false);
-  const insertVideo = async (file: File, gapId?: string) => {
-    if (!file || insertingVideo) return;
-    setInsertingVideo(true);
+  // Read a video file's metadata, save its blob, and register it as a source (shared by
+  // sequential insert and PiP). Returns the new VideoSource.
+  const loadVideoSource = async (file: File): Promise<VideoSource> => {
     const url = URL.createObjectURL(file);
     try {
       const meta = await new Promise<{ w: number; h: number; dur: number }>((res, rej) => {
@@ -620,25 +641,42 @@ export default function App() {
       if (!(meta.dur > 0)) throw new Error('영상 길이를 확인할 수 없습니다');
       const key = newVideoKey();
       try { await saveVideoBlob(key, file); } catch { /* quota — won't persist */ }
-      const id = uid('src');
-      const source: VideoSource = { id, name: file.name, key, w: meta.w, h: meta.h, duration: meta.dur };
-      sourceUrlsRef.current[id] = url; // reuse the loaded object URL for playback
+      const source: VideoSource = { id: uid('src'), name: file.name, key, w: meta.w, h: meta.h, duration: meta.dur };
+      sourceUrlsRef.current[source.id] = url; // reuse the loaded object URL for playback
       setExtraSources((ss) => [...ss, source]);
+      return source;
+    } catch (e) { URL.revokeObjectURL(url); throw e; }
+  };
+  const insertVideo = async (file: File, gapId?: string) => {
+    if (!file || insertingVideo) return;
+    setInsertingVideo(true);
+    try {
+      const s = await loadVideoSource(file);
       const bound = bindOverlays();
       const res = gapId
-        ? fillGapWithVideo(clipsRef.current, bound, gapId, id, 0, meta.dur)
-        : insertVideoClip(clipsRef.current, bound, cur, id, 0, meta.dur, uid('clip'));
+        ? fillGapWithVideo(clipsRef.current, bound, gapId, s.id, 0, s.duration)
+        : insertVideoClip(clipsRef.current, bound, cur, s.id, 0, s.duration, uid('clip'));
       applyClipEdit(res);
-    } catch (e) {
-      URL.revokeObjectURL(url);
-      window.alert(`영상 삽입 실패: ${String((e as Error)?.message ?? e)}`);
-    } finally {
-      setInsertingVideo(false);
-    }
+    } catch (e) { window.alert(`영상 삽입 실패: ${String((e as Error)?.message ?? e)}`); }
+    finally { setInsertingVideo(false); }
+  };
+  // PiP: import a video and float it over the frame at the playhead (drag/resize later).
+  const addPip = async (file: File) => {
+    if (!file || insertingVideo) return;
+    setInsertingVideo(true);
+    try {
+      const s = await loadVideoSource(file);
+      const id = uid('pip');
+      const dur = Math.min(s.duration || 8, 10);
+      mutate((o) => [...o, { id, type: 'pip' as const, name: nextName(o, 'pip', 'PiP'), visible: true, startTime: cur, endTime: cur + dur, sourceId: s.id, srcStart: 0, x: 0.6, y: 0.6, w: 0.35, muted: true }]);
+      setSelectedOverlayId(id);
+    } catch (e) { window.alert(`PiP 실패: ${String((e as Error)?.message ?? e)}`); }
+    finally { setInsertingVideo(false); }
   };
   const insertFileRef = useRef<HTMLInputElement>(null);
-  const pendingGapRef = useRef<string | null>(null);
-  const pickVideo = (gapId?: string) => { pendingGapRef.current = gapId ?? null; insertFileRef.current?.click(); };
+  const pendingPickRef = useRef<{ mode: 'insert' | 'pip'; gapId?: string }>({ mode: 'insert' });
+  const pickVideo = (gapId?: string) => { pendingPickRef.current = { mode: 'insert', gapId }; insertFileRef.current?.click(); };
+  const pickPip = () => { pendingPickRef.current = { mode: 'pip' }; insertFileRef.current?.click(); };
 
   // Keep the playhead inside the (possibly shortened) timeline after a clip edit.
   useEffect(() => {
@@ -774,6 +812,7 @@ export default function App() {
   // Enter/exit a feature's placement or drawing mode.
   const startFeature = (id: FeatureId) => {
     if (id === 'slowmo') { addSpeedSegment(); return; } // timeline clip — no calibration/placement needed
+    if (id === 'pip') { pickPip(); return; } // import a video → floats over the frame (no calibration)
     if (id === 'coach') return; // selecting the tile shows the recording panel; no placement mode
     if (id === 'freehand') { setSelectedOverlayId(null); setMode((m) => (m === 'drawing-freehand' ? 'idle' : 'drawing-freehand')); return; } // pen needs no court calibration
     if (!calibration) return;
@@ -1025,6 +1064,9 @@ export default function App() {
       }
       if (src.type === 'freehand') {
         return [...o, { ...src, id: newId, name, points: src.points.map((p) => ({ x: p.x + 20, y: p.y + 20 })) }];
+      }
+      if (src.type === 'pip') {
+        return [...o, { ...src, id: newId, name, x: Math.min(0.9, src.x + 0.04), y: Math.min(0.9, src.y + 0.04) }];
       }
       return [...o, { ...src, id: newId, name, points: src.points.map((p) => ({ courtX: p.courtX + 0.6, courtY: p.courtY + 0.6 })) }];
     });
@@ -1291,7 +1333,7 @@ export default function App() {
   );
   const videoStage = (
     <VideoStage
-      src={src} videoRef={videoRef} insertVideoRef={insertVideoRef} insertActive={insertActive} calibration={calibration} overlays={overlays} mode={mode}
+      src={src} videoRef={videoRef} insertVideoRef={insertVideoRef} insertActive={insertActive} pipVideoRef={pipVideoRef} onMovePip={movePip} calibration={calibration} overlays={overlays} mode={mode}
       currentTime={cur} sourceTime={clips.length ? srcAt(clips, cur) : cur} gap={clips.length ? isGap(clipAt(clips, cur)) : false} selectedId={selectedOverlayId} onSelectOverlay={setSelectedOverlayId}
       players={players} fragments={fragments} playerAnchors={playerAnchors} fps={trackFps}
       poseData={poseData}
@@ -1581,7 +1623,7 @@ export default function App() {
         />
         <audio ref={narrAudioRef} hidden />
         <input ref={insertFileRef} type="file" accept="video/*" hidden
-          onChange={(e) => { const f = e.target.files?.[0]; const g = pendingGapRef.current; e.currentTarget.value = ''; pendingGapRef.current = null; if (f) void insertVideo(f, g ?? undefined); }} />
+          onChange={(e) => { const f = e.target.files?.[0]; const pk = pendingPickRef.current; e.currentTarget.value = ''; if (f) { if (pk.mode === 'pip') void addPip(f); else void insertVideo(f, pk.gapId); } }} />
       </main>
 
       {activeTab === 'effect' && (

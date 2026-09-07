@@ -175,6 +175,18 @@ export async function exportTimelineMp4(opts: TimelineExportOpts): Promise<Blob>
       }
       ctx.setTransform(1, 0, 0, 1, 0, 0);
 
+      // Picture-in-Picture: composite a floating source frame at (x,y,w) — height by its
+      // aspect. Drawn last, at identity (ignores court zoom), on top of everything.
+      const pip = overlays.find((o) => o.type === 'pip' && o.visible && T >= o.startTime && T <= o.endTime);
+      if (pip && pip.type === 'pip' && extraDecs.has(pip.sourceId)) {
+        const frame = await extraDecs.get(pip.sourceId)!.frameAt(pip.srcStart + (T - pip.startTime));
+        if (frame) {
+          const sd = extraDims.get(pip.sourceId)!;
+          const pw = pip.w * W, ph = pw * (sd.h / sd.w);
+          ctx.drawImage(frame, pip.x * W, pip.y * H, pw, ph); frame.close();
+        }
+      }
+
       const q = enc.addFrame(composite);
       if (q > 8) await new Promise((r) => setTimeout(r, 0));
       opts.onProgress?.(Math.min(total, T), total);

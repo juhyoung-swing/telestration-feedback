@@ -22,7 +22,7 @@ import { poseAt } from '../lib/pose';
 import { CalibrationPoints } from './overlays/CalibrationPoints';
 import { CalibLines } from './overlays/CalibLines';
 import { CalibBoxes } from './overlays/CalibBoxes';
-import type { CourtCalibration, Overlay, Mode, DrawnLine, Players, Fragments, PlayerAnchor, PoseData, Spotlight, ZoomIn, FreehandStroke } from '../types';
+import type { CourtCalibration, Overlay, Mode, DrawnLine, Players, Fragments, PlayerAnchor, PoseData, Spotlight, ZoomIn, FreehandStroke, PipOverlay } from '../types';
 
 // hit-test helpers (display px)
 const pointInPoly = (px: number, py: number, poly: number[]): boolean => {
@@ -45,6 +45,8 @@ type Props = {
   videoRef: RefObject<HTMLVideoElement>;
   insertVideoRef?: RefObject<HTMLVideoElement>; // separate layer for inserted footage
   insertActive?: boolean;                        // an inserted clip is showing
+  pipVideoRef?: RefObject<HTMLVideoElement>;     // floating Picture-in-Picture layer
+  onMovePip?: (id: string, x: number, y: number) => void; // drag the PiP window (fractions of frame)
   calibration: CourtCalibration | null;
   overlays: Overlay[];
   mode: Mode;
@@ -80,6 +82,8 @@ export function VideoStage({
   videoRef,
   insertVideoRef,
   insertActive,
+  pipVideoRef,
+  onMovePip,
   calibration,
   overlays,
   mode,
@@ -345,6 +349,22 @@ export function VideoStage({
     return () => { box.removeEventListener('mousedown', onDown, true); box.removeEventListener('click', onClick, true); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // ── PiP window: a floating video overlapping the main frame during its span ──
+  const activePip = overlays.find((o): o is PipOverlay => o.type === 'pip' && o.visible && currentTime >= o.startTime && currentTime <= o.endTime) ?? null;
+  const pipSelected = !!activePip && selectedId === activePip.id;
+  const pipDrag = (e: React.MouseEvent) => {
+    if (!activePip) return;
+    e.preventDefault(); e.stopPropagation();
+    const box = boxRef.current; if (!box) return;
+    const rect = box.getBoundingClientRect();
+    const offX = (e.clientX - rect.left) / rect.width - activePip.x;
+    const offY = (e.clientY - rect.top) / rect.height - activePip.y;
+    const id = activePip.id;
+    const move = (ev: MouseEvent) => onMovePip?.(id, (ev.clientX - rect.left) / rect.width - offX, (ev.clientY - rect.top) / rect.height - offY);
+    const up = () => { window.removeEventListener('mousemove', move); window.removeEventListener('mouseup', up); };
+    window.addEventListener('mousemove', move); window.addEventListener('mouseup', up);
+  };
 
   return (
     <div className="video-stage" ref={boxRef} style={{ aspectRatio: aspect, width: `min(100cqw, ${arNum} * 100cqh)` }}>
@@ -613,6 +633,10 @@ export function VideoStage({
         </div>
       )}
       </div>
+      {/* PiP window — floats over the frame (outside zoom-content so court zoom doesn't move it) */}
+      <video ref={pipVideoRef} className={`pip-video ${pipSelected ? 'selected' : ''}`} playsInline hidden={!activePip}
+        onMouseDown={(e) => { onSelectOverlay(activePip!.id); pipDrag(e); }}
+        style={activePip ? { left: `${activePip.x * 100}%`, top: `${activePip.y * 100}%`, width: `${activePip.w * 100}%` } : undefined} />
     </div>
   );
 }

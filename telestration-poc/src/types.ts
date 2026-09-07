@@ -190,6 +190,19 @@ export type PoseOverlay = TimeSpan & {
   trailSec?: number;            // trail window length in seconds (default 1.2)
   freeze?: number | null;       // freeze the pose at this SOURCE time (null = live/tracking)
 };
+// Picture-in-Picture: a small video window from another source (or a moment of the main
+// video) floated OVER the main frame for a time range — e.g. student form + pro form. It
+// overlaps the timeline (plays alongside the main), unlike a sequential inserted clip.
+// x/y/w are FRACTIONS of the frame (0..1); height follows the source's aspect.
+export type PipOverlay = TimeSpan & {
+  id: string; type: 'pip'; name: string; visible: boolean;
+  sourceId: string;   // a VideoSource id (inserted) — the PiP footage
+  srcStart: number;   // source in-point; the PiP plays srcStart + (t - startTime)
+  x: number; y: number; // top-left, fraction of frame width/height
+  w: number;          // width, fraction of frame width (height derived from source aspect)
+  muted?: boolean;    // drop the PiP's audio (default: muted — main/narration carry sound)
+};
+
 // Speed segment: while the playhead is inside [start,end], the video plays at `rate`
 // (slow-motion < 1, fast > 1). Not drawn on the canvas — a playback modifier on the timeline.
 export type SpeedSegment = TimeSpan & {
@@ -204,7 +217,7 @@ export type ZoomIn = TimeSpan & {
   courtX: number; courtY: number; scale: number; trackId?: string;
 };
 
-export type Overlay = GroundHalo | CoverageZone | Marker | TextLabel | PathArrow | Connector | Sector | Spotlight | PoseOverlay | ZoomIn | SpeedSegment | FreehandStroke;
+export type Overlay = GroundHalo | CoverageZone | Marker | TextLabel | PathArrow | Connector | Sector | Spotlight | PoseOverlay | ZoomIn | SpeedSegment | FreehandStroke | PipOverlay;
 
 // ── UI (SportsBuddy-style shell) ────────────────────────────────────────────
 // Media/Court were removed: video import + court calibration happen at project creation.
@@ -215,7 +228,7 @@ export type RailTab = 'effect' | 'narrative';
 export type FeatureId =
   | 'follow-circle' | 'spotlight' | 'pose'            // Player group (apply to a selected player)
   | 'circle' | 'path' | 'zone' | 'marker' | 'connector' | 'sector' | 'freehand' // Tactic group (place on court / draw)
-  | 'text' | 'zoom-in' | 'slowmo'                       // Action group
+  | 'text' | 'zoom-in' | 'slowmo' | 'pip'               // Action group
   | 'coach';                                            // COACH group (live recording)
 
 export type CircleParams = { radiusMeters: number; color: string; opacity: number; dashed: boolean; drawOn: boolean; drawSec: number; drawDelay: number; drawEase: 'linear' | 'inout'; drawReverse: boolean; drawLoop: boolean };

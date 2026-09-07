@@ -647,6 +647,21 @@ export function EffectPanel(p: Props) {
               <AnimationControls on={pathDrawOn} sec={pathDrawSec} delay={pathDelay} ease={pathEase} reverse={pathReverse} loop={pathLoop} set={setPathAnim} />
             </>
           )}
+          {p.selected === 'pip' && p.selectedOverlay?.type === 'pip' && (() => {
+            const pip = p.selectedOverlay;
+            return (
+              <>
+                <div className="field"><label>크기 {Math.round(pip.w * 100)}%</label>
+                  <input type="range" min="15" max="70" step="1" value={Math.round(pip.w * 100)} onChange={(e) => p.onPatchOverlay(pip.id, { w: Number(e.target.value) / 100 })} /></div>
+                <div className="field"><label>소리</label>
+                  <div className="btn-row">
+                    <button className={`btn sm ${pip.muted === false ? 'active' : ''}`} onClick={() => p.onPatchOverlay(pip.id, { muted: false })}>켜기</button>
+                    <button className={`btn sm ${pip.muted !== false ? 'active' : ''}`} onClick={() => p.onPatchOverlay(pip.id, { muted: true })}>음소거</button>
+                  </div></div>
+                <div className="muted-note">화면에서 창을 드래그해 위치 이동 · 시간·길이는 타임라인 바로 조절.</div>
+              </>
+            );
+          })()}
           {p.selected === 'freehand' && p.selectedFreehand && (
             <>
               <div className="field"><label>펜 색</label>

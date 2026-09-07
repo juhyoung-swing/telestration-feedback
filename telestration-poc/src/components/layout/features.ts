@@ -26,6 +26,7 @@ export const FEATURES: FeatureDef[] = [
   { id: 'text', label: 'Text', group: 'Action', icon: '🅣', implemented: true, hint: '코트를 클릭해 텍스트 라벨을 놓습니다.' },
   { id: 'zoom-in', label: 'Zoom In', group: 'Action', icon: '🔍', implemented: true, hint: '코트를 클릭한 지점을 중심으로 화면을 확대합니다 (재생 중 punch-in).' },
   { id: 'slowmo', label: 'Slow-mo', group: 'Action', icon: '🐢', implemented: true, hint: '현재 위치에 배속 구간을 추가합니다. 재생이 그 구간에 들어가면 지정 배속으로.' },
+  { id: 'pip', label: 'PiP', group: 'Action', icon: '🖼', implemented: true, hint: '다른 영상을 화면 위에 작은 창으로 겹칩니다 (학생 vs 프로 폼 비교 등). 파일을 고르면 재생헤드에 생겨요.' },
   // 'freehand' (펜) has no tile — armed from the COACH bar; kept here so a selected
   // pen stroke resolves to a label/editor. Filtered out of the tile grid.
   { id: 'freehand', label: '펜', group: 'Tactic', icon: '✏️', implemented: true, hint: '화면 위에 자유롭게 드래그해서 그립니다 (텔레스트레이터 펜).' },

@@ -101,6 +101,19 @@ export async function mixExportAudioWav(opts: {
     scheduled++;
   }
 
+  // PiP overlays with sound on: schedule their source audio over their span
+  for (const o of opts.overlays) {
+    if (o.type !== 'pip' || o.muted !== false) continue;
+    const buf = bufs.get(o.sourceId);
+    if (!buf) continue;
+    const outStart = timelineToOutput(segs, o.startTime);
+    const node = ctx.createBufferSource();
+    node.buffer = buf;
+    node.connect(ctx.destination);
+    node.start(outStart, Math.min(o.srcStart, buf.duration), Math.min(o.endTime - o.startTime, Math.max(0, buf.duration - o.srcStart)));
+    scheduled++;
+  }
+
   if (scheduled === 0) return null; // nothing to mix → keep the video silent
   const rendered = await ctx.startRendering();
   return audioBufferToWav(rendered);
